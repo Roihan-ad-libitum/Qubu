@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 22, 2026 at 01:48 PM
+-- Generation Time: Oct 22, 2026 at 02:05 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -69,7 +69,6 @@ CREATE TABLE `peserta` (
   `npm` varchar(20) NOT NULL,
   `nama_peserta` int(11) NOT NULL,
   `program_studi` varchar(30) NOT NULL,
-  `kampus` varchar(50) NOT NULL,
   `angkatan` varchar(4) NOT NULL,
   `bidang_minat` varchar(30) NOT NULL,
   `bio` text NOT NULL
