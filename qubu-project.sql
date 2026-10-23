@@ -132,7 +132,7 @@ INSERT INTO `users` (`id_user`, `username`, `password`, `role`, `no_hp`, `email`
 (1, 'marcelloz', 'marceloz123', 'admin', '081234567890', 'marceloz@admin.unsika.ac.id'),
 (2, 'roihanz', 'roihanz123', 'peserta', '081234567890', 'roihanz@student.unsika.ac.id'),
 (3, 'fitriaz', 'fitriaz123', 'dosen', '081234567890', 'fitriaz@dosen.unsika.ac.id'),
-(4, 'ranggaz', 'ranggaz', 'peserta', '081234567890', 'ranggaz@student.itb.ac.id');
+(4, 'ranggaz', 'ranggaz', 'peserta', '081234567890', 'ranggaz@student.unsika.ac.id');
 
 --
 -- Indexes for dumped tables
