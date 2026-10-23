@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 23, 2026 at 01:39 PM
+-- Generation Time: Oct 23, 2026 at 02:58 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -73,14 +73,14 @@ INSERT INTO `lomba` (`id_lomba`, `nama_lomba`, `penyelenggara`, `deskripsi`, `de
 -- --------------------------------------------------------
 
 --
--- Table structure for table `peserta`
+-- Table structure for table `mahasiswa`
 --
 
-CREATE TABLE `peserta` (
-  `id_peserta` int(11) NOT NULL,
+CREATE TABLE `mahasiswa` (
+  `id_mahasiswa` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
   `npm` varchar(20) NOT NULL,
-  `nama_peserta` varchar(100) NOT NULL,
+  `nama_mahasiswa` varchar(100) NOT NULL,
   `program_studi` varchar(30) NOT NULL,
   `angkatan` varchar(4) NOT NULL,
   `bidang_minat` varchar(30) NOT NULL,
@@ -88,10 +88,10 @@ CREATE TABLE `peserta` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `peserta`
+-- Dumping data for table `mahasiswa`
 --
 
-INSERT INTO `peserta` (`id_peserta`, `id_user`, `npm`, `nama_peserta`, `program_studi`, `angkatan`, `bidang_minat`, `bio`) VALUES
+INSERT INTO `mahasiswa` (`id_mahasiswa`, `id_user`, `npm`, `nama_mahasiswa`, `program_studi`, `angkatan`, `bidang_minat`, `bio`) VALUES
 (1, 2, '251000000000', 'Roihan Fakhri', 'Informatika', '2025', 'Web Development', 'Selamat berjuang, sukses!'),
 (2, 4, '251000000001', 'Rangga Candra', 'Informatika', '2025', 'Frontend', 'Frontend jaya jaya jaya');
 
@@ -103,7 +103,7 @@ INSERT INTO `peserta` (`id_peserta`, `id_user`, `npm`, `nama_peserta`, `program_
 
 CREATE TABLE `undangan` (
   `id_undangan` int(11) NOT NULL,
-  `id_peserta` int(11) NOT NULL,
+  `id_mahasiswa` int(11) NOT NULL,
   `id_lomba` int(11) NOT NULL,
   `bidang_dibutuhkan` varchar(80) NOT NULL,
   `catatan` text NOT NULL
@@ -152,10 +152,10 @@ ALTER TABLE `lomba`
   ADD PRIMARY KEY (`id_lomba`);
 
 --
--- Indexes for table `peserta`
+-- Indexes for table `mahasiswa`
 --
-ALTER TABLE `peserta`
-  ADD PRIMARY KEY (`id_peserta`),
+ALTER TABLE `mahasiswa`
+  ADD PRIMARY KEY (`id_mahasiswa`),
   ADD UNIQUE KEY `npm` (`npm`),
   ADD KEY `id_user` (`id_user`);
 
@@ -164,7 +164,7 @@ ALTER TABLE `peserta`
 --
 ALTER TABLE `undangan`
   ADD PRIMARY KEY (`id_undangan`),
-  ADD KEY `id_peserta` (`id_peserta`),
+  ADD KEY `id_peserta` (`id_mahasiswa`),
   ADD KEY `id_lomba` (`id_lomba`);
 
 --
@@ -190,10 +190,10 @@ ALTER TABLE `lomba`
   MODIFY `id_lomba` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `peserta`
+-- AUTO_INCREMENT for table `mahasiswa`
 --
-ALTER TABLE `peserta`
-  MODIFY `id_peserta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+ALTER TABLE `mahasiswa`
+  MODIFY `id_mahasiswa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `undangan`
@@ -218,17 +218,17 @@ ALTER TABLE `dosen`
   ADD CONSTRAINT `dosen_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE;
 
 --
--- Constraints for table `peserta`
+-- Constraints for table `mahasiswa`
 --
-ALTER TABLE `peserta`
-  ADD CONSTRAINT `peserta_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `mahasiswa`
+  ADD CONSTRAINT `mahasiswa_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `undangan`
 --
 ALTER TABLE `undangan`
   ADD CONSTRAINT `undangan_ibfk_1` FOREIGN KEY (`id_lomba`) REFERENCES `lomba` (`id_lomba`),
-  ADD CONSTRAINT `undangan_ibfk_2` FOREIGN KEY (`id_peserta`) REFERENCES `peserta` (`id_peserta`);
+  ADD CONSTRAINT `undangan_ibfk_2` FOREIGN KEY (`id_mahasiswa`) REFERENCES `mahasiswa` (`id_mahasiswa`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
