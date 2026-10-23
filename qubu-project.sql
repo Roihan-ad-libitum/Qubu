@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 22, 2026 at 07:11 PM
+-- Generation Time: Oct 23, 2026 at 01:39 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -36,6 +36,13 @@ CREATE TABLE `dosen` (
   `status` enum('bersedia','tidak_bersedia') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `dosen`
+--
+
+INSERT INTO `dosen` (`id_dosen`, `id_user`, `nama_dosen`, `bidang_keahlian`, `nidn`, `status`) VALUES
+(1, 3, 'Fitria', 'Web Development', '2511000000000', 'bersedia');
+
 -- --------------------------------------------------------
 
 --
@@ -56,6 +63,13 @@ CREATE TABLE `lomba` (
   `link_resmi` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `lomba`
+--
+
+INSERT INTO `lomba` (`id_lomba`, `nama_lomba`, `penyelenggara`, `deskripsi`, `deadline_daftar`, `tanggal_pelaksanaan`, `tingkat`, `biaya`, `partisipasi`, `bidang`, `link_resmi`) VALUES
+(1, 'Hackathon Web Nasional', 'Institut Teknologi Bandung', 'Kompetisi hackathon tingkat nasional untuk mengembangkan solusi digital inovatif yang menjawab tantangan sosial di Indonesia. Peserta akan berkompetisi selama 48 jam untuk menghasilkan prototipe aplikasi yang fungsional.', '2026-12-12 12:00:00', '2027-02-05', 'Nasional', 120000, 'Tim', 'Web Development', 'https://example.com/uiux');
+
 -- --------------------------------------------------------
 
 --
@@ -65,7 +79,6 @@ CREATE TABLE `lomba` (
 CREATE TABLE `peserta` (
   `id_peserta` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
-  `id_lomba` int(11) NOT NULL,
   `npm` varchar(20) NOT NULL,
   `nama_peserta` varchar(100) NOT NULL,
   `program_studi` varchar(30) NOT NULL,
@@ -73,6 +86,14 @@ CREATE TABLE `peserta` (
   `bidang_minat` varchar(30) NOT NULL,
   `bio` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `peserta`
+--
+
+INSERT INTO `peserta` (`id_peserta`, `id_user`, `npm`, `nama_peserta`, `program_studi`, `angkatan`, `bidang_minat`, `bio`) VALUES
+(1, 2, '251000000000', 'Roihan Fakhri', 'Informatika', '2025', 'Web Development', 'Selamat berjuang, sukses!'),
+(2, 4, '251000000001', 'Rangga Candra', 'Informatika', '2025', 'Frontend', 'Frontend jaya jaya jaya');
 
 -- --------------------------------------------------------
 
@@ -104,6 +125,16 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id_user`, `username`, `password`, `role`, `no_hp`, `email`) VALUES
+(1, 'marcelloz', 'marceloz123', 'admin', '081234567890', 'marceloz@admin.unsika.ac.id'),
+(2, 'roihanz', 'roihanz123', 'peserta', '081234567890', 'roihanz@student.unsika.ac.id'),
+(3, 'fitriaz', 'fitriaz123', 'dosen', '081234567890', 'fitriaz@dosen.unsika.ac.id'),
+(4, 'ranggaz', 'ranggaz', 'peserta', '081234567890', 'ranggaz@student.itb.ac.id');
+
+--
 -- Indexes for dumped tables
 --
 
@@ -126,8 +157,7 @@ ALTER TABLE `lomba`
 ALTER TABLE `peserta`
   ADD PRIMARY KEY (`id_peserta`),
   ADD UNIQUE KEY `npm` (`npm`),
-  ADD KEY `id_user` (`id_user`),
-  ADD KEY `id_lomba` (`id_lomba`);
+  ADD KEY `id_user` (`id_user`);
 
 --
 -- Indexes for table `undangan`
@@ -151,19 +181,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `dosen`
 --
 ALTER TABLE `dosen`
-  MODIFY `id_dosen` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_dosen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `lomba`
 --
 ALTER TABLE `lomba`
-  MODIFY `id_lomba` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_lomba` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `peserta`
 --
 ALTER TABLE `peserta`
-  MODIFY `id_peserta` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_peserta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `undangan`
@@ -175,7 +205,7 @@ ALTER TABLE `undangan`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
@@ -191,8 +221,7 @@ ALTER TABLE `dosen`
 -- Constraints for table `peserta`
 --
 ALTER TABLE `peserta`
-  ADD CONSTRAINT `peserta_ibfk_1` FOREIGN KEY (`id_lomba`) REFERENCES `lomba` (`id_lomba`),
-  ADD CONSTRAINT `peserta_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`);
+  ADD CONSTRAINT `peserta_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `undangan`
