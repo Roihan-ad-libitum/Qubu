@@ -1,0 +1,41 @@
+/**
+ * Design Tokens & CSS Custom Properties untuk Qubu
+ * Presisi mengikuti desain Figma / Mockup Qubu
+ */
+:root {
+    /* Palette Warna */
+    --color-primary: #3045f5;          /* Biru elektrik tombol Masuk */
+    --color-primary-hover: #2135e2;    /* Biru gelap saat hover */
+    --color-primary-border: #0f172a;   /* Border gelap khas pada tombol Masuk */
+    --color-link: #2563eb;             /* Biru link teks */
+    
+    --color-text-main: #181c32;        /* Hitam/Navy teks judul & label */
+    --color-text-muted: #64748b;       /* Abu-abu subjudul & placeholder */
+    --color-text-placeholder: #94a3b8; /* Abu-abu terang placeholder input */
+    
+    --color-bg-page: #f8fafc;          /* Latar belakang halaman luar */
+    --color-card-bg: #ffffff;          /* Latar belakang kartu modal putih */
+    --color-input-bg: #ffffff;         /* Latar belakang field input */
+    --color-input-border: #e2e8f0;     /* Border abu-abu field input */
+    --color-input-focus: #3045f5;      /* Border highlight saat input aktif */
+
+    /* Notifikasi / Alert */
+    --color-error-bg: #fef2f2;
+    --color-error-border: #fecaca;
+    --color-error-text: #b91c1c;
+
+    --color-success-bg: #f0fdf4;
+    --color-success-border: #bbf7d0;
+    --color-success-text: #15803d;
+
+    /* Tipografi */
+    --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    
+    /* Radius & Shadow */
+    --radius-modal: 28px;              /* Sudut melengkung modal persis mockup */
+    --radius-input: 12px;              /* Sudut melengkung field input */
+    --radius-button: 9999px;           /* Bentuk pill melengkung penuh tombol Masuk */
+    
+    --shadow-card: 0 20px 45px -10px rgba(0, 0, 0, 0.08), 0 0 1px 1px rgba(0, 0, 0, 0.04);
+    --shadow-input-focus: 0 0 0 3px rgba(48, 69, 245, 0.15);
+}

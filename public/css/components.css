@@ -1,0 +1,257 @@
+/**
+ * Stylesheet Komponen Khusus Autentikasi Qubu
+ * Presisi mengikuti mockup desain login
+ */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--color-bg-page);
+    color: var(--color-text-main);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Container pembungkus di tengah halaman */
+.auth-wrapper {
+    width: 100%;
+    max-width: 460px;
+    position: relative;
+}
+
+/* Kartu Modal Utama (Persis Mockup) */
+.auth-card {
+    background: var(--color-card-bg);
+    border-radius: var(--radius-modal);
+    box-shadow: var(--shadow-card);
+    padding: 3rem 2.5rem 2.5rem;
+    position: relative;
+    width: 100%;
+    animation: authFadeIn 0.3s ease-out;
+}
+
+@keyframes authFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Tombol X (Tutup) di pojok kanan atas */
+.auth-close-btn {
+    position: absolute;
+    top: 1.75rem;
+    right: 2rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    cursor: pointer;
+    line-height: 1;
+    transition: opacity 0.2s, transform 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.auth-close-btn:hover {
+    opacity: 0.6;
+    transform: scale(1.1);
+}
+
+/* Judul & Subjudul */
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--color-text-main);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+/* Kelompok Form & Input */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--color-text-main);
+    background-color: var(--color-input-bg);
+    border: 1.5px solid var(--color-input-border);
+    border-radius: var(--radius-input);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input::placeholder {
+    color: var(--color-text-placeholder);
+    font-weight: 400;
+}
+
+.form-input:focus {
+    border-color: var(--color-input-focus);
+    box-shadow: var(--shadow-input-focus);
+}
+
+/* Link Lupa Password (Rata Kanan) */
+.auth-actions-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+    margin-bottom: 1.75rem;
+}
+
+.auth-forgot-link {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-link);
+    text-decoration: none;
+    transition: text-decoration 0.2s, opacity 0.2s;
+}
+
+.auth-forgot-link:hover {
+    text-decoration: underline;
+    opacity: 0.85;
+}
+
+/* Tombol Masuk (Pill Shaped dengan Border Khas) */
+.auth-button-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.btn-masuk {
+    width: 75%;
+    max-width: 260px;
+    padding: 0.85rem 1.5rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    font-family: inherit;
+    color: #ffffff;
+    background-color: var(--color-primary);
+    border: 2.5px solid var(--color-primary-border);
+    border-radius: var(--radius-button);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(48, 69, 245, 0.2);
+    transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+    text-align: center;
+}
+
+.btn-masuk:hover {
+    background-color: var(--color-primary-hover);
+    box-shadow: 0 6px 16px rgba(48, 69, 245, 0.3);
+}
+
+.btn-masuk:active {
+    transform: scale(0.98);
+}
+
+.btn-masuk:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Footer Belum Punya Akun */
+.auth-footer {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+.auth-register-link {
+    color: var(--color-link);
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity 0.2s, text-decoration 0.2s;
+}
+
+.auth-register-link:hover {
+    text-decoration: underline;
+    opacity: 0.85;
+}
+
+/* Alert Notifikasi Pesan Flash */
+.auth-alert {
+    padding: 0.85rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    margin-bottom: 1.5rem;
+    animation: alertSlideDown 0.3s ease;
+}
+
+@keyframes alertSlideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-alert-error {
+    background-color: var(--color-error-bg);
+    border: 1px solid var(--color-error-border);
+    color: var(--color-error-text);
+}
+
+.auth-alert-success {
+    background-color: var(--color-success-bg);
+    border: 1px solid var(--color-success-border);
+    color: var(--color-success-text);
+}
+
+/* Hint Akun Demo (Bisa dilipat / halus di bagian bawah) */
+.demo-accounts-box {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px dashed #e2e8f0;
+    font-size: 0.75rem;
+    color: #64748b;
+    text-align: center;
+}
+
+.demo-pill {
+    display: inline-block;
+    background: #f1f5f9;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    margin: 0.15rem;
+    font-family: monospace;
+    color: #334155;
+    cursor: pointer;
+}
