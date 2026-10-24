@@ -4,10 +4,10 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    const loginForm    = document.getElementById('form-login');
+    const loginForm = document.getElementById('form-login');
     const inputIdentity = document.getElementById('login-identity');
     const inputPassword = document.getElementById('login-password');
-    const btnSubmit    = document.getElementById('btn-login-submit');
+    const btnSubmit = document.getElementById('btn-login-submit');
 
     if (!loginForm || !btnSubmit) return;
 
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alertBox.className = 'auth-alert auth-alert-error';
         alertBox.id = 'client-validation-alert';
         alertBox.textContent = message;
-        
+
         loginForm.insertBefore(alertBox, loginForm.firstChild);
     }
 
