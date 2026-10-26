@@ -1,0 +1,597 @@
+/**
+ * Stylesheet Khusus Halaman Profil Mahasiswa Qubu
+ * Presisi mengikuti mockup UI: Dua Kartu (Informasi Profil & Form Data NPM/Studi/Peminatan)
+ */
+
+/* 1. CONTAINER HALAMAN PROFIL */
+.profile-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8fafc;
+    color: var(--color-text-main, #181c32);
+    font-family: var(--font-family, 'Plus Jakarta Sans', system-ui, sans-serif);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* 2. LATAR BELAKANG BIRU GRADASI ATAS DENGAN TEKSTUR NOISE */
+.profile-hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 480px;
+    background: linear-gradient(180deg, #1b2075 0%, #172554 45%, #2563eb 85%, rgba(248, 250, 252, 0) 100%);
+    background-image: 
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.22'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, #1b2075 0%, #172554 45%, #2563eb 85%, rgba(248, 250, 252, 0) 100%);
+    background-size: 160px 160px, 100% 100%;
+    background-blend-mode: overlay, normal;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* 3. TOP NAVIGATION BAR */
+.profile-nav {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 3.5rem;
+    width: 100%;
+    max-width: 1320px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .profile-nav {
+        padding: 1rem 1.5rem;
+    }
+}
+
+.profile-logo-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.profile-logo-link:hover {
+    transform: scale(1.03);
+}
+
+.profile-logo-svg {
+    height: 38px;
+    width: auto;
+}
+
+/* Menu Navigasi Kanan */
+.profile-nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 2.25rem;
+}
+
+@media (max-width: 680px) {
+    .profile-nav-menu {
+        gap: 1.25rem;
+    }
+}
+
+.profile-nav-link {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    opacity: 0.92;
+}
+
+.profile-nav-link:hover {
+    opacity: 1;
+    color: #93c5fd;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+    .profile-nav-link {
+        display: none;
+    }
+}
+
+/* Avatar User di Top-Right */
+.profile-nav-user {
+    position: relative;
+}
+
+.nav-avatar-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #0f172a;
+    background-color: #020617;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    overflow: hidden;
+}
+
+.nav-avatar-btn:hover {
+    transform: scale(1.06);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.nav-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* User Dropdown Menu */
+.user-dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 12px);
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.18);
+    border: 1px solid #e2e8f0;
+    width: 220px;
+    padding: 0.75rem 0;
+    display: none;
+    z-index: 50;
+    animation: dropIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.user-dropdown-menu.show {
+    display: block;
+}
+
+@keyframes dropIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.user-dropdown-header {
+    padding: 0.75rem 1.25rem 0.5rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.user-dropdown-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #181c32;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-dropdown-handle {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 2px 0 0;
+}
+
+.user-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.65rem 1.25rem;
+    color: #334155;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.15s ease;
+}
+
+.user-dropdown-item:hover {
+    background-color: #f8faff;
+    color: #2563eb;
+}
+
+.user-dropdown-item.logout {
+    color: #ef4444;
+    border-top: 1px solid #f1f5f9;
+}
+
+.user-dropdown-item.logout:hover {
+    background-color: #fef2f2;
+}
+
+/* 4. KONTEN UTAMA DUA KARTU PROFIL */
+.profile-main-container {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 1120px;
+    margin: 2.5rem auto 4.5rem;
+    padding: 0 2rem;
+    box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+    .profile-main-container {
+        padding: 0 1.25rem;
+        margin-top: 1.5rem;
+    }
+}
+
+/* Grid Layout 2 Kolom */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 2.25rem;
+    align-items: stretch;
+}
+
+@media (max-width: 960px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
+/* ========================================================================= */
+/* KARTU KIRI: INFORMASI PROFIL (AVATAR, NAMA, USERNAME, BADGE MAHASISWA)    */
+/* ========================================================================= */
+.profile-card-left {
+    background-color: #ffffff;
+    border-radius: 28px;
+    box-shadow: 0 15px 40px rgba(27, 32, 117, 0.08);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.profile-card-header {
+    padding: 1.75rem 2.25rem 1.25rem;
+    border-bottom: 1.5px solid #edf2f7;
+}
+
+.profile-card-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #181c32;
+    margin: 0;
+    letter-spacing: -0.015em;
+}
+
+.profile-card-body {
+    padding: 2.5rem 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+}
+
+/* Lingkaran Avatar Abu-abu Sesuai Mockup */
+.profile-avatar-wrapper {
+    position: relative;
+    width: 165px;
+    height: 165px;
+    margin: 0 auto 1.5rem;
+}
+
+.profile-avatar-circle {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #d1d5db; /* Abu-abu solid persis screenshot */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.profile-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Tombol Edit/Ganti Foto Overlay */
+.profile-avatar-overlay {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #2563eb;
+    border: 3px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+    transition: all 0.2s ease;
+}
+
+.profile-avatar-overlay:hover {
+    background: #1d4ed8;
+    transform: scale(1.08);
+}
+
+/* Nama & Username Mahasiswa */
+.profile-name {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #181c32;
+    margin: 0 0 0.35rem 0;
+    letter-spacing: -0.02em;
+}
+
+.profile-handle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #334155;
+    margin: 0 0 1.5rem 0;
+}
+
+/* Badge Pill Biru Mahasiswa */
+.profile-role-badge {
+    background-color: #2563eb;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.5rem 2.25rem;
+    border-radius: 9999px;
+    display: inline-block;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    letter-spacing: 0.01em;
+}
+
+/* ========================================================================= */
+/* KARTU KANAN: FORM DATA PROFIL (NPM, PRODI, ANGKATAN, BIDANG PEMINATAN)    */
+/* ========================================================================= */
+.profile-card-right {
+    background-color: #ffffff;
+    border-radius: 28px;
+    box-shadow: 0 15px 40px rgba(27, 32, 117, 0.08);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    padding: 2.75rem 3rem;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 640px) {
+    .profile-card-right {
+        padding: 2rem 1.5rem;
+    }
+}
+
+.profile-form-group {
+    margin-bottom: 1.65rem;
+}
+
+.profile-form-label {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #181c32;
+    margin-bottom: 0.65rem;
+    letter-spacing: -0.01em;
+}
+
+.profile-input {
+    width: 100%;
+    padding: 0.95rem 1.35rem;
+    font-family: var(--font-family);
+    font-size: 1.05rem;
+    font-weight: 600;
+    background-color: #f8faff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 14px;
+    color: #181c32;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.profile-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.profile-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='14' height='9' viewBox='0 0 14 9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L7 7.5L13 1.5' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1.25rem center;
+    background-size: 14px 9px;
+    padding-right: 3rem;
+    cursor: pointer;
+}
+
+/* ========================================================================= */
+/* BIDANG PEMINATAN PILL TAGS & TOMBOL TAMBAH +                              */
+/* ========================================================================= */
+.profile-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+/* Pill Gelap Biru Tua Sesuai Mockup */
+.profile-tag-pill {
+    background-color: #0b1a48;
+    color: #ffffff;
+    font-family: var(--font-family);
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.55rem 1.35rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 6px rgba(11, 26, 72, 0.2);
+    transition: all 0.2s ease;
+}
+
+.profile-tag-pill:hover {
+    background-color: #112563;
+    transform: translateY(-1px);
+}
+
+.tag-remove-btn {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 0 2px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.tag-remove-btn:hover {
+    transform: scale(1.25);
+    color: #f87171;
+}
+
+/* Tombol Tambah + */
+.btn-add-tag {
+    background-color: #0b1a48;
+    color: #ffffff;
+    font-family: var(--font-family);
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.55rem 1.35rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(11, 26, 72, 0.2);
+    transition: all 0.2s ease;
+}
+
+.btn-add-tag:hover {
+    background-color: #172554;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(11, 26, 72, 0.25);
+}
+
+/* Modal / Dropdown Pilihan Tag Tambah */
+.add-tag-box {
+    margin-top: 1rem;
+    background: #f8faff;
+    border: 1.5px dashed #93c5fd;
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    display: none;
+    gap: 10px;
+    align-items: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.add-tag-box.show {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.add-tag-select {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.65rem 1rem;
+    font-family: var(--font-family);
+    font-size: 0.95rem;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #181c32;
+}
+
+.btn-confirm-add-tag {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 0.65rem 1.25rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.btn-confirm-add-tag:hover {
+    background: #1d4ed8;
+}
+
+.btn-cancel-add-tag {
+    background: transparent;
+    border: 1px solid #cbd5e1;
+    color: #64748b;
+    padding: 0.65rem 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* Tombol Aksi Simpan Profil */
+.profile-actions-container {
+    margin-top: 2.25rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-save-profile {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+    color: #ffffff;
+    font-family: var(--font-family);
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 0.85rem 2.5rem;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-save-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+}
+
+.btn-save-profile:active {
+    transform: translateY(0);
+}
