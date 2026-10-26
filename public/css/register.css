@@ -1,0 +1,304 @@
+/**
+ * Stylesheet Khusus Halaman Registrasi & Pemilihan Peran Qubu
+ * Presisi mengikuti mockup desain "Ingin mendaftar sebagai apa?"
+ */
+
+/* 1. CONTAINER HALAMAN REGISTRASI */
+.register-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8fafc;
+    color: var(--color-text-main, #181c32);
+    font-family: var(--font-family);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* 2. LATAR BELAKANG BIRU GRADASI ATAS */
+.register-hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 520px;
+    background: linear-gradient(180deg, #1b2075 0%, #172554 45%, #2563eb 85%, rgba(248, 250, 252, 0) 100%);
+    background-image: 
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.22'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, #1b2075 0%, #172554 45%, #2563eb 85%, rgba(248, 250, 252, 0) 100%);
+    background-size: 160px 160px, 100% 100%;
+    background-blend-mode: overlay, normal;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* 3. TOP NAVBAR */
+.register-nav {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 3.5rem;
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.register-logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.register-logo-link:hover {
+    transform: scale(1.03);
+}
+
+.register-nav-link {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.register-nav-link:hover {
+    background: rgba(255, 255, 255, 0.28);
+    transform: translateY(-1px);
+}
+
+/* 4. CONTENT SELECTION WRAPPER (TAMPILAN PILIH PERAN) */
+.role-select-wrapper {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 660px;
+    margin: 3.5rem auto 5rem;
+    padding: 0 1.5rem;
+}
+
+.role-select-title {
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.025em;
+    margin-bottom: 2rem;
+    line-height: 1.2;
+}
+
+/* KARTU PILIHAN PERAN */
+.role-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+    text-decoration: none;
+    color: inherit;
+    border: 2px solid transparent;
+    transition: all 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.role-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 42px rgba(0, 0, 0, 0.14);
+    border-color: #3b82f6;
+}
+
+.role-card:active {
+    transform: translateY(-1px);
+}
+
+.role-card-left {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex: 1;
+}
+
+/* Placeholder Icon Kotak Abu-Abu untuk Dosen */
+.role-avatar-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #475569;
+    font-size: 1.35rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.role-card-info {
+    flex: 1;
+}
+
+.role-card-title {
+    font-size: 1.18rem;
+    font-weight: 800;
+    color: #181c32;
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.01em;
+}
+
+.role-card-desc {
+    font-size: 0.92rem;
+    color: #64748b;
+    line-height: 1.45;
+}
+
+/* Radio Indicator Bulat Abu-abu di Kanan */
+.role-radio-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #8da0b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: 1rem;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.role-card:hover .role-radio-circle {
+    background-color: #2563eb;
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.role-radio-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    opacity: 0.9;
+    transition: transform 0.2s ease;
+}
+
+.role-card:hover .role-radio-dot {
+    transform: scale(1.15);
+}
+
+/* 5. FORM PENDAFTARAN (DOSEN / MAHASISWA) */
+.register-form-container {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 580px;
+    margin: 2rem auto 4rem;
+    padding: 0 1.25rem;
+}
+
+.register-form-card {
+    background: #ffffff;
+    border-radius: var(--radius-modal, 28px);
+    box-shadow: var(--shadow-card, 0 20px 45px -10px rgba(0, 0, 0, 0.12));
+    padding: 2.75rem 2.5rem 2.5rem;
+    position: relative;
+    width: 100%;
+    animation: authFadeIn 0.3s ease-out;
+}
+
+.form-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #64748b;
+    text-decoration: none;
+    margin-bottom: 1.25rem;
+    transition: color 0.2s ease;
+}
+
+.form-back-btn:hover {
+    color: #2563eb;
+}
+
+.register-form-header {
+    text-align: center;
+    margin-bottom: 1.75rem;
+}
+
+.register-form-title {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: #181c32;
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.02em;
+}
+
+.register-form-subtitle {
+    font-size: 0.92rem;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+/* Form Grid untuk 2 Kolom Input */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 640px) {
+    .register-nav {
+        padding: 1rem 1.25rem;
+    }
+
+    .role-select-wrapper {
+        margin: 2.5rem auto 4rem;
+    }
+
+    .role-select-title {
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .role-card {
+        padding: 1.25rem;
+    }
+
+    .role-avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+
+    .role-card-title {
+        font-size: 1.05rem;
+    }
+
+    .role-card-desc {
+        font-size: 0.85rem;
+    }
+
+    .role-radio-circle {
+        width: 30px;
+        height: 30px;
+    }
+
+    .register-form-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}

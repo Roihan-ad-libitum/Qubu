@@ -1,0 +1,1003 @@
+/**
+ * Stylesheet Khusus Homepage & 3D Coverflow Carousel Qubu
+ * Presisi mengikuti 5 screenshot desain mockup
+ */
+
+/* Container Utama Halaman Home */
+.home-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    color: var(--color-text-main, #181c32);
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* 1. TOP NAVBAR */
+.home-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 3.5rem;
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.home-logo-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.home-logo-link:hover {
+    transform: scale(1.04);
+}
+
+.home-logo-svg {
+    height: 44px;
+    width: auto;
+}
+
+.nav-daftar-link {
+    color: #2563eb;
+    font-size: 1.15rem;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+}
+
+.nav-daftar-link:hover {
+    color: #1d4ed8;
+    background-color: #eff6ff;
+}
+
+/* 2. HERO HEADER TITLE */
+.hero-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem 0 1.5rem;
+    padding: 0 1rem;
+}
+
+.hero-title {
+    width: 514px;
+    max-width: 100%;
+    min-height: 184px;
+    font-family: 'Bebas Neue', 'Anton', var(--font-family);
+    font-size: clamp(3.6rem, 7.5vw, 5.5rem);
+    font-weight: 400;
+    line-height: 0.94;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #301FB3;
+    /* Linear gradient 180deg #301FB3 ke #4860FF dari Figma */
+    background-color: #301FB3;
+    background-image: 
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.36'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, #301FB3 0%, #4860FF 100%);
+    background-size: 160px 160px, 100% 100%;
+    background-blend-mode: overlay, normal;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 5px rgba(48, 31, 179, 0.22));
+    box-shadow: 0 90px 29px 0 rgba(0, 0, 0, 0.00) inset;
+}
+
+.hero-title .hero-line {
+    display: block;
+}
+
+/* 3. 3D COVERFLOW CAROUSEL CONTAINER */
+.carousel-section {
+    width: 100%;
+    position: relative;
+    padding: 1.5rem 0 2rem;
+    perspective: 1200px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.carousel-viewport {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    height: 480px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-y;
+    cursor: grab;
+}
+
+.carousel-viewport.is-dragging {
+    cursor: grabbing;
+}
+
+.carousel-track {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform-style: preserve-3d;
+}
+
+/* 4. BASE CARD STYLES */
+.carousel-card {
+    position: absolute;
+    width: 285px;
+    height: 430px;
+    border-radius: 36px;
+    padding: 1.75rem 1.5rem 1.5rem;
+    color: #ffffff;
+    box-sizing: border-box;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 300ms ease-out,
+                opacity 300ms ease-out,
+                box-shadow 300ms ease-out,
+                filter 300ms ease-out;
+    will-change: transform, opacity;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.22);
+}
+
+/* CARD GRADIENTS BY CATEGORY */
+.card-frontend {
+    background: linear-gradient(180deg, #38bdf8 0%, #2563eb 55%, #1d4ed8 100%);
+}
+
+.card-robotics {
+    background: linear-gradient(180deg, #4ade80 0%, #22c55e 35%, #16a34a 70%, #00d026 100%);
+}
+
+.card-uiux {
+    background: linear-gradient(180deg, #fdc23a 0%, #fbb42b 40%, #f69d0d 100%);
+}
+
+.card-backend {
+    background: linear-gradient(180deg, #64748b 0%, #475569 50%, #334155 100%);
+}
+
+.card-datascience {
+    background: linear-gradient(180deg, #a855f7 0%, #8b5cf6 50%, #6d28d9 100%);
+}
+
+/* 3D COVERFLOW POSITIONING BASED ON DATA-OFFSET */
+/* Offset 0: Center Active Card */
+.carousel-card[data-offset="0"] {
+    transform: translate3d(0, 0, 60px) scale(1.08);
+    z-index: 10;
+    opacity: 1;
+    filter: none;
+    box-shadow: 0 28px 65px -12px rgba(0, 0, 0, 0.38), 0 10px 24px -6px rgba(0, 0, 0, 0.15);
+}
+
+/* Offset -1: Immediate Left Card */
+.carousel-card[data-offset="-1"] {
+    transform: translate3d(-165px, 0, -10px) scale(0.93);
+    z-index: 7;
+    opacity: 0.96;
+    filter: brightness(0.98);
+}
+
+/* Offset 1: Immediate Right Card */
+.carousel-card[data-offset="1"] {
+    transform: translate3d(165px, 0, -10px) scale(0.93);
+    z-index: 7;
+    opacity: 0.96;
+    filter: brightness(0.98);
+}
+
+/* Offset -2: Far Left Card */
+.carousel-card[data-offset="-2"] {
+    transform: translate3d(-315px, 0, -50px) scale(0.83);
+    z-index: 4;
+    opacity: 0.88;
+    filter: brightness(0.94);
+}
+
+/* Offset 2: Far Right Card */
+.carousel-card[data-offset="2"] {
+    transform: translate3d(315px, 0, -50px) scale(0.83);
+    z-index: 4;
+    opacity: 0.88;
+    filter: brightness(0.94);
+}
+
+/* Hidden cards (if more than 5 cards exist or transitioning) */
+.carousel-card[data-offset="hidden-left"] {
+    transform: translate3d(-460px, 0, -100px) scale(0.65);
+    z-index: 1;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.carousel-card[data-offset="hidden-right"] {
+    transform: translate3d(460px, 0, -100px) scale(0.65);
+    z-index: 1;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 5. CARD INTERNAL ELEMENTS */
+.card-top {
+    position: relative;
+    z-index: 2;
+}
+
+.card-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 5px 14px;
+    border-radius: 9999px;
+    margin-bottom: 0.7rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+}
+
+.card-tag {
+    font-family: monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.75rem;
+}
+
+/* Sparkle Golden Star ✦ */
+.card-sparkle {
+    position: absolute;
+    color: #fde047;
+    filter: drop-shadow(0 0 6px rgba(253, 224, 71, 0.8));
+    animation: sparkleTwinkle 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.card-sparkle-1 {
+    top: 42%;
+    right: 18%;
+    font-size: 1.5rem;
+}
+
+.card-sparkle-2 {
+    top: 50%;
+    left: 15%;
+    font-size: 1.25rem;
+    animation-delay: 1.5s;
+}
+
+@keyframes sparkleTwinkle {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.85; }
+    50% { transform: scale(1.25) rotate(15deg); opacity: 1; }
+}
+
+/* CARD ILLUSTRATION CONTAINER */
+.card-art {
+    flex: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+/* --- ILUSTRASI 1: FRONTEND (LAPTOP & CODE) --- */
+.art-laptop {
+    position: relative;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translateY(10px);
+}
+
+.laptop-screen {
+    width: 175px;
+    height: 110px;
+    background: linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%);
+    border-radius: 12px 12px 0 0;
+    border: 3px solid rgba(255, 255, 255, 0.85);
+    border-bottom: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25), inset 0 0 15px rgba(255, 255, 255, 0.15);
+}
+
+.screen-code {
+    font-family: 'Plus Jakarta Sans', monospace;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.1em;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+}
+
+.laptop-base {
+    width: 210px;
+    height: 18px;
+    background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 4px 4px 10px 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.laptop-notch {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 5px;
+    background: #cbd5e1;
+    border-radius: 0 0 4px 4px;
+}
+
+.art-sphere-blue {
+    position: absolute;
+    bottom: -6px;
+    left: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #60a5fa, #1d4ed8);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+/* --- ILUSTRASI 2: ROBOTIC (ROBOT CARD & CHIP) --- */
+.art-robot-box {
+    position: relative;
+    width: 190px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.robot-card {
+    width: 156px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 10px 12px 12px;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    transform: rotate(-3.5deg);
+    transition: transform 0.3s ease;
+}
+
+.robot-card:hover {
+    transform: rotate(0deg) scale(1.02);
+}
+
+.robot-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+.robot-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.dot-pink {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f472b6;
+    display: inline-block;
+}
+
+.robot-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #a855f7;
+    letter-spacing: 0.04em;
+    font-family: monospace;
+}
+
+.robot-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 4px 0 8px;
+}
+
+.robot-antennas {
+    display: flex;
+    gap: 22px;
+    justify-content: center;
+    margin-bottom: -3px;
+    z-index: 2;
+}
+
+.antenna-ball {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #facc15;
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.9);
+}
+
+.robot-head {
+    width: 78px;
+    height: 56px;
+    background: linear-gradient(145deg, #6366f1 0%, #4338ca 100%);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 14px rgba(67, 56, 202, 0.4);
+}
+
+.robot-visor {
+    width: 58px;
+    height: 30px;
+    background: #0f172a;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.7);
+}
+
+.robot-eye {
+    width: 13px;
+    height: 8px;
+    border-radius: 9999px;
+    background: #22d3ee;
+    box-shadow: 0 0 10px #22d3ee;
+}
+
+.robot-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 6px;
+}
+
+.badge-aiservo {
+    background: #f3e8ff;
+    color: #9333ea;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-family: monospace;
+    letter-spacing: 0.02em;
+}
+
+.robot-status-pill {
+    background: #ecfdf5;
+    color: #059669;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 6px;
+    border: 1px solid #a7f3d0;
+    letter-spacing: 0.02em;
+}
+
+/* Floating Microchip Ungu */
+.art-chip {
+    position: absolute;
+    bottom: -8px;
+    right: 2px;
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #7c3aed 0%, #581c87 100%);
+    border-radius: 10px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    animation: chipFloat 3s ease-in-out infinite alternate;
+}
+
+@keyframes chipFloat {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-4px) rotate(4deg); }
+}
+
+.chip-core {
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid #fbbf24;
+    border-radius: 5px;
+    background: #6d28d9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+/* --- ILUSTRASI 3: UI/UX DESIGN (ASSEMBLY & SQUIRCLE FIGMA) --- */
+.card-uiux .card-top {
+    position: relative;
+    z-index: 2;
+}
+
+.card-uiux .card-badge {
+    background: rgba(255, 255, 255, 0.32);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    font-size: 0.78rem;
+    padding: 6px 18px;
+    margin-bottom: 0.5rem;
+}
+
+.card-uiux .card-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+}
+
+.card-sub-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 4px;
+    margin-bottom: 0.25rem;
+}
+
+.card-uiux .card-tag {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: rgba(255, 245, 200, 0.9);
+    margin: 0;
+}
+
+.uiux-star-accent {
+    width: 26px;
+    height: auto;
+    filter: drop-shadow(0 0 8px rgba(253, 224, 71, 0.75));
+    animation: sparkleTwinkle 3s ease-in-out infinite;
+}
+
+.art-uiux-composition {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2px;
+}
+
+.uiux-window-assembly-img {
+    width: 242px;
+    max-width: 98%;
+    height: auto;
+    display: block;
+    transform: translateY(4px);
+    filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.14));
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.carousel-card:hover .uiux-window-assembly-img {
+    transform: translateY(1px) scale(1.02);
+}
+
+.uiux-squircle-btn {
+    position: absolute;
+    bottom: 12px;
+    left: 8px;
+    width: 44px;
+    height: 44px;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.24));
+    z-index: 5;
+    animation: squircleFloat 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes squircleFloat {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-4px) rotate(-3deg); }
+}
+
+/* --- ILUSTRASI 4: BACKEND (SERVER CLUSTER STATUS) --- */
+.art-server-box {
+    position: relative;
+    width: 190px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.server-card {
+    width: 165px;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 12px 14px;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+    color: #1e293b;
+    font-size: 0.72rem;
+}
+
+.server-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+    font-weight: 800;
+}
+
+.server-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    display: inline-block;
+    margin-right: 4px;
+    box-shadow: 0 0 6px #10b981;
+}
+
+.server-tag {
+    font-size: 0.6rem;
+    color: #64748b;
+}
+
+.server-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.server-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.62rem;
+    font-weight: 700;
+}
+
+.badge-green { background: #fef08a; color: #854d0e; }
+.badge-sync { background: #fef08a; color: #854d0e; }
+.badge-fast { background: #fef08a; color: #854d0e; }
+
+/* --- ILUSTRASI 5: DATA SCIENCE (ANALYTICS & COIN) --- */
+.art-data-box {
+    position: relative;
+    width: 190px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.analytics-card {
+    width: 160px;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 12px 14px;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
+    color: #1e293b;
+}
+
+.analytics-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 10px;
+}
+
+.analytics-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+}
+
+.analytics-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 60px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.chart-bar {
+    width: 16px;
+    border-radius: 6px 6px 0 0;
+    background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+}
+
+.chart-bar:nth-child(1) { height: 26px; }
+.chart-bar:nth-child(2) { height: 42px; }
+.chart-bar:nth-child(3) { height: 34px; }
+.chart-bar:nth-child(4) { height: 56px; }
+
+.chart-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6rem;
+    color: #94a3b8;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+.art-pill-trend {
+    position: absolute;
+    top: 5px;
+    left: 2px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.art-database-coin {
+    position: absolute;
+    bottom: -6px;
+    right: 5px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fbbf24, #d97706);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+/* 6. CAROUSEL NAVIGATION CONTROLS */
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 20;
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.carousel-arrow:hover {
+    background: #ffffff;
+    color: #1d4ed8;
+    transform: translateY(-50%) scale(1.12);
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+}
+
+.carousel-arrow:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.carousel-arrow-prev {
+    left: 20px;
+}
+
+.carousel-arrow-next {
+    right: 20px;
+}
+
+/* CAROUSEL INDICATOR DOTS */
+.carousel-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+    z-index: 10;
+}
+
+.carousel-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.carousel-dot:hover {
+    background: #94a3b8;
+}
+
+.carousel-dot.is-active {
+    width: 32px;
+    border-radius: 9999px;
+    background: #2563eb;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+/* 7. BOTTOM CTA LOGIN BUTTON */
+.hero-cta-container {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0 3.5rem;
+    z-index: 10;
+}
+
+.btn-hero-login {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+    color: #ffffff;
+    font-size: 1.65rem;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 0.95rem 5rem;
+    border-radius: 9999px;
+    box-shadow: 0 14px 32px -4px rgba(29, 78, 216, 0.45), 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    letter-spacing: -0.01em;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-hero-login:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 20px 42px -6px rgba(29, 78, 216, 0.55), 0 6px 16px rgba(0, 0, 0, 0.1);
+    color: #ffffff;
+}
+
+.btn-hero-login:active {
+    transform: translateY(1px) scale(0.99);
+}
+
+/* RESPONSIVE BREAKPOINTS */
+@media (max-width: 900px) {
+    .home-nav {
+        padding: 1.25rem 2rem;
+    }
+
+    .carousel-viewport {
+        height: 440px;
+    }
+
+    .carousel-card {
+        width: 250px;
+        height: 390px;
+        border-radius: 30px;
+        padding: 1.25rem;
+    }
+
+    .carousel-card[data-offset="-1"] {
+        transform: translate3d(-130px, 0, -10px) scale(0.92);
+    }
+
+    .carousel-card[data-offset="1"] {
+        transform: translate3d(130px, 0, -10px) scale(0.92);
+    }
+
+    .carousel-card[data-offset="-2"] {
+        transform: translate3d(-240px, 0, -50px) scale(0.8);
+    }
+
+    .carousel-card[data-offset="2"] {
+        transform: translate3d(240px, 0, -50px) scale(0.8);
+    }
+}
+
+@media (max-width: 640px) {
+    .home-nav {
+        padding: 1rem 1.5rem;
+    }
+
+    .home-logo-svg {
+        height: 36px;
+    }
+
+    .hero-title {
+        font-size: 2.85rem;
+        line-height: 0.95;
+    }
+
+    .carousel-viewport {
+        height: 400px;
+    }
+
+    .carousel-card {
+        width: 220px;
+        height: 350px;
+        border-radius: 26px;
+        padding: 1rem;
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+    }
+
+    .carousel-card[data-offset="-1"] {
+        transform: translate3d(-90px, 0, -10px) scale(0.88);
+    }
+
+    .carousel-card[data-offset="1"] {
+        transform: translate3d(90px, 0, -10px) scale(0.88);
+    }
+
+    .carousel-card[data-offset="-2"] {
+        transform: translate3d(-170px, 0, -40px) scale(0.74);
+    }
+
+    .carousel-card[data-offset="2"] {
+        transform: translate3d(170px, 0, -40px) scale(0.74);
+    }
+
+    .carousel-arrow {
+        width: 40px;
+        height: 40px;
+    }
+
+    .carousel-arrow-prev { left: 8px; }
+    .carousel-arrow-next { right: 8px; }
+
+    .btn-hero-login {
+        font-size: 1.35rem;
+        padding: 0.85rem 3.5rem;
+    }
+}

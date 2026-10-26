@@ -63,4 +63,24 @@ class UserModel
         // Pencocokan plain-text menggunakan hash_equals untuk keamanan
         return hash_equals($storedPassword, $inputPassword);
     }
+
+    /**
+     * Cek apakah username sudah terdaftar
+     */
+    public function isUsernameExists(string $username): bool
+    {
+        $stmt = $this->pdo->prepare("SELECT 1 FROM users WHERE username = :username LIMIT 1");
+        $stmt->execute([':username' => trim($username)]);
+        return (bool) $stmt->fetchColumn();
+    }
+
+    /**
+     * Cek apakah email sudah terdaftar
+     */
+    public function isEmailExists(string $email): bool
+    {
+        $stmt = $this->pdo->prepare("SELECT 1 FROM users WHERE email = :email LIMIT 1");
+        $stmt->execute([':email' => trim($email)]);
+        return (bool) $stmt->fetchColumn();
+    }
 }
