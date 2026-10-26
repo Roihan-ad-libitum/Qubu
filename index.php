@@ -10,6 +10,8 @@ require_once __DIR__ . '/core/Session.php';
 require_once __DIR__ . '/core/Validator.php';
 require_once __DIR__ . '/core/AuthMiddleWare.php';
 require_once __DIR__ . '/app/Controllers/AuthController.php';
+require_once __DIR__ . '/app/Controllers/MahasiswaController.php';
+require_once __DIR__ . '/app/Controllers/DosenController.php';
 
 // Pastikan sesi selalu aktif untuk setiap permintaan
 Session::start();
@@ -32,6 +34,22 @@ switch ($page) {
 
     case 'register':
         (new AuthController())->register();
+        break;
+
+    case 'profile':
+        if (Session::get('role') === ROLE_DOSEN) {
+            (new DosenController())->profile();
+        } else {
+            (new MahasiswaController())->profile();
+        }
+        break;
+
+    case 'dosen-profile':
+        (new DosenController())->profile();
+        break;
+
+    case 'mahasiswa-profile':
+        (new MahasiswaController())->profile();
         break;
 
     case 'mahasiswa-dashboard':

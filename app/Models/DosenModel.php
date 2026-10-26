@@ -93,4 +93,147 @@ class DosenModel
         $data = $stmt->fetch();
         return $data === false ? null : $data;
     }
+
+    /**
+     * Ambil data profil dosen berdasarkan NIDN
+     */
+    public function findByNidn(string $nidn): ?array
+    {
+        $sql = "SELECT d.*, u.username, u.email, u.no_hp 
+                FROM dosen d 
+                JOIN users u ON u.id_user = d.id_user 
+                WHERE d.nidn = :nidn 
+                LIMIT 1";
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute([':nidn' => trim($nidn)]);
+        $data = $stmt->fetch();
+        return $data === false ? null : $data;
+    }
+
+    /**
+     * Perbarui data profil dosen berdasarkan id_user
+     */
+    public function updateProfileByUserId(int $idUser, array $data): bool
+    {
+        $fields = [];
+        $params = [':id_user' => $idUser];
+
+        if (isset($data['nidn'])) {
+            $fields[] = 'nidn = :nidn';
+            $params[':nidn'] = trim($data['nidn']);
+        }
+        if (isset($data['nama_dosen'])) {
+            $fields[] = 'nama_dosen = :nama_dosen';
+            $params[':nama_dosen'] = trim($data['nama_dosen']);
+        }
+        if (isset($data['bidang_keahlian'])) {
+            $fields[] = 'bidang_keahlian = :bidang_keahlian';
+            $params[':bidang_keahlian'] = trim($data['bidang_keahlian']);
+        }
+        if (isset($data['status'])) {
+            $statusVal = strtolower(trim($data['status']));
+            // Normalisasi status ke format enum database: bersedia / tidak_bersedia
+            if ($statusVal === 'bersedia' || $statusVal === 'tidak_bersedia') {
+                $fields[] = 'status = :status';
+                $params[':status'] = $statusVal;
+            }
+        }
+        if (isset($data['foto'])) {
+            try {
+                $colStmt = $this->pdo()->query("SHOW COLUMNS FROM dosen LIKE 'foto'");
+                if (!$colStmt->fetch()) {
+                    $this->pdo()->exec("ALTER TABLE dosen ADD COLUMN foto VARCHAR(255) NULL");
+                }
+                $fields[] = 'foto = :foto';
+                $params[':foto'] = trim($data['foto']);
+            } catch (Throwable $e) {
+                // Abaikan jika alter gagal
+            }
+        }
+
+        if (empty($fields)) {
+            return false;
+        }
+
+        $sql = "UPDATE dosen SET " . implode(', ', $fields) . " WHERE id_user = :id_user";
+        $stmt = $this->pdo()->prepare($sql);
+        return $stmt->execute($params);
+    }
+
+    /**
+     * Ambil daftar pilihan bidang keahlian dosen dari database
+     * dengan fallback ke bidang populer Qubu / ilmu komputer & teknologi
+     *
+     * @return array
+     */
+    public function getBidangKeahlianOptions(): array
+    {
+        $defaultOptions = [
+            'Software Development',
+            'UI/UX Design',
+            'Data Science',
+            'Artificial Intelligence',
+            'Machine Learning',
+            'Cyber Security',
+            'Web Development',
+            'Mobile Development',
+            'Cloud Computing',
+            'Internet of Things (IoT)',
+            'Game Development',
+            'Computer Vision',
+            'Database Management',
+            'Network Engineering',
+            'Robotics'
+        ];
+
+        try {
+            $db = $this->pdo();
+            $dbOptions = [];
+
+            // 1. Ambil dari tabel dosen (bidang_keahlian)
+            try {
+                $stmtDosen = $db->query("SELECT DISTINCT bidang_keahlian FROM dosen WHERE bidang_keahlian IS NOT NULL AND TRIM(bidang_keahlian) != ''");
+                if ($stmtDosen) {
+                    while ($val = $stmtDosen->fetchColumn()) {
+                        // Pecah jika tersimpan sebagai nilai dipisahkan koma
+                        $parts = explode(',', (string)$val);
+                        foreach ($parts as $p) {
+                            $trimmed = trim($p);
+                            if ($trimmed !== '') {
+                                $dbOptions[] = $trimmed;
+                            }
+                        }
+                    }
+                }
+            } catch (Throwable $e) {
+                // Abaikan jika tabel dosen belum siap
+            }
+
+            // 2. Ambil dari tabel lomba (bidang)
+            try {
+                $stmtLomba = $db->query("SELECT DISTINCT bidang FROM lomba WHERE bidang IS NOT NULL AND TRIM(bidang) != ''");
+                if ($stmtLomba) {
+                    while ($val = $stmtLomba->fetchColumn()) {
+                        $trimmed = trim((string)$val);
+                        if ($trimmed !== '') {
+                            $dbOptions[] = $trimmed;
+                        }
+                    }
+                }
+            } catch (Throwable $e) {
+                // Abaikan jika tabel lomba belum siap
+            }
+
+            if (!empty($dbOptions)) {
+                $merged = array_unique(array_merge($defaultOptions, $dbOptions));
+                sort($merged, SORT_STRING | SORT_FLAG_CASE);
+                return array_values($merged);
+            }
+        } catch (Throwable $e) {
+            // Fallback ke default
+        }
+
+        sort($defaultOptions, SORT_STRING | SORT_FLAG_CASE);
+        return $defaultOptions;
+    }
 }
