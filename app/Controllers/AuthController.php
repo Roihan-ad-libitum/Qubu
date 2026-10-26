@@ -141,13 +141,19 @@ class AuthController
         }
 
         // Jika request GET, render tampilan pemilihan peran atau form
-        $role    = $_GET['role'] ?? null;
-        $error   = Session::getFlash('error');
-        $success = Session::getFlash('success');
-        $old     = Session::getFlash('old') ?? [];
-        $title   = $role === 'dosen' ? 'Daftar Akun Dosen - ' . APP_NAME 
-                 : ($role === 'mahasiswa' ? 'Daftar Akun Mahasiswa - ' . APP_NAME 
-                 : 'Ingin mendaftar sebagai apa? - ' . APP_NAME);
+        $role             = $_GET['role'] ?? null;
+        $step             = (int) ($_GET['step'] ?? 1);
+        $error            = Session::getFlash('error');
+        $success          = Session::getFlash('success');
+        $old              = Session::getFlash('old') ?? [];
+        $step1Data        = Session::get('reg_mhs_step1') ?? [];
+        $peminatanOptions = $this->mahasiswaModel->getBidangPeminatanOptions();
+
+        $title = $role === 'dosen' 
+            ? 'Daftar Akun Dosen - ' . APP_NAME 
+            : ($role === 'mahasiswa' 
+                ? ($step === 2 ? 'Lengkapi Profil - ' . APP_NAME : 'Daftar Akun Mahasiswa - ' . APP_NAME)
+                : 'Ingin mendaftar sebagai apa? - ' . APP_NAME);
 
         require_once __DIR__ . '/../../views/auth/register.php';
     }
@@ -246,76 +252,166 @@ class AuthController
 
     /**
      * Memproses data registrasi Mahasiswa / Peserta
-     * Mendukung form biodata sesuai mockup (NPM, Nama Lengkap, Program Studi, Angkatan, Bidang Peminatan)
+     * Mendukung multi-step registration (Langkah 1: Biodata, Langkah 2: Lengkapi Profil & Foto)
      */
     private function processRegisterMahasiswa(): void
     {
-        // 1. Ambil input biodata (mendukung nama field fleksibel)
-        $namaMahasiswa = trim($_POST['nama_mahasiswa'] ?? $_POST['nama_lengkap'] ?? '');
-        $npm           = trim($_POST['npm'] ?? '');
-        $programStudi  = trim($_POST['program_studi'] ?? '');
-        $angkatan      = trim($_POST['angkatan'] ?? '');
-        $bidangMinat   = trim($_POST['bidang_minat'] ?? $_POST['bidang_peminatan'] ?? 'Umum');
+        $step = (int) ($_POST['step'] ?? 1);
 
-        // 2. Validasi kolom wajib biodata
-        if (empty($npm) || empty($namaMahasiswa) || empty($programStudi) || empty($angkatan)) {
-            Session::setFlash('error', 'Semua kolom bertanda wajib (NPM, Nama Lengkap, Program Studi, Angkatan) harus diisi.');
-            Session::setFlash('old', $_POST);
-            redirect('?page=register&role=mahasiswa');
+        // =========================================================================
+        // A. JIKA SUBMIT LANGKAH 1 (BIODATA MAHASISWA)
+        // =========================================================================
+        if ($step === 1) {
+            $npm           = trim($_POST['npm'] ?? '');
+            $namaMahasiswa = trim($_POST['nama_mahasiswa'] ?? $_POST['nama_lengkap'] ?? '');
+            $programStudi  = trim($_POST['program_studi'] ?? '');
+            $angkatan      = trim($_POST['angkatan'] ?? '');
+
+            // 1. Validasi kolom wajib biodata
+            if (empty($npm) || empty($namaMahasiswa) || empty($programStudi) || empty($angkatan)) {
+                Session::setFlash('error', 'Semua kolom bertanda wajib (NPM, Nama Lengkap, Program Studi, Angkatan) harus diisi.');
+                Session::setFlash('old', $_POST);
+                redirect('?page=register&role=mahasiswa&step=1');
+            }
+
+            // 2. Cek keunikan NPM
+            if ($this->mahasiswaModel->isNpmExists($npm)) {
+                Session::setFlash('error', 'NPM "' . e($npm) . '" sudah terdaftar. Silakan masuk menggunakan akun Anda.');
+                Session::setFlash('old', $_POST);
+                redirect('?page=register&role=mahasiswa&step=1');
+            }
+
+            // 3. Simpan data langkah 1 ke sesi
+            Session::set('reg_mhs_step1', [
+                'npm'            => $npm,
+                'nama_mahasiswa' => $namaMahasiswa,
+                'program_studi'  => $programStudi,
+                'angkatan'       => $angkatan,
+            ]);
+
+            // Lanjut ke Step 2 (Lengkapi Profil)
+            redirect('?page=register&role=mahasiswa&step=2');
         }
 
-        // 3. Cek keunikan NPM
+        // =========================================================================
+        // B. JIKA SUBMIT LANGKAH 2 (LENGKAPI PROFIL: FOTO, USERNAME, MINAT, PASSWORD)
+        // =========================================================================
+        // 1. Ambil data langkah 1 dari POST (hidden) atau sesi
+        $step1Session  = Session::get('reg_mhs_step1') ?? [];
+        $npm           = trim($_POST['npm'] ?? $step1Session['npm'] ?? '');
+        $namaMahasiswa = trim($_POST['nama_mahasiswa'] ?? $step1Session['nama_mahasiswa'] ?? '');
+        $programStudi  = trim($_POST['program_studi'] ?? $step1Session['program_studi'] ?? '');
+        $angkatan      = trim($_POST['angkatan'] ?? $step1Session['angkatan'] ?? '');
+
+        // Validasi kelengkapan data langkah 1
+        if (empty($npm) || empty($namaMahasiswa) || empty($programStudi) || empty($angkatan)) {
+            Session::setFlash('error', 'Data biodata belum lengkap. Silakan lengkapi langkah 1 terlebih dahulu.');
+            Session::setFlash('old', $_POST);
+            redirect('?page=register&role=mahasiswa&step=1');
+        }
+
+        // Cek kembali keunikan NPM
         if ($this->mahasiswaModel->isNpmExists($npm)) {
             Session::setFlash('error', 'NPM "' . e($npm) . '" sudah terdaftar. Silakan masuk menggunakan akun Anda.');
             Session::setFlash('old', $_POST);
-            redirect('?page=register&role=mahasiswa');
+            redirect('?page=register&role=mahasiswa&step=1');
         }
 
-        // 4. Kredensial akun: gunakan input jika ada, atau buat otomatis berdasarkan NPM
-        $username = !empty($_POST['username']) ? trim($_POST['username']) : $npm;
-        $email    = !empty($_POST['email']) ? trim($_POST['email']) : ($npm . '@student.unsika.ac.id');
-        $noHp     = !empty($_POST['no_hp']) ? trim($_POST['no_hp']) : '-';
+        // 2. Ambil data langkah 2
+        $username        = trim($_POST['username'] ?? '');
+        $bidangMinat     = trim($_POST['bidang_minat'] ?? $_POST['bidang_peminatan'] ?? 'Umum');
+        $password        = $_POST['password'] ?? '';
+        $passwordConfirm = $_POST['password_confirm'] ?? '';
 
-        // Password: jika diberikan pada form, lakukan pengecekan; jika tidak, default menggunakan NPM
-        if (!empty($_POST['password'])) {
-            if (strlen($_POST['password']) < 6) {
-                Session::setFlash('error', 'Password minimal 6 karakter.');
-                Session::setFlash('old', $_POST);
-                redirect('?page=register&role=mahasiswa');
-            }
-            if (isset($_POST['password_confirm']) && $_POST['password'] !== $_POST['password_confirm']) {
-                Session::setFlash('error', 'Konfirmasi password tidak cocok.');
-                Session::setFlash('old', $_POST);
-                redirect('?page=register&role=mahasiswa');
-            }
-            $password = $_POST['password'];
-        } else {
-            $password = $npm;
+        // Validasi kolom langkah 2
+        if (empty($username)) {
+            Session::setFlash('error', 'Username wajib diisi.');
+            Session::setFlash('old', $_POST);
+            redirect('?page=register&role=mahasiswa&step=2');
         }
 
-        // 5. Cek keunikan username
+        if (strlen($username) < 3) {
+            Session::setFlash('error', 'Username minimal 3 karakter.');
+            Session::setFlash('old', $_POST);
+            redirect('?page=register&role=mahasiswa&step=2');
+        }
+
         if ($this->userModel->isUsernameExists($username)) {
-            if (empty($_POST['username'])) {
-                $username = 'mhs_' . $npm;
-            } else {
-                Session::setFlash('error', 'Username "' . e($username) . '" sudah digunakan. Silakan pilih username lain.');
+            Session::setFlash('error', 'Username "' . e($username) . '" sudah digunakan. Silakan pilih username lain.');
+            Session::setFlash('old', $_POST);
+            redirect('?page=register&role=mahasiswa&step=2');
+        }
+
+        if (empty($password) || strlen($password) < 6) {
+            Session::setFlash('error', 'Kata Sandi wajib diisi dan minimal 6 karakter.');
+            Session::setFlash('old', $_POST);
+            redirect('?page=register&role=mahasiswa&step=2');
+        }
+
+        if ($password !== $passwordConfirm) {
+            Session::setFlash('error', 'Konfirmasi Kata Sandi tidak cocok.');
+            Session::setFlash('old', $_POST);
+            redirect('?page=register&role=mahasiswa&step=2');
+        }
+
+        // 3. Handle Upload Foto Profil jika diunggah
+        $fotoPath = null;
+        if (isset($_FILES['foto_profil']) && $_FILES['foto_profil']['error'] === UPLOAD_ERR_OK) {
+            $fileTmp  = $_FILES['foto_profil']['tmp_name'];
+            $fileSize = $_FILES['foto_profil']['size'];
+            $origName = $_FILES['foto_profil']['name'];
+
+            // Cek ukuran max 5MB
+            if ($fileSize > 5 * 1024 * 1024) {
+                Session::setFlash('error', 'Ukuran foto profil maksimal 5MB.');
                 Session::setFlash('old', $_POST);
-                redirect('?page=register&role=mahasiswa');
+                redirect('?page=register&role=mahasiswa&step=2');
+            }
+
+            // Validasi ekstensi
+            $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+            $allowedExt = ['jpg', 'jpeg', 'png', 'webp'];
+            if (!in_array($ext, $allowedExt)) {
+                Session::setFlash('error', 'Format foto tidak didukung. Harap unggah file JPG, JPEG, PNG, atau WEBP.');
+                Session::setFlash('old', $_POST);
+                redirect('?page=register&role=mahasiswa&step=2');
+            }
+
+            // Validasi MIME type jika finfo tersedia
+            if (function_exists('finfo_open')) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mimeType = finfo_file($finfo, $fileTmp);
+                finfo_close($finfo);
+                $allowedMimes = ['image/jpeg', 'image/png', 'image/webp'];
+                if (!in_array($mimeType, $allowedMimes)) {
+                    Session::setFlash('error', 'File yang diunggah bukan gambar yang valid.');
+                    Session::setFlash('old', $_POST);
+                    redirect('?page=register&role=mahasiswa&step=2');
+                }
+            }
+
+            // Siapkan direktori penyimpanan
+            $uploadDir = __DIR__ . '/../../public/uploads/profile';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $safeNpm  = preg_replace('/[^a-zA-Z0-9_-]/', '', $npm);
+            $filename = 'mhs_' . $safeNpm . '_' . time() . '.' . $ext;
+            $destPath = $uploadDir . '/' . $filename;
+
+            if (move_uploaded_file($fileTmp, $destPath)) {
+                $fotoPath = 'public/uploads/profile/' . $filename;
             }
         }
 
-        // 6. Cek keunikan email
+        $email = $username . '@student.unsika.ac.id';
         if ($this->userModel->isEmailExists($email)) {
-            if (!empty($_POST['email'])) {
-                Session::setFlash('error', 'Email "' . e($email) . '" sudah terdaftar.');
-                Session::setFlash('old', $_POST);
-                redirect('?page=register&role=mahasiswa');
-            } else {
-                $email = $npm . '_' . time() . '@student.unsika.ac.id';
-            }
+            $email = $username . '_' . time() . '@student.unsika.ac.id';
         }
+        $noHp = '-';
 
-        // 7. Simpan akun & profil mahasiswa dalam transaksi database atomik
+        // 4. Simpan akun & profil mahasiswa dalam transaksi database atomik
         try {
             $this->mahasiswaModel->registerMahasiswa([
                 'username' => $username,
@@ -329,14 +425,18 @@ class AuthController
                 'angkatan'       => $angkatan,
                 'bidang_minat'   => !empty($bidangMinat) ? $bidangMinat : 'Umum',
                 'bio'            => '',
+                'foto'           => $fotoPath,
             ]);
 
-            Session::setFlash('success', 'Pendaftaran Mahasiswa berhasil! Silakan masuk dengan NPM (' . e($npm) . ') sebagai Username dan Password awal.');
+            // Bersihkan data session pendaftaran
+            Session::remove('reg_mhs_step1');
+
+            Session::setFlash('success', 'Pendaftaran Mahasiswa berhasil! Akun Anda telah siap. Silakan masuk menggunakan Username dan Kata Sandi Anda.');
             redirect('?page=login');
         } catch (Exception $e) {
             Session::setFlash('error', 'Terjadi kesalahan sistem saat mendaftar: ' . $e->getMessage());
             Session::setFlash('old', $_POST);
-            redirect('?page=register&role=mahasiswa');
+            redirect('?page=register&role=mahasiswa&step=2');
         }
     }
 }

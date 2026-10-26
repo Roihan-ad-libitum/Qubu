@@ -86,9 +86,17 @@ Jika ingin menguji pendaftaran akun baru dari awal:
 2. **Pilih Peran Akun**:
    - Pilih kartu **Mahasiswa** jika ingin mendaftar sebagai peserta lomba.
    - Pilih kartu **Dosen** jika ingin mendaftar sebagai dosen pembimbing.
-3. Lengkapi formulir pendaftaran yang tampil.
-4. Sistem akan memvalidasi data dan menyimpan akun secara otomatis.
-5. Setelah berhasil, Anda akan dialihkan ke halaman login untuk langsung masuk menggunakan username dan password yang baru saja dibuat.
+3. **Alur Pendaftaran Mahasiswa (2 Langkah Sesuai Desain)**:
+   - **Langkah 1 (Biodata Mahasiswa)**: Isi NPM, Nama Lengkap, Program Studi, dan Angkatan, lalu klik **Lanjut**.
+   - **Langkah 2 (Lengkapi Profil)**:
+     - **Foto Profil**: Unggah foto dengan fitur **Drag & Drop** langsung ke lingkaran avatar, atau klik tombol **Unggah Foto** untuk mengambil file dari penyimpanan device (didukung live preview instan).
+     - **Username**: Tentukan username akun.
+     - **Bidang Peminatan**: Pilih kategori peminatan dari menu *dropdown* (opsi diambil secara dinamis dari database lomba & mahasiswa, mencakup *Frontend, Backend, UI/UX Design, Data Science, Robotic*, dll).
+     - **Kata Sandi & Konfirmasi**: Masukkan password (minimal 6 karakter).
+     - Klik tombol **Daftar** untuk menyelesaikan registrasi.
+4. **Alur Pendaftaran Dosen**:
+   - Lengkapi formulir 3 kolom: NIDN/NIP, Nama Lengkap & Gelar, serta Bidang Keahlian & Fokus Riset, lalu klik **Lanjut**.
+5. Setelah pendaftaran selesai, Anda akan diarahkan ke halaman login dan dapat langsung masuk dengan akun baru.
 
 ---
 
