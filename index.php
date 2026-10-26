@@ -12,6 +12,7 @@ require_once __DIR__ . '/core/AuthMiddleWare.php';
 require_once __DIR__ . '/app/Controllers/AuthController.php';
 require_once __DIR__ . '/app/Controllers/MahasiswaController.php';
 require_once __DIR__ . '/app/Controllers/DosenController.php';
+require_once __DIR__ . '/app/Controllers/AdminController.php';
 
 // Pastikan sesi selalu aktif untuk setiap permintaan
 Session::start();
@@ -72,11 +73,9 @@ switch ($page) {
         renderDashboardPlaceholder('Dashboard Dosen Pembimbing', ROLE_DOSEN);
         break;
 
+    case 'admin-lomba':
     case 'admin-dashboard':
-        // Proteksi route: hanya pengguna dengan role 'admin' yang diizinkan
-        AuthMiddleware::hasRole(ROLE_ADMIN);
-
-        renderDashboardPlaceholder('Dashboard Administrator', ROLE_ADMIN);
+        (new AdminController())->lomba();
         break;
 
     default:
