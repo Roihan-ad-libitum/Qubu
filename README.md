@@ -107,6 +107,8 @@ Jika ingin menguji pendaftaran akun baru dari awal:
 - **Pilihan Peran Pendaftaran**: `http://localhost:8000/?page=register`
 - **Formulir Daftar Mahasiswa**: `http://localhost:8000/?page=register&role=mahasiswa`
 - **Formulir Daftar Dosen**: `http://localhost:8000/?page=register&role=dosen`
+- **Halaman Profil Mahasiswa**: `http://localhost:8000/?page=mahasiswa-profile`
+- **Halaman Profil Dosen**: `http://localhost:8000/?page=dosen-profile`
 - **Keluar Akun (Logout)**: `http://localhost:8000/?page=logout`
 
 ---
