@@ -1,0 +1,597 @@
+/**
+ * Stylesheet Khusus Halaman CRUD Lomba Admin Qubu
+ * Presisi mengikuti mockup UI Admin:
+ * - Navbar di Kanan Atas (User, Dosen Pembimbing, Lomba)
+ * - Kiri: Tambahkan Poster, Identitas Poster, Nama Lomba, dan Penyelenggara
+ * - Kanan: Ketentuan & Kategori (Deadline, Biaya, Partisipasi, Tingkat, Bidang)
+ * - Bawah: Deskripsi & Tautan Lomba
+ * - Tombol: Posting di Kanan Bawah
+ */
+
+:root {
+    --bg-admin: #0b112c;
+    --card-periwinkle: #9ca9ce;
+    --card-white: #ffffff;
+    --input-white: #ffffff;
+    --text-dark: #0f172a;
+    --text-muted: #64748b;
+    --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Reset paksa agar tidak terganggu CSS lain */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: var(--bg-admin) !important;
+    color: #ffffff !important;
+    font-family: var(--font-family) !important;
+    min-height: 100vh !important;
+    display: block !important;
+    width: 100% !important;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Pembungkus Utama Seluruh Halaman */
+.admin-lomba-page {
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--bg-admin);
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 4rem;
+    box-sizing: border-box;
+}
+
+/* ========================================================================= */
+/* 1. TOP NAVBAR DI KANAN ATAS                                               */
+/* ========================================================================= */
+.admin-top-nav {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .admin-top-nav {
+        padding: 1rem 1.25rem 1.5rem;
+    }
+}
+
+.admin-nav-logo-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.admin-nav-logo-link:hover {
+    transform: scale(1.03);
+}
+
+.admin-nav-logo-svg {
+    height: 38px;
+    width: auto;
+}
+
+/* Menu Navigasi di Kanan Atas */
+.admin-nav-right-menu {
+    display: flex;
+    align-items: center;
+    gap: 2.75rem;
+}
+
+@media (max-width: 640px) {
+    .admin-nav-right-menu {
+        gap: 1.25rem;
+    }
+}
+
+.admin-nav-item {
+    color: #94a3b8;
+    font-size: 1.05rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.admin-nav-item:hover {
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.admin-nav-item.active {
+    color: #38bdf8; /* Biru langit/cyan terang persis mockup */
+    font-weight: 700;
+}
+
+/* ========================================================================= */
+/* 2. FORM UTAMA & TATA LETAK GRID (KIRI, KANAN, BAWAH)                      */
+/* ========================================================================= */
+.admin-content-wrap {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+    .admin-content-wrap {
+        padding: 0 1.25rem;
+    }
+}
+
+/* Baris Atas: 2 Kolom Sebelah Kiri & Sebelah Kanan */
+.admin-top-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 992px) {
+    .admin-top-columns {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Base Card Styling */
+.admin-card-box {
+    border-radius: 28px;
+    padding: 2.25rem;
+    box-sizing: border-box;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+/* Kartu Warna Periwinkle (Kiri & Kanan) */
+.card-periwinkle-theme {
+    background-color: var(--card-periwinkle);
+    color: var(--text-dark);
+}
+
+/* Kartu Warna Putih (Bawah) */
+.card-white-theme {
+    background-color: var(--card-white);
+    color: var(--text-dark);
+    margin-bottom: 2.5rem;
+}
+
+/* Accordion Pill Header (01, 02, 03) */
+.section-pill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-pill-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: #ffffff;
+    padding: 0.35rem 0.85rem 0.35rem 0.45rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.card-white-theme .section-pill-tag {
+    background: #f1f5f9;
+}
+
+.pill-number {
+    background: #0f172a;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    letter-spacing: 0.04em;
+}
+
+.pill-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.pill-chevron {
+    color: #64748b;
+    font-size: 1rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* ========================================================================= */
+/* 3. SEBELAH KIRI: TAMBAHKAN POSTER, IDENTITAS, NAMA LOMBA, PENYELENGGARA   */
+/* ========================================================================= */
+.dropzone-upload-poster {
+    background-color: #eef2fa;
+    border: 2.5px dashed #1e3a8a;
+    border-radius: 20px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 230px;
+    box-sizing: border-box;
+}
+
+.dropzone-upload-poster:hover,
+.dropzone-upload-poster.dragover {
+    background-color: #e0e7ff;
+    border-color: #2563eb;
+    transform: translateY(-2px);
+}
+
+.poster-art-icon {
+    width: 68px;
+    height: 68px;
+    color: #94a3b8;
+    margin-bottom: 0.85rem;
+}
+
+.poster-drop-prompt {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 1rem 0;
+}
+
+.btn-file-select {
+    background-color: #0f172a;
+    color: #ffffff;
+    font-family: var(--font-family);
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.65rem 2.25rem;
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.25);
+    transition: all 0.2s ease;
+}
+
+.btn-file-select:hover {
+    background-color: #1e293b;
+    transform: scale(1.04);
+}
+
+.poster-preview-display {
+    max-width: 100%;
+    max-height: 210px;
+    border-radius: 14px;
+    object-fit: cover;
+    margin-bottom: 0.75rem;
+    display: none;
+}
+
+/* Input Fields Umum */
+.admin-field-group {
+    margin-bottom: 1.25rem;
+}
+
+.admin-field-label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.45rem;
+}
+
+.admin-field-input {
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    font-family: var(--font-family);
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0f172a;
+    background-color: #ffffff;
+    border: 1.5px solid transparent;
+    border-radius: 14px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.admin-field-input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.admin-input-bold-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    font-family: var(--font-family);
+}
+
+/* ========================================================================= */
+/* 4. SEBELAH KANAN: KETENTUAN & KATEGORI                                    */
+/* ========================================================================= */
+.deadline-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.deadline-calendar-icon {
+    position: absolute;
+    left: 1.15rem;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+
+.admin-field-input.has-icon {
+    padding-left: 2.85rem;
+}
+
+/* Toggle Biaya: GRATIS vs BERBAYAR */
+.biaya-segmented-switch {
+    display: flex;
+    background: #ffffff;
+    border-radius: 9999px;
+    padding: 4px;
+    width: fit-content;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    margin-bottom: 0.85rem;
+}
+
+.biaya-switch-btn {
+    padding: 0.45rem 1.5rem;
+    border-radius: 9999px;
+    border: none;
+    background: transparent;
+    font-family: var(--font-family);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.biaya-switch-btn.active.gratis {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+.biaya-switch-btn.active.berbayar {
+    background-color: #86efac; /* Warna hijau mint cerah persis mockup */
+    color: #064e3b;
+}
+
+/* Pilihan Partisipasi: Individu, Tim, Individu & Tim */
+.partisipasi-pills-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.partisipasi-pill-btn {
+    flex: 1;
+    min-width: 100px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: #ffffff;
+    color: #1e293b;
+    font-family: var(--font-family);
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.partisipasi-pill-btn:hover {
+    background-color: #f8fafc;
+}
+
+.partisipasi-pill-btn.active {
+    border: 2px solid #0f172a; /* Garis tebal hitam persis gambar */
+    background-color: #ffffff;
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.15);
+}
+
+/* Tag Kategori Kuning */
+.kategori-amber-pill {
+    display: inline-flex;
+    align-items: center;
+    background-color: #fef08a; /* Kuning pastel */
+    color: #854d0e;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.45rem 1.35rem;
+    border-radius: 9999px;
+    margin-top: 0.75rem;
+    box-shadow: 0 2px 5px rgba(133, 77, 14, 0.15);
+}
+
+/* ========================================================================= */
+/* 5. DI BAWAH: DESKRIPSI & TAUTAN LOMBA                                     */
+/* ========================================================================= */
+.editor-frame {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.editor-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.65rem 1rem;
+    background-color: #f8fafc;
+    border-bottom: 1.5px solid #e2e8f0;
+}
+
+.editor-tool-button {
+    background: transparent;
+    border: none;
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    color: #475569;
+    font-family: var(--font-family);
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.editor-tool-button:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+.editor-v-line {
+    color: #cbd5e1;
+    margin: 0 0.35rem;
+}
+
+.editor-input-area {
+    width: 100%;
+    min-height: 140px;
+    padding: 1rem 1.25rem;
+    font-family: var(--font-family);
+    font-size: 1rem;
+    color: #1e293b;
+    border: none;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.editor-input-area:focus {
+    outline: none;
+}
+
+/* Link Inputs */
+.link-box-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 0.35rem 0.5rem 0.35rem 0.45rem;
+    transition: all 0.2s ease;
+}
+
+.link-box-row:focus-within {
+    border-color: #3b82f6;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.link-square-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    flex-shrink: 0;
+}
+
+.badge-cyan-link {
+    background-color: #0284c7; /* Biru Guidebook */
+}
+
+.badge-coral-ticket {
+    background-color: #f43f5e; /* Merah-oranye Pendaftaran */
+}
+
+.link-url-field {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.6rem 0.5rem;
+    font-family: var(--font-family);
+    font-size: 0.95rem;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.link-url-field:focus {
+    outline: none;
+}
+
+/* ========================================================================= */
+/* 6. TOMBOL AKSI: POSTING DI KANAN BAWAH                                    */
+/* ========================================================================= */
+.admin-action-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+.btn-posting-action {
+    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    color: #ffffff;
+    font-family: var(--font-family);
+    font-size: 1.75rem;
+    font-weight: 800;
+    padding: 1.15rem 4.75rem;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+    letter-spacing: -0.01em;
+    transition: all 0.2s ease;
+}
+
+.btn-posting-action:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 14px 32px rgba(59, 130, 246, 0.55);
+    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+}
+
+.btn-posting-action:active {
+    transform: translateY(0);
+}
+
+/* Alert Notification */
+.admin-alert-box {
+    padding: 1rem 1.5rem;
+    border-radius: 14px;
+    margin-bottom: 2rem;
+    font-weight: 600;
+}
+
+.admin-alert-success {
+    background-color: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+}
+
+.admin-alert-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
