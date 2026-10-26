@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 22, 2026 at 02:05 PM
+-- Generation Time: Oct 23, 2026 at 02:58 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -33,8 +33,16 @@ CREATE TABLE `dosen` (
   `nama_dosen` varchar(100) NOT NULL,
   `bidang_keahlian` varchar(50) NOT NULL,
   `nidn` varchar(20) NOT NULL,
-  `status` enum('bersedia','tidak_bersedia') NOT NULL
+  `status` enum('bersedia','tidak_bersedia') NOT NULL,
+  `foto` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `dosen`
+--
+
+INSERT INTO `dosen` (`id_dosen`, `id_user`, `nama_dosen`, `bidang_keahlian`, `nidn`, `status`) VALUES
+(1, 3, 'Fitria', 'Web Development', '2511000000000', 'bersedia');
 
 -- --------------------------------------------------------
 
@@ -53,26 +61,43 @@ CREATE TABLE `lomba` (
   `biaya` decimal(10,0) NOT NULL,
   `partisipasi` enum('Individu','Tim','Individu/Tim') NOT NULL,
   `bidang` varchar(80) NOT NULL,
-  `link_resmi` varchar(255) NOT NULL
+  `link_resmi` varchar(255) NOT NULL,
+  `poster` varchar(255) DEFAULT NULL,
+  `link_guidebook` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `lomba`
+--
+
+INSERT INTO `lomba` (`id_lomba`, `nama_lomba`, `penyelenggara`, `deskripsi`, `deadline_daftar`, `tanggal_pelaksanaan`, `tingkat`, `biaya`, `partisipasi`, `bidang`, `link_resmi`) VALUES
+(1, 'Hackathon Web Nasional', 'Institut Teknologi Bandung', 'Kompetisi hackathon tingkat nasional untuk mengembangkan solusi digital inovatif yang menjawab tantangan sosial di Indonesia. Peserta akan berkompetisi selama 48 jam untuk menghasilkan prototipe aplikasi yang fungsional.', '2026-12-12 12:00:00', '2027-02-05', 'Nasional', 120000, 'Tim', 'Web Development', 'https://example.com/uiux');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `peserta`
+-- Table structure for table `mahasiswa`
 --
 
-CREATE TABLE `peserta` (
-  `id_peserta` int(11) NOT NULL,
+CREATE TABLE `mahasiswa` (
+  `id_mahasiswa` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
-  `id_lomba` int(11) NOT NULL,
   `npm` varchar(20) NOT NULL,
-  `nama_peserta` int(11) NOT NULL,
+  `nama_mahasiswa` varchar(100) NOT NULL,
   `program_studi` varchar(30) NOT NULL,
   `angkatan` varchar(4) NOT NULL,
   `bidang_minat` varchar(30) NOT NULL,
-  `bio` text NOT NULL
+  `bio` text NOT NULL,
+  `foto` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `mahasiswa`
+--
+
+INSERT INTO `mahasiswa` (`id_mahasiswa`, `id_user`, `npm`, `nama_mahasiswa`, `program_studi`, `angkatan`, `bidang_minat`, `bio`) VALUES
+(1, 2, '251000000000', 'Roihan Fakhri', 'Informatika', '2025', 'Web Development', 'Selamat berjuang, sukses!'),
+(2, 4, '251000000001', 'Rangga Candra', 'Informatika', '2025', 'Frontend', 'Frontend jaya jaya jaya');
 
 -- --------------------------------------------------------
 
@@ -82,7 +107,7 @@ CREATE TABLE `peserta` (
 
 CREATE TABLE `undangan` (
   `id_undangan` int(11) NOT NULL,
-  `id_peserta` int(11) NOT NULL,
+  `id_mahasiswa` int(11) NOT NULL,
   `id_lomba` int(11) NOT NULL,
   `bidang_dibutuhkan` varchar(80) NOT NULL,
   `catatan` text NOT NULL
@@ -104,6 +129,16 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id_user`, `username`, `password`, `role`, `no_hp`, `email`) VALUES
+(1, 'marcelloz', 'marceloz123', 'admin', '081234567890', 'marceloz@admin.unsika.ac.id'),
+(2, 'roihanz', 'roihanz123', 'peserta', '081234567890', 'roihanz@student.unsika.ac.id'),
+(3, 'fitriaz', 'fitriaz123', 'dosen', '081234567890', 'fitriaz@dosen.unsika.ac.id'),
+(4, 'ranggaz', 'ranggaz', 'peserta', '081234567890', 'ranggaz@student.unsika.ac.id');
+
+--
 -- Indexes for dumped tables
 --
 
@@ -121,20 +156,19 @@ ALTER TABLE `lomba`
   ADD PRIMARY KEY (`id_lomba`);
 
 --
--- Indexes for table `peserta`
+-- Indexes for table `mahasiswa`
 --
-ALTER TABLE `peserta`
-  ADD PRIMARY KEY (`id_peserta`),
+ALTER TABLE `mahasiswa`
+  ADD PRIMARY KEY (`id_mahasiswa`),
   ADD UNIQUE KEY `npm` (`npm`),
-  ADD KEY `id_user` (`id_user`),
-  ADD KEY `id_lomba` (`id_lomba`);
+  ADD KEY `id_user` (`id_user`);
 
 --
 -- Indexes for table `undangan`
 --
 ALTER TABLE `undangan`
   ADD PRIMARY KEY (`id_undangan`),
-  ADD KEY `id_peserta` (`id_peserta`),
+  ADD KEY `id_peserta` (`id_mahasiswa`),
   ADD KEY `id_lomba` (`id_lomba`);
 
 --
@@ -151,19 +185,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `dosen`
 --
 ALTER TABLE `dosen`
-  MODIFY `id_dosen` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_dosen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `lomba`
 --
 ALTER TABLE `lomba`
-  MODIFY `id_lomba` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_lomba` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `peserta`
+-- AUTO_INCREMENT for table `mahasiswa`
 --
-ALTER TABLE `peserta`
-  MODIFY `id_peserta` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `mahasiswa`
+  MODIFY `id_mahasiswa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `undangan`
@@ -175,7 +209,7 @@ ALTER TABLE `undangan`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
@@ -188,18 +222,17 @@ ALTER TABLE `dosen`
   ADD CONSTRAINT `dosen_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE;
 
 --
--- Constraints for table `peserta`
+-- Constraints for table `mahasiswa`
 --
-ALTER TABLE `peserta`
-  ADD CONSTRAINT `peserta_ibfk_1` FOREIGN KEY (`id_lomba`) REFERENCES `lomba` (`id_lomba`),
-  ADD CONSTRAINT `peserta_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`);
+ALTER TABLE `mahasiswa`
+  ADD CONSTRAINT `mahasiswa_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `undangan`
 --
 ALTER TABLE `undangan`
   ADD CONSTRAINT `undangan_ibfk_1` FOREIGN KEY (`id_lomba`) REFERENCES `lomba` (`id_lomba`),
-  ADD CONSTRAINT `undangan_ibfk_2` FOREIGN KEY (`id_peserta`) REFERENCES `peserta` (`id_peserta`);
+  ADD CONSTRAINT `undangan_ibfk_2` FOREIGN KEY (`id_mahasiswa`) REFERENCES `mahasiswa` (`id_mahasiswa`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

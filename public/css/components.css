@@ -11,15 +11,22 @@
 
 body {
     font-family: var(--font-family);
-    background-color: var(--color-bg-page);
-    color: var(--color-text-main);
+    background-color: var(--color-bg-page, #ffffff);
+    color: var(--color-text-main, #181c32);
     min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+body:has(.auth-wrapper) {
+    background-color: var(--color-bg-page, #f1f5f9);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
-    -webkit-font-smoothing: antialiased;
 }
+
 
 /* Container pembungkus di tengah halaman */
 .auth-wrapper {

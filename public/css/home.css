@@ -3,8 +3,20 @@
  * Presisi mengikuti 5 screenshot desain mockup
  */
 
-/* Container Utama Halaman Home */
+/* Reset Layar Penuh Mentok untuk Homepage */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    background-color: #ffffff !important;
+    display: block !important;
+    overflow-x: hidden;
+}
+
+/* Container Utama Halaman Home (Stretch Lebar Penuh) */
 .home-page {
+    width: 100%;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -12,6 +24,8 @@
     color: var(--color-text-main, #181c32);
     overflow-x: hidden;
     position: relative;
+    margin: 0;
+    padding: 0;
 }
 
 /* 1. TOP NAVBAR */
@@ -19,10 +33,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 3.5rem;
+    padding: 1.5rem clamp(2rem, 4vw, 4.5rem);
     width: 100%;
-    max-width: 1440px;
-    margin: 0 auto;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .home-logo-link {
@@ -67,13 +81,12 @@
 }
 
 .hero-title {
-    width: 514px;
-    max-width: 100%;
-    min-height: 184px;
+    width: auto;
+    max-width: 95%;
     font-family: 'Bebas Neue', 'Anton', var(--font-family);
-    font-size: clamp(3.6rem, 7.5vw, 5.5rem);
+    font-size: clamp(3.8rem, 6.2vw, 5.8rem);
     font-weight: 400;
-    line-height: 0.94;
+    line-height: 0.95;
     letter-spacing: 0.025em;
     text-transform: uppercase;
     display: flex;
@@ -104,7 +117,7 @@
     width: 100%;
     position: relative;
     padding: 1.5rem 0 2rem;
-    perspective: 1200px;
+    perspective: 1400px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -114,8 +127,8 @@
 .carousel-viewport {
     position: relative;
     width: 100%;
-    max-width: 1200px;
-    height: 480px;
+    max-width: 100%;
+    height: clamp(500px, 34vw, 560px);
     margin: 0 auto;
     display: flex;
     justify-content: center;
@@ -143,10 +156,10 @@
 /* 4. BASE CARD STYLES */
 .carousel-card {
     position: absolute;
-    width: 285px;
-    height: 430px;
-    border-radius: 36px;
-    padding: 1.75rem 1.5rem 1.5rem;
+    width: clamp(290px, 20vw, 345px);
+    height: clamp(450px, 31vw, 510px);
+    border-radius: 38px;
+    padding: 2rem 1.75rem 1.75rem;
     color: #ffffff;
     box-sizing: border-box;
     cursor: pointer;
@@ -185,16 +198,16 @@
 /* 3D COVERFLOW POSITIONING BASED ON DATA-OFFSET */
 /* Offset 0: Center Active Card */
 .carousel-card[data-offset="0"] {
-    transform: translate3d(0, 0, 60px) scale(1.08);
+    transform: translate3d(0, 0, 70px) scale(1.08);
     z-index: 10;
     opacity: 1;
     filter: none;
-    box-shadow: 0 28px 65px -12px rgba(0, 0, 0, 0.38), 0 10px 24px -6px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.4), 0 12px 28px -6px rgba(0, 0, 0, 0.18);
 }
 
 /* Offset -1: Immediate Left Card */
 .carousel-card[data-offset="-1"] {
-    transform: translate3d(-165px, 0, -10px) scale(0.93);
+    transform: translate3d(calc(-1 * clamp(210px, 18vw, 290px)), 0, -10px) scale(0.94);
     z-index: 7;
     opacity: 0.96;
     filter: brightness(0.98);
@@ -202,7 +215,7 @@
 
 /* Offset 1: Immediate Right Card */
 .carousel-card[data-offset="1"] {
-    transform: translate3d(165px, 0, -10px) scale(0.93);
+    transform: translate3d(clamp(210px, 18vw, 290px), 0, -10px) scale(0.94);
     z-index: 7;
     opacity: 0.96;
     filter: brightness(0.98);
@@ -210,30 +223,30 @@
 
 /* Offset -2: Far Left Card */
 .carousel-card[data-offset="-2"] {
-    transform: translate3d(-315px, 0, -50px) scale(0.83);
+    transform: translate3d(calc(-1 * clamp(410px, 35vw, 580px)), 0, -40px) scale(0.85);
     z-index: 4;
-    opacity: 0.88;
-    filter: brightness(0.94);
+    opacity: 0.90;
+    filter: brightness(0.95);
 }
 
 /* Offset 2: Far Right Card */
 .carousel-card[data-offset="2"] {
-    transform: translate3d(315px, 0, -50px) scale(0.83);
+    transform: translate3d(clamp(410px, 35vw, 580px), 0, -40px) scale(0.85);
     z-index: 4;
-    opacity: 0.88;
-    filter: brightness(0.94);
+    opacity: 0.90;
+    filter: brightness(0.95);
 }
 
 /* Hidden cards (if more than 5 cards exist or transitioning) */
 .carousel-card[data-offset="hidden-left"] {
-    transform: translate3d(-460px, 0, -100px) scale(0.65);
+    transform: translate3d(calc(-1 * clamp(620px, 50vw, 850px)), 0, -100px) scale(0.65);
     z-index: 1;
     opacity: 0;
     pointer-events: none;
 }
 
 .carousel-card[data-offset="hidden-right"] {
-    transform: translate3d(460px, 0, -100px) scale(0.65);
+    transform: translate3d(clamp(620px, 50vw, 850px), 0, -100px) scale(0.65);
     z-index: 1;
     opacity: 0;
     pointer-events: none;
@@ -835,11 +848,11 @@
 }
 
 .carousel-arrow-prev {
-    left: 20px;
+    left: clamp(16px, 2.5vw, 40px);
 }
 
 .carousel-arrow-next {
-    right: 20px;
+    right: clamp(16px, 2.5vw, 40px);
 }
 
 /* CAROUSEL INDICATOR DOTS */
@@ -878,7 +891,7 @@
 .hero-cta-container {
     display: flex;
     justify-content: center;
-    margin: 1.5rem 0 3.5rem;
+    margin: 1.75rem 0 3.5rem;
     z-index: 10;
 }
 
@@ -888,12 +901,12 @@
     justify-content: center;
     background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
     color: #ffffff;
-    font-size: 1.65rem;
-    font-weight: 700;
+    font-size: 1.75rem;
+    font-weight: 800;
     text-decoration: none;
-    padding: 0.95rem 5rem;
+    padding: 1rem 5.5rem;
     border-radius: 9999px;
-    box-shadow: 0 14px 32px -4px rgba(29, 78, 216, 0.45), 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 16px 36px -4px rgba(29, 78, 216, 0.45), 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
     letter-spacing: -0.01em;
     border: 2px solid rgba(255, 255, 255, 0.2);
