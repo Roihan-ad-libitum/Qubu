@@ -66,7 +66,7 @@ Untuk menguji alur kerja setiap pengguna, sistem telah menyediakan akun bawaan u
   - Memantau tim mahasiswa yang mengajukan permohonan bimbingan lomba.
   - Mengelola status kesediaan membimbing tim (*Bersedia / Tidak Bersedia*).
   - Melihat portofolio dan capaian kompetisi mahasiswa binaan.
-- **Pendaftaran Akun Baru**: Dosen dapat mendaftar mandiri melalui menu registrasi dengan memilih opsi **Dosen** dan melengkapi data Nama Lengkap beserta Gelar, NIDN, Bidang Keahlian, dan Email Resmi Kampus.
+- **Pendaftaran Akun Baru**: Dosen dapat mendaftar mandiri melalui menu registrasi dengan memilih opsi **Dosen** dan melengkapi data NIDN/NIP, Nama Lengkap & Gelar, serta Bidang Keahlian & Fokus Riset.
 
 ### 3. 🛡️ Administrator Sistem
 - **Kredensial**: Gunakan `marcelloz` / `marceloz123`

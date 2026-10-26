@@ -154,80 +154,88 @@ class AuthController
 
     /**
      * Memproses data registrasi Dosen Pembimbing
+     * Mendukung form biodata sesuai mockup (NIDN/NIP, Nama Lengkap & Gelar, Bidang Keahlian & Fokus Riset)
      */
     private function processRegisterDosen(): void
     {
-        $validator = new Validator($_POST, [
-            'nama_dosen'       => 'required|max:100',
-            'nidn'             => 'required|max:20',
-            'bidang_keahlian'  => 'required|max:50',
-            'email'            => 'required|email|max:100',
-            'no_hp'            => 'required|max:20',
-            'username'         => 'required|min:3|max:50',
-            'password'         => 'required|min:6',
-            'password_confirm' => 'required',
-        ], [
-            'nama_dosen'       => 'Nama Lengkap Dosen',
-            'nidn'             => 'NIDN',
-            'bidang_keahlian'  => 'Bidang Keahlian',
-            'email'            => 'Email',
-            'no_hp'            => 'Nomor Handphone',
-            'username'         => 'Username',
-            'password'         => 'Password',
-            'password_confirm' => 'Konfirmasi Password',
-        ]);
+        // 1. Ambil input biodata dosen (mendukung nama field fleksibel)
+        $nidn           = trim($_POST['nidn'] ?? $_POST['nidn_nip'] ?? '');
+        $namaDosen      = trim($_POST['nama_dosen'] ?? $_POST['nama_lengkap'] ?? '');
+        $bidangKeahlian = trim($_POST['bidang_keahlian'] ?? $_POST['bidang_riset'] ?? '');
 
-        if ($validator->fails()) {
-            Session::setFlash('error', $validator->getFirstError() ?? 'Data pendaftaran belum lengkap.');
+        // 2. Validasi kolom wajib
+        if (empty($nidn) || empty($namaDosen) || empty($bidangKeahlian)) {
+            Session::setFlash('error', 'Semua kolom bertanda wajib (NIDN/NIP, Nama Lengkap & Gelar, Bidang Keahlian & Fokus Riset) harus diisi.');
             Session::setFlash('old', $_POST);
             redirect('?page=register&role=dosen');
         }
 
-        $data = $validator->validated();
-
-        // 1. Cek kecocokan konfirmasi password
-        if ($data['password'] !== $_POST['password_confirm']) {
-            Session::setFlash('error', 'Konfirmasi password tidak cocok dengan password.');
+        // 3. Cek keunikan NIDN
+        if ($this->dosenModel->isNidnExists($nidn)) {
+            Session::setFlash('error', 'NIDN/NIP "' . e($nidn) . '" sudah terdaftar. Silakan masuk menggunakan akun Anda.');
             Session::setFlash('old', $_POST);
             redirect('?page=register&role=dosen');
         }
 
-        // 2. Cek keunikan username
-        if ($this->userModel->isUsernameExists($data['username'])) {
-            Session::setFlash('error', 'Username "' . e($data['username']) . '" sudah digunakan. Silakan pilih username lain.');
-            Session::setFlash('old', $_POST);
-            redirect('?page=register&role=dosen');
+        // 4. Kredensial akun: gunakan input jika ada, atau buat otomatis berdasarkan NIDN
+        $username = !empty($_POST['username']) ? trim($_POST['username']) : $nidn;
+        $email    = !empty($_POST['email']) ? trim($_POST['email']) : ($nidn . '@dosen.unsika.ac.id');
+        $noHp     = !empty($_POST['no_hp']) ? trim($_POST['no_hp']) : '-';
+
+        // Password: jika diberikan pada form, validasi; jika tidak, default menggunakan NIDN
+        if (!empty($_POST['password'])) {
+            if (strlen($_POST['password']) < 6) {
+                Session::setFlash('error', 'Password minimal 6 karakter.');
+                Session::setFlash('old', $_POST);
+                redirect('?page=register&role=dosen');
+            }
+            if (isset($_POST['password_confirm']) && $_POST['password'] !== $_POST['password_confirm']) {
+                Session::setFlash('error', 'Konfirmasi password tidak cocok.');
+                Session::setFlash('old', $_POST);
+                redirect('?page=register&role=dosen');
+            }
+            $password = $_POST['password'];
+        } else {
+            $password = $nidn;
         }
 
-        // 3. Cek keunikan email
-        if ($this->userModel->isEmailExists($data['email'])) {
-            Session::setFlash('error', 'Email "' . e($data['email']) . '" sudah terdaftar.');
-            Session::setFlash('old', $_POST);
-            redirect('?page=register&role=dosen');
+        // 5. Cek keunikan username
+        if ($this->userModel->isUsernameExists($username)) {
+            if (empty($_POST['username'])) {
+                $username = 'dsn_' . $nidn;
+            } else {
+                Session::setFlash('error', 'Username "' . e($username) . '" sudah digunakan. Silakan pilih username lain.');
+                Session::setFlash('old', $_POST);
+                redirect('?page=register&role=dosen');
+            }
         }
 
-        // 4. Cek keunikan NIDN
-        if ($this->dosenModel->isNidnExists($data['nidn'])) {
-            Session::setFlash('error', 'NIDN "' . e($data['nidn']) . '" sudah terdaftar.');
-            Session::setFlash('old', $_POST);
-            redirect('?page=register&role=dosen');
+        // 6. Cek keunikan email
+        if ($this->userModel->isEmailExists($email)) {
+            if (!empty($_POST['email'])) {
+                Session::setFlash('error', 'Email "' . e($email) . '" sudah terdaftar.');
+                Session::setFlash('old', $_POST);
+                redirect('?page=register&role=dosen');
+            } else {
+                $email = $nidn . '_' . time() . '@dosen.unsika.ac.id';
+            }
         }
 
-        // 5. Simpan data akun & profil dosen
+        // 7. Simpan data akun & profil dosen dalam transaksi atomik
         try {
             $this->dosenModel->registerDosen([
-                'username' => $data['username'],
-                'password' => $data['password'],
-                'no_hp'    => $data['no_hp'],
-                'email'    => $data['email'],
+                'username' => $username,
+                'password' => $password,
+                'no_hp'    => $noHp,
+                'email'    => $email,
             ], [
-                'nama_dosen'      => $data['nama_dosen'],
-                'bidang_keahlian' => $data['bidang_keahlian'],
-                'nidn'            => $data['nidn'],
+                'nama_dosen'      => $namaDosen,
+                'bidang_keahlian' => $bidangKeahlian,
+                'nidn'            => $nidn,
                 'status'          => 'bersedia',
             ]);
 
-            Session::setFlash('success', 'Pendaftaran akun Dosen berhasil! Silakan masuk dengan username dan password Anda.');
+            Session::setFlash('success', 'Pendaftaran Dosen berhasil! Silakan masuk dengan NIDN/NIP (' . e($nidn) . ') sebagai Username dan Password awal.');
             redirect('?page=login');
         } catch (Exception $e) {
             Session::setFlash('error', 'Terjadi kesalahan sistem saat mendaftar: ' . $e->getMessage());
@@ -238,81 +246,92 @@ class AuthController
 
     /**
      * Memproses data registrasi Mahasiswa / Peserta
+     * Mendukung form biodata sesuai mockup (NPM, Nama Lengkap, Program Studi, Angkatan, Bidang Peminatan)
      */
     private function processRegisterMahasiswa(): void
     {
-        $validator = new Validator($_POST, [
-            'nama_mahasiswa'   => 'required|max:100',
-            'npm'              => 'required|max:20',
-            'program_studi'    => 'required|max:30',
-            'angkatan'         => 'required|max:4',
-            'bidang_minat'     => 'max:30',
-            'email'            => 'required|email|max:100',
-            'no_hp'            => 'required|max:20',
-            'username'         => 'required|min:3|max:50',
-            'password'         => 'required|min:6',
-            'password_confirm' => 'required',
-        ], [
-            'nama_mahasiswa'   => 'Nama Mahasiswa',
-            'npm'              => 'NPM',
-            'program_studi'    => 'Program Studi',
-            'angkatan'         => 'Angkatan',
-            'bidang_minat'     => 'Bidang Minat',
-            'email'            => 'Email',
-            'no_hp'            => 'Nomor Handphone',
-            'username'         => 'Username',
-            'password'         => 'Password',
-            'password_confirm' => 'Konfirmasi Password',
-        ]);
+        // 1. Ambil input biodata (mendukung nama field fleksibel)
+        $namaMahasiswa = trim($_POST['nama_mahasiswa'] ?? $_POST['nama_lengkap'] ?? '');
+        $npm           = trim($_POST['npm'] ?? '');
+        $programStudi  = trim($_POST['program_studi'] ?? '');
+        $angkatan      = trim($_POST['angkatan'] ?? '');
+        $bidangMinat   = trim($_POST['bidang_minat'] ?? $_POST['bidang_peminatan'] ?? 'Umum');
 
-        if ($validator->fails()) {
-            Session::setFlash('error', $validator->getFirstError() ?? 'Data pendaftaran belum lengkap.');
+        // 2. Validasi kolom wajib biodata
+        if (empty($npm) || empty($namaMahasiswa) || empty($programStudi) || empty($angkatan)) {
+            Session::setFlash('error', 'Semua kolom bertanda wajib (NPM, Nama Lengkap, Program Studi, Angkatan) harus diisi.');
             Session::setFlash('old', $_POST);
             redirect('?page=register&role=mahasiswa');
         }
 
-        $data = $validator->validated();
-
-        if ($data['password'] !== $_POST['password_confirm']) {
-            Session::setFlash('error', 'Konfirmasi password tidak cocok dengan password.');
+        // 3. Cek keunikan NPM
+        if ($this->mahasiswaModel->isNpmExists($npm)) {
+            Session::setFlash('error', 'NPM "' . e($npm) . '" sudah terdaftar. Silakan masuk menggunakan akun Anda.');
             Session::setFlash('old', $_POST);
             redirect('?page=register&role=mahasiswa');
         }
 
-        if ($this->userModel->isUsernameExists($data['username'])) {
-            Session::setFlash('error', 'Username "' . e($data['username']) . '" sudah digunakan. Silakan pilih username lain.');
-            Session::setFlash('old', $_POST);
-            redirect('?page=register&role=mahasiswa');
+        // 4. Kredensial akun: gunakan input jika ada, atau buat otomatis berdasarkan NPM
+        $username = !empty($_POST['username']) ? trim($_POST['username']) : $npm;
+        $email    = !empty($_POST['email']) ? trim($_POST['email']) : ($npm . '@student.unsika.ac.id');
+        $noHp     = !empty($_POST['no_hp']) ? trim($_POST['no_hp']) : '-';
+
+        // Password: jika diberikan pada form, lakukan pengecekan; jika tidak, default menggunakan NPM
+        if (!empty($_POST['password'])) {
+            if (strlen($_POST['password']) < 6) {
+                Session::setFlash('error', 'Password minimal 6 karakter.');
+                Session::setFlash('old', $_POST);
+                redirect('?page=register&role=mahasiswa');
+            }
+            if (isset($_POST['password_confirm']) && $_POST['password'] !== $_POST['password_confirm']) {
+                Session::setFlash('error', 'Konfirmasi password tidak cocok.');
+                Session::setFlash('old', $_POST);
+                redirect('?page=register&role=mahasiswa');
+            }
+            $password = $_POST['password'];
+        } else {
+            $password = $npm;
         }
 
-        if ($this->userModel->isEmailExists($data['email'])) {
-            Session::setFlash('error', 'Email "' . e($data['email']) . '" sudah terdaftar.');
-            Session::setFlash('old', $_POST);
-            redirect('?page=register&role=mahasiswa');
+        // 5. Cek keunikan username
+        if ($this->userModel->isUsernameExists($username)) {
+            if (empty($_POST['username'])) {
+                $username = 'mhs_' . $npm;
+            } else {
+                Session::setFlash('error', 'Username "' . e($username) . '" sudah digunakan. Silakan pilih username lain.');
+                Session::setFlash('old', $_POST);
+                redirect('?page=register&role=mahasiswa');
+            }
         }
 
-        if ($this->mahasiswaModel->isNpmExists($data['npm'])) {
-            Session::setFlash('error', 'NPM "' . e($data['npm']) . '" sudah terdaftar.');
-            Session::setFlash('old', $_POST);
-            redirect('?page=register&role=mahasiswa');
+        // 6. Cek keunikan email
+        if ($this->userModel->isEmailExists($email)) {
+            if (!empty($_POST['email'])) {
+                Session::setFlash('error', 'Email "' . e($email) . '" sudah terdaftar.');
+                Session::setFlash('old', $_POST);
+                redirect('?page=register&role=mahasiswa');
+            } else {
+                $email = $npm . '_' . time() . '@student.unsika.ac.id';
+            }
         }
 
+        // 7. Simpan akun & profil mahasiswa dalam transaksi database atomik
         try {
             $this->mahasiswaModel->registerMahasiswa([
-                'username' => $data['username'],
-                'password' => $data['password'],
-                'no_hp'    => $data['no_hp'],
-                'email'    => $data['email'],
+                'username' => $username,
+                'password' => $password,
+                'no_hp'    => $noHp,
+                'email'    => $email,
             ], [
-                'npm'            => $data['npm'],
-                'nama_mahasiswa' => $data['nama_mahasiswa'],
-                'program_studi'  => $data['program_studi'],
-                'angkatan'       => $data['angkatan'],
-                'bidang_minat'   => $data['bidang_minat'] ?? 'Umum',
+                'npm'            => $npm,
+                'nama_mahasiswa' => $namaMahasiswa,
+                'program_studi'  => $programStudi,
+                'angkatan'       => $angkatan,
+                'bidang_minat'   => !empty($bidangMinat) ? $bidangMinat : 'Umum',
                 'bio'            => '',
             ]);
 
-            Session::setFlash('success', 'Pendaftaran akun Mahasiswa berhasil! Silakan masuk dengan akun baru Anda.');
+            Session::setFlash('success', 'Pendaftaran Mahasiswa berhasil! Silakan masuk dengan NPM (' . e($npm) . ') sebagai Username dan Password awal.');
             redirect('?page=login');
         } catch (Exception $e) {
             Session::setFlash('error', 'Terjadi kesalahan sistem saat mendaftar: ' . $e->getMessage());

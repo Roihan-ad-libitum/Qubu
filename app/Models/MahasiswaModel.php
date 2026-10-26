@@ -7,11 +7,16 @@ require_once __DIR__ . '/../../config/database.php';
 
 class MahasiswaModel
 {
-    private PDO $pdo;
+    private ?PDO $pdo = null;
 
     public function __construct(?PDO $pdo = null)
     {
-        $this->pdo = $pdo ?? db();
+        $this->pdo = $pdo;
+    }
+
+    private function pdo(): PDO
+    {
+        return $this->pdo ??= db();
     }
 
     /**
@@ -19,7 +24,7 @@ class MahasiswaModel
      */
     public function isNpmExists(string $npm): bool
     {
-        $stmt = $this->pdo->prepare("SELECT 1 FROM mahasiswa WHERE npm = :npm LIMIT 1");
+        $stmt = $this->pdo()->prepare("SELECT 1 FROM mahasiswa WHERE npm = :npm LIMIT 1");
         $stmt->execute([':npm' => trim($npm)]);
         return (bool) $stmt->fetchColumn();
     }
@@ -34,13 +39,14 @@ class MahasiswaModel
      */
     public function registerMahasiswa(array $userData, array $mahasiswaData): int
     {
+        $db = $this->pdo();
         try {
-            $this->pdo->beginTransaction();
+            $db->beginTransaction();
 
             // 1. Simpan ke tabel users (role = 'peserta')
             $sqlUser = "INSERT INTO users (username, password, role, no_hp, email) 
                         VALUES (:username, :password, 'peserta', :no_hp, :email)";
-            $stmtUser = $this->pdo->prepare($sqlUser);
+            $stmtUser = $db->prepare($sqlUser);
             $stmtUser->execute([
                 ':username' => trim($userData['username']),
                 ':password' => $userData['password'],
@@ -48,12 +54,12 @@ class MahasiswaModel
                 ':email'    => trim($userData['email']),
             ]);
 
-            $idUser = (int) $this->pdo->lastInsertId();
+            $idUser = (int) $db->lastInsertId();
 
             // 2. Simpan ke tabel mahasiswa
             $sqlMhs = "INSERT INTO mahasiswa (id_user, npm, nama_mahasiswa, program_studi, angkatan, bidang_minat, bio) 
                        VALUES (:id_user, :npm, :nama_mahasiswa, :program_studi, :angkatan, :bidang_minat, :bio)";
-            $stmtMhs = $this->pdo->prepare($sqlMhs);
+            $stmtMhs = $db->prepare($sqlMhs);
             $stmtMhs->execute([
                 ':id_user'        => $idUser,
                 ':npm'            => trim($mahasiswaData['npm']),
@@ -64,11 +70,11 @@ class MahasiswaModel
                 ':bio'            => trim($mahasiswaData['bio'] ?? ''),
             ]);
 
-            $this->pdo->commit();
+            $db->commit();
             return $idUser;
         } catch (Exception $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
+            if ($db->inTransaction()) {
+                $db->rollBack();
             }
             throw $e;
         }
@@ -84,7 +90,7 @@ class MahasiswaModel
                 JOIN users u ON u.id_user = m.id_user 
                 WHERE m.id_user = :id_user 
                 LIMIT 1";
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $this->pdo()->prepare($sql);
         $stmt->execute([':id_user' => $idUser]);
         $data = $stmt->fetch();
         return $data === false ? null : $data;

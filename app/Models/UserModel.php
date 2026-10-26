@@ -5,11 +5,16 @@
  */
 class UserModel
 {
-    private PDO $pdo;
+    private ?PDO $pdo = null;
 
     public function __construct(?PDO $pdo = null)
     {
-        $this->pdo = $pdo ?? db();
+        $this->pdo = $pdo;
+    }
+
+    private function pdo(): PDO
+    {
+        return $this->pdo ??= db();
     }
 
     /**
@@ -34,7 +39,7 @@ class UserModel
                 ORDER BY u.id_user ASC
                 LIMIT 1";
 
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $this->pdo()->prepare($sql);
         $stmt->execute([
             ':username' => $identity,
             ':email'    => $identity
@@ -69,7 +74,7 @@ class UserModel
      */
     public function isUsernameExists(string $username): bool
     {
-        $stmt = $this->pdo->prepare("SELECT 1 FROM users WHERE username = :username LIMIT 1");
+        $stmt = $this->pdo()->prepare("SELECT 1 FROM users WHERE username = :username LIMIT 1");
         $stmt->execute([':username' => trim($username)]);
         return (bool) $stmt->fetchColumn();
     }
@@ -79,7 +84,7 @@ class UserModel
      */
     public function isEmailExists(string $email): bool
     {
-        $stmt = $this->pdo->prepare("SELECT 1 FROM users WHERE email = :email LIMIT 1");
+        $stmt = $this->pdo()->prepare("SELECT 1 FROM users WHERE email = :email LIMIT 1");
         $stmt->execute([':email' => trim($email)]);
         return (bool) $stmt->fetchColumn();
     }
