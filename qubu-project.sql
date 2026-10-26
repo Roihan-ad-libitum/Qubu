@@ -60,7 +60,9 @@ CREATE TABLE `lomba` (
   `biaya` decimal(10,0) NOT NULL,
   `partisipasi` enum('Individu','Tim','Individu/Tim') NOT NULL,
   `bidang` varchar(80) NOT NULL,
-  `link_resmi` varchar(255) NOT NULL
+  `link_resmi` varchar(255) NOT NULL,
+  `poster` varchar(255) DEFAULT NULL,
+  `link_guidebook` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
