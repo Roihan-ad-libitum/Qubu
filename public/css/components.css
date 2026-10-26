@@ -255,3 +255,45 @@ body {
     color: #334155;
     cursor: pointer;
 }
+
+/* ========================================================================= */
+/* RESPONSIVE MOBILE BREAKPOINTS                                             */
+/* ========================================================================= */
+@media (max-width: 480px) {
+    body {
+        padding: 1rem 0.75rem;
+    }
+
+    .auth-wrapper {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .auth-card {
+        padding: 2.25rem 1.25rem 1.75rem;
+        border-radius: 20px;
+    }
+
+    .auth-title {
+        font-size: 1.85rem;
+    }
+
+    .auth-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .auth-btn-submit {
+        height: 50px;
+        font-size: 1.05rem;
+    }
+
+    .auth-input {
+        padding: 0.85rem 1rem;
+        font-size: 0.95rem;
+    }
+
+    .demo-accounts-box {
+        font-size: 0.7rem;
+    }
+}

@@ -1001,3 +1001,102 @@
         padding: 0.85rem 3.5rem;
     }
 }
+
+@media (max-width: 480px) {
+    .home-nav {
+        padding: 0.85rem 1rem;
+    }
+
+    .home-logo-svg {
+        height: 32px;
+    }
+
+    .hero-section {
+        margin-top: 1rem;
+    }
+
+    .hero-title {
+        font-size: clamp(1.85rem, 8.5vw, 2.35rem);
+        line-height: 1.05;
+    }
+
+    .carousel-section {
+        padding: 0.75rem 0 1.5rem;
+    }
+
+    .carousel-viewport {
+        height: 380px;
+    }
+
+    .carousel-card {
+        width: 200px;
+        height: 330px;
+        border-radius: 22px;
+        padding: 0.85rem;
+    }
+
+    .card-badge {
+        font-size: 0.7rem;
+        padding: 4px 10px;
+        margin-bottom: 0.4rem;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+    }
+
+    .card-tag {
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .carousel-card[data-offset="-1"] {
+        transform: translate3d(-75px, 0, -10px) scale(0.85);
+    }
+
+    .carousel-card[data-offset="1"] {
+        transform: translate3d(75px, 0, -10px) scale(0.85);
+    }
+
+    .carousel-card[data-offset="-2"] {
+        transform: translate3d(-140px, 0, -40px) scale(0.70);
+    }
+
+    .carousel-card[data-offset="2"] {
+        transform: translate3d(140px, 0, -40px) scale(0.70);
+    }
+
+    .carousel-arrow {
+        width: 34px;
+        height: 34px;
+    }
+
+    .carousel-arrow svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .carousel-arrow-prev { left: 4px; }
+    .carousel-arrow-next { right: 4px; }
+
+    .carousel-dots {
+        margin-top: 0.75rem;
+        gap: 6px;
+    }
+
+    .carousel-dot {
+        width: 8px;
+        height: 8px;
+    }
+
+    .carousel-dot.is-active {
+        width: 22px;
+    }
+
+    .btn-hero-login {
+        font-size: 1.15rem;
+        padding: 0.85rem 2.25rem;
+        max-width: calc(100% - 2rem);
+    }
+}
+

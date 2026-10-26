@@ -109,6 +109,7 @@ Jika ingin menguji pendaftaran akun baru dari awal:
 - **Formulir Daftar Dosen**: `http://localhost:8000/?page=register&role=dosen`
 - **Halaman Profil Mahasiswa**: `http://localhost:8000/?page=mahasiswa-profile`
 - **Halaman Profil Dosen**: `http://localhost:8000/?page=dosen-profile`
+- **Halaman Admin Kelola Lomba**: `http://localhost:8000/?page=admin-lomba`
 - **Keluar Akun (Logout)**: `http://localhost:8000/?page=logout`
 
 ---

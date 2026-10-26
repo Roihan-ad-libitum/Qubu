@@ -195,4 +195,74 @@ class MahasiswaModel
         $data = $stmt->fetch();
         return $data === false ? null : $data;
     }
+
+    /**
+     * Ambil data profil mahasiswa berdasarkan NPM
+     */
+    public function findByNpm(string $npm): ?array
+    {
+        $sql = "SELECT m.*, u.username, u.email, u.no_hp 
+                FROM mahasiswa m 
+                JOIN users u ON u.id_user = m.id_user 
+                WHERE m.npm = :npm 
+                LIMIT 1";
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute([':npm' => trim($npm)]);
+        $data = $stmt->fetch();
+        return $data === false ? null : $data;
+    }
+
+    /**
+     * Perbarui data profil mahasiswa berdasarkan id_user
+     */
+    public function updateProfileByUserId(int $idUser, array $data): bool
+    {
+        $fields = [];
+        $params = [':id_user' => $idUser];
+
+        if (isset($data['npm'])) {
+            $fields[] = 'npm = :npm';
+            $params[':npm'] = trim($data['npm']);
+        }
+        if (isset($data['nama_mahasiswa'])) {
+            $fields[] = 'nama_mahasiswa = :nama_mahasiswa';
+            $params[':nama_mahasiswa'] = trim($data['nama_mahasiswa']);
+        }
+        if (isset($data['program_studi'])) {
+            $fields[] = 'program_studi = :program_studi';
+            $params[':program_studi'] = trim($data['program_studi']);
+        }
+        if (isset($data['angkatan'])) {
+            $fields[] = 'angkatan = :angkatan';
+            $params[':angkatan'] = trim($data['angkatan']);
+        }
+        if (isset($data['bidang_minat'])) {
+            $fields[] = 'bidang_minat = :bidang_minat';
+            $params[':bidang_minat'] = trim($data['bidang_minat']);
+        }
+        if (isset($data['bio'])) {
+            $fields[] = 'bio = :bio';
+            $params[':bio'] = trim($data['bio']);
+        }
+        if (isset($data['foto'])) {
+            try {
+                $colStmt = $this->pdo()->query("SHOW COLUMNS FROM mahasiswa LIKE 'foto'");
+                if (!$colStmt->fetch()) {
+                    $this->pdo()->exec("ALTER TABLE mahasiswa ADD COLUMN foto VARCHAR(255) NULL");
+                }
+                $fields[] = 'foto = :foto';
+                $params[':foto'] = trim($data['foto']);
+            } catch (Throwable $e) {
+                // Abaikan jika alter gagal
+            }
+        }
+
+        if (empty($fields)) {
+            return false;
+        }
+
+        $sql = "UPDATE mahasiswa SET " . implode(', ', $fields) . " WHERE id_user = :id_user";
+        $stmt = $this->pdo()->prepare($sql);
+        return $stmt->execute($params);
+    }
 }

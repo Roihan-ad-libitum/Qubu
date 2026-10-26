@@ -33,7 +33,8 @@ CREATE TABLE `dosen` (
   `nama_dosen` varchar(100) NOT NULL,
   `bidang_keahlian` varchar(50) NOT NULL,
   `nidn` varchar(20) NOT NULL,
-  `status` enum('bersedia','tidak_bersedia') NOT NULL
+  `status` enum('bersedia','tidak_bersedia') NOT NULL,
+  `foto` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -86,7 +87,8 @@ CREATE TABLE `mahasiswa` (
   `program_studi` varchar(30) NOT NULL,
   `angkatan` varchar(4) NOT NULL,
   `bidang_minat` varchar(30) NOT NULL,
-  `bio` text NOT NULL
+  `bio` text NOT NULL,
+  `foto` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
