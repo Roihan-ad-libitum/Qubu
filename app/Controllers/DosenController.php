@@ -60,16 +60,26 @@ class DosenController
             'foto'            => $profile['foto'] ?? ($demoData['foto'] ?? null),
         ];
 
-        // Format tags keahlian menjadi array
+        // Format tags keahlian menjadi array (fokus pada kartu index.php)
         $rawTags = array_map('trim', explode(',', (string) $data['bidang_keahlian']));
-        $tags = array_values(array_filter($rawTags, fn($t) => $t !== ''));
-
-        if (empty($tags)) {
-            $tags = ['Software Development', 'UI/UX Design'];
+        $allowedOptions = $this->dosenModel->getBidangKeahlianOptions();
+        $tags = [];
+        foreach ($rawTags as $rt) {
+            foreach ($allowedOptions as $ao) {
+                if (strcasecmp($rt, $ao) === 0) {
+                    $tags[] = $ao;
+                    break;
+                }
+            }
         }
 
-        // Pilihan bidang keahlian dari database & fallback
-        $availableOptions = $this->dosenModel->getBidangKeahlianOptions();
+        if (empty($tags)) {
+            $tags = ['Frontend', 'Backend'];
+        }
+        $tags = array_values(array_unique($tags));
+
+        // Pilihan bidang keahlian resmi Qubu
+        $availableOptions = $allowedOptions;
 
         $error = Session::getFlash('error');
         $success = Session::getFlash('success');

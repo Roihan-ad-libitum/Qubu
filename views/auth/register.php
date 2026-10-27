@@ -524,18 +524,24 @@ require_once __DIR__ . '/../layouts/headers.php';
                     >
                 </div>
 
-                <!-- 3. Bidang Keahlian & Fokus Riset -->
+                <!-- 3. Bidang Keahlian & Fokus Riset (Fokus Kartu index.php) -->
                 <div class="mhs-form-group">
                     <label for="bidang_keahlian" class="mhs-form-label">Bidang Keahlian &amp; Fokus Riset</label>
-                    <input 
-                        type="text" 
-                        name="bidang_keahlian" 
-                        id="bidang_keahlian" 
-                        class="mhs-form-input" 
-                        placeholder="" 
-                        value="<?= e($old['bidang_keahlian'] ?? '') ?>" 
-                        required
-                    >
+                    <div class="mhs-select-wrapper">
+                        <select name="bidang_keahlian" id="bidang_keahlian" class="mhs-form-input mhs-select" required>
+                            <option value="" disabled <?= empty($old['bidang_keahlian']) ? 'selected' : '' ?>>Pilih Bidang Keahlian...</option>
+                            <?php foreach ($peminatanOptions as $opt): ?>
+                                <option value="<?= e($opt) ?>" <?= (($old['bidang_keahlian'] ?? '') === $opt) ? 'selected' : '' ?>>
+                                    <?= e($opt) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="mhs-select-chevron">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Tombol Submit: Daftar -->

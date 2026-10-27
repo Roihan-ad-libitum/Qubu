@@ -161,79 +161,24 @@ class DosenModel
     }
 
     /**
-     * Ambil daftar pilihan bidang keahlian dosen dari database
-     * dengan fallback ke bidang populer Qubu / ilmu komputer & teknologi
+     * Ambil daftar pilihan bidang keahlian dosen
+     * Fokus secara eksklusif pada kartu yang ada di index.php:
+     * (Frontend, Backend, UI/UX Design, Data Science, Robotic)
      *
      * @return array
      */
     public function getBidangKeahlianOptions(): array
     {
-        $defaultOptions = [
-            'Software Development',
-            'UI/UX Design',
-            'Data Science',
-            'Artificial Intelligence',
-            'Machine Learning',
-            'Cyber Security',
-            'Web Development',
-            'Mobile Development',
-            'Cloud Computing',
-            'Internet of Things (IoT)',
-            'Game Development',
-            'Computer Vision',
-            'Database Management',
-            'Network Engineering',
-            'Robotics'
-        ];
-
-        try {
-            $db = $this->pdo();
-            $dbOptions = [];
-
-            // 1. Ambil dari tabel dosen (bidang_keahlian)
-            try {
-                $stmtDosen = $db->query("SELECT DISTINCT bidang_keahlian FROM dosen WHERE bidang_keahlian IS NOT NULL AND TRIM(bidang_keahlian) != ''");
-                if ($stmtDosen) {
-                    while ($val = $stmtDosen->fetchColumn()) {
-                        // Pecah jika tersimpan sebagai nilai dipisahkan koma
-                        $parts = explode(',', (string)$val);
-                        foreach ($parts as $p) {
-                            $trimmed = trim($p);
-                            if ($trimmed !== '') {
-                                $dbOptions[] = $trimmed;
-                            }
-                        }
-                    }
-                }
-            } catch (Throwable $e) {
-                // Abaikan jika tabel dosen belum siap
-            }
-
-            // 2. Ambil dari tabel lomba (bidang)
-            try {
-                $stmtLomba = $db->query("SELECT DISTINCT bidang FROM lomba WHERE bidang IS NOT NULL AND TRIM(bidang) != ''");
-                if ($stmtLomba) {
-                    while ($val = $stmtLomba->fetchColumn()) {
-                        $trimmed = trim((string)$val);
-                        if ($trimmed !== '') {
-                            $dbOptions[] = $trimmed;
-                        }
-                    }
-                }
-            } catch (Throwable $e) {
-                // Abaikan jika tabel lomba belum siap
-            }
-
-            if (!empty($dbOptions)) {
-                $merged = array_unique(array_merge($defaultOptions, $dbOptions));
-                sort($merged, SORT_STRING | SORT_FLAG_CASE);
-                return array_values($merged);
-            }
-        } catch (Throwable $e) {
-            // Fallback ke default
+        if (defined('BIDANG_QUBU')) {
+            return BIDANG_QUBU;
         }
 
-        sort($defaultOptions, SORT_STRING | SORT_FLAG_CASE);
-        return $defaultOptions;
+        return [
+            'Frontend',
+            'Backend',
+            'UI/UX Design',
+            'Data Science',
+            'Robotic'
+        ];
     }
 }

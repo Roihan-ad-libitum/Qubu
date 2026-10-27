@@ -201,17 +201,14 @@ require_once __DIR__ . '/../layouts/headers.php';
                             </button>
                         </div>
 
-                        <!-- Box Tambah Pilihan Keahlian (Muncul saat tombol Tambah + diklik) -->
+                        <!-- Box Tambah Pilihan Keahlian (Fokus pada kartu index.php) -->
                         <div class="add-tag-box" id="add-tag-box">
                             <select id="select-new-tag" class="add-tag-select">
                                 <option value="" disabled selected>Pilih Bidang Keahlian...</option>
                                 <?php foreach ($availableOptions as $opt): ?>
                                     <option value="<?= e($opt) ?>"><?= e($opt) ?></option>
                                 <?php endforeach; ?>
-                                <option value="__custom__">+ Tulis Keahlian Lainnya...</option>
                             </select>
-
-                            <input type="text" id="input-custom-tag" class="add-tag-select" placeholder="Ketik bidang keahlian..." style="display: none;">
 
                             <button type="button" class="btn-confirm-add-tag" id="btn-confirm-add-tag">Tambahkan</button>
                             <button type="button" class="btn-cancel-add-tag" id="btn-cancel-add-tag">Batal</button>
@@ -355,33 +352,16 @@ document.addEventListener('DOMContentLoaded', function () {
         btnCancelAddTag.addEventListener('click', function () {
             addTagBox.classList.remove('show');
             selectNewTag.value = '';
-            inputCustomTag.value = '';
-            inputCustomTag.style.display = 'none';
         });
     }
 
-    // Ganti ke custom input jika opsi "+ Tulis Keahlian Lainnya..." dipilih
-    if (selectNewTag && inputCustomTag) {
-        selectNewTag.addEventListener('change', function () {
-            if (this.value === '__custom__') {
-                inputCustomTag.style.display = 'block';
-                inputCustomTag.focus();
-            } else {
-                inputCustomTag.style.display = 'none';
-            }
-        });
-    }
-
-    // Konfirmasi Tambah Tag
+    // Konfirmasi Tambah Tag (hanya dari kartu index.php)
     if (btnConfirmAddTag) {
         btnConfirmAddTag.addEventListener('click', function () {
-            let selectedTag = selectNewTag.value;
-            if (selectedTag === '__custom__') {
-                selectedTag = inputCustomTag.value.trim();
-            }
+            const selectedTag = selectNewTag.value ? selectNewTag.value.trim() : '';
 
             if (!selectedTag) {
-                alert('Silakan pilih atau ketik bidang keahlian terlebih dahulu.');
+                alert('Silakan pilih salah satu bidang keahlian dari daftar.');
                 return;
             }
 

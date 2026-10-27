@@ -23,6 +23,20 @@ if (!defined('ROLE_DOSEN'))   define('ROLE_DOSEN', 'dosen');
 if (!defined('ROLE_ADMIN'))   define('ROLE_ADMIN', 'admin');
 
 /**
+ * Daftar Bidang Utama Qubu yang berfokus secara eksklusif pada 5 kartu di index.php
+ * (Frontend, Robotic, UI/UX Design, Backend, Data Science)
+ */
+if (!defined('BIDANG_QUBU')) {
+    define('BIDANG_QUBU', [
+        'Frontend',
+        'Backend',
+        'UI/UX Design',
+        'Data Science',
+        'Robotic'
+    ]);
+}
+
+/**
  * BASE_URL otomatis tanpa trailing slash, mis. http://localhost/InfoLomba
  * Dapat di-override melalui environment variable APP_URL jika diperlukan.
  */

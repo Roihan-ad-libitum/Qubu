@@ -252,21 +252,28 @@ require_once __DIR__ . '/../layouts/headers.php';
                         >
                     </div>
 
-                    <!-- Input 5: Bidang Perlombaan -->
+                    <!-- Input 5: Bidang Perlombaan (Fokus pada kartu index.php) -->
                     <div class="admin-field-group">
                         <label for="bidang" class="admin-field-label">Bidang Perlombaan</label>
-                        <input 
-                            type="text" 
+                        <select 
                             name="bidang" 
                             id="bidang" 
                             class="admin-field-input" 
-                            value="<?= e($lombaData['bidang'] ?? 'UI/UX Design') ?>" 
-                            placeholder="UI/UX Design"
                             required
                         >
+                            <?php 
+                            $adminBidangOpts = defined('BIDANG_QUBU') ? BIDANG_QUBU : ['Frontend', 'Backend', 'UI/UX Design', 'Data Science', 'Robotic'];
+                            $currentBidangVal = $lombaData['bidang'] ?? 'UI/UX Design';
+                            foreach ($adminBidangOpts as $bOpt): 
+                            ?>
+                                <option value="<?= e($bOpt) ?>" <?= (strcasecmp($currentBidangVal, $bOpt) === 0) ? 'selected' : '' ?>>
+                                    <?= e($bOpt) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                         <!-- Pill Tag Kategori Kuning Sesuai Mockup -->
                         <div>
-                            <span class="kategori-amber-pill" id="display-tag-bidang"><?= e($lombaData['bidang'] ?? 'UI/UX Design') ?></span>
+                            <span class="kategori-amber-pill" id="display-tag-bidang"><?= e($currentBidangVal) ?></span>
                         </div>
                     </div>
                 </section>
@@ -525,9 +532,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const displayTagBidang = document.getElementById('display-tag-bidang');
 
     if (inputBidang && displayTagBidang) {
-        inputBidang.addEventListener('input', function () {
-            displayTagBidang.textContent = this.value || 'Umum';
-        });
+        const updateBidangTag = () => {
+            displayTagBidang.textContent = inputBidang.value || 'UI/UX Design';
+        };
+        inputBidang.addEventListener('change', updateBidangTag);
+        inputBidang.addEventListener('input', updateBidangTag);
     }
 
     // 5. Rich Text Toolbar untuk Deskripsi Kegiatan
