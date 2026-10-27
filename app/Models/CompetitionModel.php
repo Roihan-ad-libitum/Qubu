@@ -285,7 +285,7 @@ class CompetitionModel
     }
 
     /**
-     * Memastikan kolom poster dan link_guidebook sudah dibuat di tabel lomba
+     * Memastikan kolom tambahan dan indeks pendukung performa sudah ada di tabel lomba
      */
     private function ensureAdditionalColumns(): void
     {
@@ -298,6 +298,17 @@ class CompetitionModel
             }
             if (!in_array('link_guidebook', $cols)) {
                 $db->exec("ALTER TABLE lomba ADD COLUMN link_guidebook VARCHAR(255) NULL");
+            }
+
+            // Pastikan indeks performa untuk pencarian dan filter tersedia
+            $indexes = $db->query("SHOW INDEX FROM lomba")->fetchAll(PDO::FETCH_ASSOC);
+            $indexNames = array_column($indexes, 'Key_name');
+
+            if (!in_array('idx_lomba_bidang', $indexNames)) {
+                $db->exec("ALTER TABLE lomba ADD INDEX idx_lomba_bidang (bidang)");
+            }
+            if (!in_array('idx_lomba_deadline', $indexNames)) {
+                $db->exec("ALTER TABLE lomba ADD INDEX idx_lomba_deadline (deadline_daftar)");
             }
         } catch (Throwable $e) {
             // Abaikan jika alter gagal atau sudah ada
