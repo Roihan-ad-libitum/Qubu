@@ -5,6 +5,7 @@
 
 require_once __DIR__ . '/../Models/MahasiswaModel.php';
 require_once __DIR__ . '/../Models/UserModel.php';
+require_once __DIR__ . '/../Models/CompetitionModel.php';
 require_once __DIR__ . '/../../core/Session.php';
 require_once __DIR__ . '/../../core/AuthMiddleWare.php';
 
@@ -12,12 +13,88 @@ class MahasiswaController
 {
     private MahasiswaModel $mahasiswaModel;
     private UserModel $userModel;
+    private CompetitionModel $competitionModel;
 
     public function __construct()
     {
         $this->mahasiswaModel = new MahasiswaModel();
         $this->userModel = new UserModel();
+        $this->competitionModel = new CompetitionModel();
     }
+
+    /**
+     * Menampilkan Dashboard Utama Mahasiswa Qubu setelah berhasil login
+     * Sesuai mockup desain UI:
+     * - Top Navbar di kanan atas (Info Lomba, Cari Partner, Dosen Pembimbing, Avatar)
+     * - Hero greeting ("Hi Fitria! Ayo Cari Lomba Impianmu", Search box & category pills)
+     * - Section "Rekomendasi Rekan" (lomba & rekan dengan bidang sama dengan profil user)
+     * - Section "Semua Lomba" (katalog lengkap kompetisi)
+     */
+    public function dashboard(): void
+    {
+        Session::start();
+        AuthMiddleware::hasRole(ROLE_PESERTA);
+
+        $idUser = (int) Session::get('id_user');
+        $profile = null;
+
+        if ($idUser) {
+            $profile = $this->mahasiswaModel->findByUserId($idUser);
+        }
+
+        // Ambil data profil mahasiswa dari database atau sesi
+        $userBidangMinat = $profile['bidang_minat'] ?? (Session::get('demo_profile_data')['bidang_minat'] ?? 'UI/UX Design');
+        $namaMahasiswa   = $profile['nama_mahasiswa'] ?? (Session::get('nama_lengkap') ?? 'Fitria');
+        $userFoto        = $profile['foto'] ?? (Session::get('demo_profile_data')['foto'] ?? null);
+
+        // Ambil nama panggilan untuk greeting ("Hi Fitria!")
+        $nameParts = explode(' ', trim($namaMahasiswa));
+        $userFirstName = $nameParts[0] ?? 'User';
+
+        // Ambil data kompetisi
+        $semuaLomba = $this->competitionModel->getAll();
+
+        // 1. Rekomendasi Lomba berdasarkan bidang yang sama dengan profil
+        $minatItems = array_filter(array_map('trim', explode(',', strtolower($userBidangMinat))));
+        if (empty($minatItems)) {
+            $minatItems = ['ui/ux design'];
+        }
+
+        $rekomendasiLomba = [];
+        foreach ($semuaLomba as $lomba) {
+            $lombaBidang = strtolower(trim($lomba['bidang'] ?? ''));
+            foreach ($minatItems as $minat) {
+                if ($minat !== '' && (strpos($lombaBidang, $minat) !== false || strpos($minat, $lombaBidang) !== false)) {
+                    $rekomendasiLomba[] = $lomba;
+                    break;
+                }
+            }
+        }
+
+        // Fallback jika tidak ada lomba dengan bidang yang sama persis
+        if (empty($rekomendasiLomba)) {
+            $rekomendasiLomba = array_slice($semuaLomba, 0, 4);
+        }
+
+        // 2. Rekomendasi Rekan Mahasiswa (teman mahasiswa dengan bidang yang sama)
+        $rekomendasiRekan = $this->mahasiswaModel->getRecommendedPartnersByBidang($idUser, $userBidangMinat);
+
+        // 3. Kategori Bidang untuk Filter Pills (Fokus eksklusif pada kartu index.php)
+        $focusBidang = defined('BIDANG_QUBU') ? BIDANG_QUBU : [
+            'Frontend',
+            'Backend',
+            'UI/UX Design',
+            'Data Science',
+            'Robotic'
+        ];
+        $categoryPills = array_merge(['Semua Bidang'], $focusBidang);
+
+        $title = 'Dashboard Info Lomba - ' . APP_NAME;
+        $extraCss = ['public/css/components.css', 'public/css/dashboard.css'];
+
+        require_once __DIR__ . '/../../views/mahasiswa/dashboard.php';
+    }
+
 
     /**
      * Menampilkan & mengelola halaman profil Mahasiswa
@@ -57,15 +134,26 @@ class MahasiswaController
         // Format username (hilangkan prefix @ jika ada agar bersih, nanti ditambahkan di view)
         $data['username'] = ltrim($data['username'], '@');
 
-        // Parse bidang peminatan menjadi array tags
+        // Parse bidang peminatan menjadi array tags yang hanya fokus pada kartu index.php
         $rawMinat = $data['bidang_minat'];
-        $tags = array_filter(array_map('trim', explode(',', (string) $rawMinat)));
-        if (empty($tags)) {
-            $tags = ['Software Development', 'UI/UX Design'];
+        $rawTags = array_filter(array_map('trim', explode(',', (string) $rawMinat)));
+        $allowedOptions = $this->mahasiswaModel->getBidangPeminatanOptions();
+        $tags = [];
+        foreach ($rawTags as $rt) {
+            foreach ($allowedOptions as $ao) {
+                if (strcasecmp($rt, $ao) === 0) {
+                    $tags[] = $ao;
+                    break;
+                }
+            }
         }
+        if (empty($tags)) {
+            $tags = ['Frontend', 'UI/UX Design'];
+        }
+        $tags = array_values(array_unique($tags));
 
-        // Ambil pilihan opsi bidang peminatan dari database untuk menu "Tambah +"
-        $availableOptions = $this->mahasiswaModel->getBidangPeminatanOptions();
+        // Ambil pilihan opsi bidang peminatan resmi Qubu untuk menu "Tambah +"
+        $availableOptions = $allowedOptions;
 
         $error    = Session::getFlash('error');
         $success  = Session::getFlash('success');

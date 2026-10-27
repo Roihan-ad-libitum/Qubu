@@ -111,73 +111,25 @@ class MahasiswaModel
     }
 
     /**
-     * Ambil daftar pilihan bidang peminatan dari database (tabel lomba dan mahasiswa)
-     * dengan fallback otomatis ke kategori lomba resmi Qubu jika database kosong/offline.
+     * Ambil daftar pilihan bidang peminatan resmi Qubu
+     * Fokus secara eksklusif pada kartu yang ada di index.php:
+     * (Frontend, Backend, UI/UX Design, Data Science, Robotic)
      *
      * @return array
      */
     public function getBidangPeminatanOptions(): array
     {
-        $defaultOptions = [
+        if (defined('BIDANG_QUBU')) {
+            return BIDANG_QUBU;
+        }
+
+        return [
             'Frontend',
             'Backend',
             'UI/UX Design',
             'Data Science',
-            'Robotic',
-            'Web Development',
-            'Mobile Development',
-            'Cyber Security',
-            'Artificial Intelligence',
-            'Game Development',
-            'Cloud Computing',
-            'Internet of Things (IoT)'
+            'Robotic'
         ];
-
-        try {
-            $db = $this->pdo();
-            $dbOptions = [];
-
-            // Ambil dari tabel lomba (kolom bidang)
-            try {
-                $stmtLomba = $db->query("SELECT DISTINCT bidang FROM lomba WHERE bidang IS NOT NULL AND TRIM(bidang) != ''");
-                if ($stmtLomba) {
-                    while ($val = $stmtLomba->fetchColumn()) {
-                        $trimmed = trim((string)$val);
-                        if ($trimmed !== '') {
-                            $dbOptions[] = $trimmed;
-                        }
-                    }
-                }
-            } catch (Throwable $e) {
-                // Abaikan jika tabel lomba belum siap
-            }
-
-            // Ambil dari tabel mahasiswa (kolom bidang_minat)
-            try {
-                $stmtMhs = $db->query("SELECT DISTINCT bidang_minat FROM mahasiswa WHERE bidang_minat IS NOT NULL AND TRIM(bidang_minat) != ''");
-                if ($stmtMhs) {
-                    while ($val = $stmtMhs->fetchColumn()) {
-                        $trimmed = trim((string)$val);
-                        if ($trimmed !== '') {
-                            $dbOptions[] = $trimmed;
-                        }
-                    }
-                }
-            } catch (Throwable $e) {
-                // Abaikan jika tabel mahasiswa belum siap
-            }
-
-            if (!empty($dbOptions)) {
-                $merged = array_unique(array_merge($defaultOptions, $dbOptions));
-                sort($merged, SORT_STRING | SORT_FLAG_CASE);
-                return array_values($merged);
-            }
-        } catch (Throwable $e) {
-            // Fallback ke default
-        }
-
-        sort($defaultOptions, SORT_STRING | SORT_FLAG_CASE);
-        return $defaultOptions;
     }
 
     /**
@@ -265,4 +217,63 @@ class MahasiswaModel
         $stmt = $this->pdo()->prepare($sql);
         return $stmt->execute($params);
     }
+
+    /**
+     * Ambil daftar rekan mahasiswa yang memiliki bidang minat sama dengan user
+     * Digunakan pada section "Rekomendasi Rekan" Dashboard Qubu
+     *
+     * @param int $currentUserId ID user yang sedang login (agar tidak merekomendasikan diri sendiri)
+     * @param string $bidangMinat Bidang minat dari profil user (bisa single atau dipisahkan koma)
+     * @return array
+     */
+    public function getRecommendedPartnersByBidang(int $currentUserId, string $bidangMinat): array
+    {
+        try {
+            $minatItems = array_filter(array_map('trim', explode(',', $bidangMinat)));
+            if (empty($minatItems)) {
+                $minatItems = ['UI/UX Design', 'Web Development'];
+            }
+
+            $conditions = [];
+            $params = [':current_user_id' => $currentUserId];
+
+            foreach ($minatItems as $idx => $m) {
+                $key = ':minat_' . $idx;
+                $conditions[] = "LOWER(m.bidang_minat) LIKE LOWER($key)";
+                $params[$key] = '%' . $m . '%';
+            }
+
+            $whereClause = implode(' OR ', $conditions);
+            $sql = "SELECT m.*, u.username, u.email, u.no_hp 
+                    FROM mahasiswa m 
+                    JOIN users u ON u.id_user = m.id_user 
+                    WHERE m.id_user != :current_user_id 
+                      AND ($whereClause)
+                    ORDER BY m.id_mahasiswa DESC 
+                    LIMIT 10";
+
+            $stmt = $this->pdo()->prepare($sql);
+            $stmt->execute($params);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Jika hasil filter bidang spesifik kosong, berikan mahasiswa lain sebagai fallback
+            if (empty($results)) {
+                $stmtFallback = $this->pdo()->prepare(
+                    "SELECT m.*, u.username, u.email, u.no_hp 
+                     FROM mahasiswa m 
+                     JOIN users u ON u.id_user = m.id_user 
+                     WHERE m.id_user != :current_user_id 
+                     ORDER BY m.id_mahasiswa DESC 
+                     LIMIT 8"
+                );
+                $stmtFallback->execute([':current_user_id' => $currentUserId]);
+                $results = $stmtFallback->fetchAll(PDO::FETCH_ASSOC);
+            }
+
+            return $results;
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
 }
+

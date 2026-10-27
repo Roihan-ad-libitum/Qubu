@@ -53,18 +53,20 @@ switch ($page) {
         (new MahasiswaController())->profile();
         break;
 
+    case 'dashboard':
     case 'mahasiswa-dashboard':
-        // Proteksi route: hanya pengguna dengan role 'peserta' yang diizinkan
-        AuthMiddleware::hasRole(ROLE_PESERTA);
-
-        $dashboardFile = __DIR__ . '/views/mahasiswa/dashboard.php';
-        if (file_exists($dashboardFile) && filesize($dashboardFile) > 10) {
-            require_once $dashboardFile;
-        } else {
-            // Tampilan sementara sebelum Sprint Dashboard dibangun
-            renderDashboardPlaceholder('Dashboard Peserta / Mahasiswa', ROLE_PESERTA);
-        }
+        (new MahasiswaController())->dashboard();
         break;
+
+    case 'cari-partner':
+    case 'find-partners':
+        redirect('?page=mahasiswa-dashboard#section-rekomendasi');
+        break;
+
+    case 'dosen-pembimbing':
+        redirect('?page=mahasiswa-dashboard#section-semua-lomba');
+        break;
+
 
     case 'dosen-dashboard':
         // Proteksi route: hanya pengguna dengan role 'dosen' yang diizinkan
