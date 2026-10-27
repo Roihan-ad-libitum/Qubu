@@ -42,7 +42,7 @@ CREATE TABLE `dosen` (
 --
 
 INSERT INTO `dosen` (`id_dosen`, `id_user`, `nama_dosen`, `bidang_keahlian`, `nidn`, `status`) VALUES
-(1, 3, 'Fitria', 'Web Development', '2511000000000', 'bersedia');
+(1, 3, 'Fitria', 'Frontend, Backend', '2511000000000', 'bersedia');
 
 -- --------------------------------------------------------
 
@@ -70,8 +70,14 @@ CREATE TABLE `lomba` (
 -- Dumping data for table `lomba`
 --
 
-INSERT INTO `lomba` (`id_lomba`, `nama_lomba`, `penyelenggara`, `deskripsi`, `deadline_daftar`, `tanggal_pelaksanaan`, `tingkat`, `biaya`, `partisipasi`, `bidang`, `link_resmi`) VALUES
-(1, 'Hackathon Web Nasional', 'Institut Teknologi Bandung', 'Kompetisi hackathon tingkat nasional untuk mengembangkan solusi digital inovatif yang menjawab tantangan sosial di Indonesia. Peserta akan berkompetisi selama 48 jam untuk menghasilkan prototipe aplikasi yang fungsional.', '2026-12-12 12:00:00', '2027-02-05', 'Nasional', 120000, 'Tim', 'Web Development', 'https://example.com/uiux');
+INSERT INTO `lomba` (`id_lomba`, `nama_lomba`, `penyelenggara`, `deskripsi`, `deadline_daftar`, `tanggal_pelaksanaan`, `tingkat`, `biaya`, `partisipasi`, `bidang`, `link_resmi`, `poster`, `link_guidebook`) VALUES
+(1, 'Hackathon Web Nasional', 'Institut Teknologi Bandung', 'Kompetisi hackathon tingkat nasional untuk mengembangkan solusi digital inovatif yang menjawab tantangan sosial di Indonesia. Peserta akan berkompetisi selama 48 jam untuk menghasilkan prototipe aplikasi yang fungsional.', '2026-12-12 12:00:00', '2027-02-05', 'Nasional', 120000, 'Tim', 'Frontend', 'https://example.com/uiux', NULL, NULL),
+(2, 'Semantik Internformatics Competition', 'Himpunan Mahasiswa Informatika', 'Tuliskan detail syarat dan timeline...', '2025-07-15 00:00:00', '2025-07-30', 'Nasional', 0, 'Individu/Tim', 'UI/UX Design', 'https://bit.ly/daftar-lomba', 'public/images/semantik-poster.jpg', 'https://drive.google.com/semantik'),
+(3, 'National UI/UX Design Challenge', 'Universitas Indonesia', 'Kompetisi perancangan antarmuka dan pengalaman pengguna tingkat nasional untuk menciptakan solusi digital inklusif dan human-centered.', '2026-11-30 23:59:00', '2026-12-10', 'Nasional', 50000, 'Individu/Tim', 'UI/UX Design', 'https://uiuxchallenge.id', 'public/images/semantik-poster.jpg', 'https://drive.google.com/uiux-guide'),
+(4, 'GEMASTIK Software Development', 'Puspresnas Kemdikbudristek', 'Kompetisi pengembangan perangkat lunak berskala nasional bagi mahasiswa seluruh Indonesia.', '2026-12-05 23:59:00', '2027-01-15', 'Nasional', 0, 'Tim', 'Backend', 'https://gemastik.kemdikbud.go.id', NULL, 'https://gemastik.kemdikbud.go.id/guide'),
+(5, 'Compfest Competitive Programming', 'Fasilkom UI', 'Ajang adu kemampuan algoritma dan pemrograman kompetitif tingkat mahasiswa se-Asia Tenggara.', '2026-11-25 23:59:00', '2026-12-15', 'Nasional', 75000, 'Individu', 'Backend', 'https://compfest.id', NULL, 'https://compfest.id/guide'),
+(6, 'National Data Science Championship', 'Institut Teknologi Bandung', 'Kompetisi analisis data, permodelan machine learning, dan pemecahan masalah berbasis AI tingkat nasional.', '2026-12-01 23:59:00', '2027-01-20', 'Nasional', 100000, 'Tim', 'Data Science', 'https://datascience.itb.ac.id', NULL, 'https://datascience.itb.ac.id/guide'),
+(7, 'Kontes Robotika Indonesia (KRI)', 'BPTI Kemdikbudristek', 'Kompetisi perancangan, otomatisasi, dan pemrograman robotika mahasiswa tingkat nasional.', '2026-12-20 23:59:00', '2027-02-10', 'Nasional', 150000, 'Tim', 'Robotic', 'https://kri.kemdikbud.go.id', NULL, 'https://kri.kemdikbud.go.id/guide');
 
 -- --------------------------------------------------------
 
@@ -95,9 +101,13 @@ CREATE TABLE `mahasiswa` (
 -- Dumping data for table `mahasiswa`
 --
 
-INSERT INTO `mahasiswa` (`id_mahasiswa`, `id_user`, `npm`, `nama_mahasiswa`, `program_studi`, `angkatan`, `bidang_minat`, `bio`) VALUES
-(1, 2, '251000000000', 'Roihan Fakhri', 'Informatika', '2025', 'Web Development', 'Selamat berjuang, sukses!'),
-(2, 4, '251000000001', 'Rangga Candra', 'Informatika', '2025', 'Frontend', 'Frontend jaya jaya jaya');
+INSERT INTO `mahasiswa` (`id_mahasiswa`, `id_user`, `npm`, `nama_mahasiswa`, `program_studi`, `angkatan`, `bidang_minat`, `bio`, `foto`) VALUES
+(1, 2, '251000000000', 'Roihan Fakhri', 'Informatika', '2025', 'Frontend', 'Selamat berjuang, sukses!', NULL),
+(2, 4, '251000000001', 'Rangga Candra', 'Informatika', '2025', 'Frontend', 'Frontend jaya jaya jaya', NULL),
+(5, 7, '2510631170041', 'Marssello Hotasi', 'Informatika', '2025', 'UI/UX Design', '', NULL),
+(6, 8, '251000000010', 'Fitria Ramadhani', 'Informatika', '2025', 'UI/UX Design', 'Passionate in Human-Computer Interaction & Product Design', NULL),
+(7, 9, '251000000011', 'Dimas Prasetyo', 'Informatika', '2025', 'Backend', 'Fullstack developer focusing on web architectures.', NULL),
+(8, 10, '251000000012', 'Siti Aisyah', 'Sistem Informasi', '2025', 'Data Science', 'Exploring machine learning and big data analytics.', NULL);
 
 -- --------------------------------------------------------
 
@@ -136,7 +146,11 @@ INSERT INTO `users` (`id_user`, `username`, `password`, `role`, `no_hp`, `email`
 (1, 'marcelloz', 'marceloz123', 'admin', '081234567890', 'marceloz@admin.unsika.ac.id'),
 (2, 'roihanz', 'roihanz123', 'peserta', '081234567890', 'roihanz@student.unsika.ac.id'),
 (3, 'fitriaz', 'fitriaz123', 'dosen', '081234567890', 'fitriaz@dosen.unsika.ac.id'),
-(4, 'ranggaz', 'ranggaz', 'peserta', '081234567890', 'ranggaz@student.unsika.ac.id');
+(4, 'ranggaz', 'ranggaz', 'peserta', '081234567890', 'ranggaz@student.unsika.ac.id'),
+(7, 'Celloz', 'celloaja', 'peserta', '-', 'Celloz@student.unsika.ac.id'),
+(8, 'fitriaz_mhs', 'password123', 'peserta', '081234567890', 'fitria@student.unsika.ac.id'),
+(9, 'dimas_p', 'password123', 'peserta', '081234567890', 'dimas@student.unsika.ac.id'),
+(10, 'aisyah_ds', 'password123', 'peserta', '081234567890', 'aisyah@student.unsika.ac.id');
 
 --
 -- Indexes for dumped tables
@@ -191,13 +205,13 @@ ALTER TABLE `dosen`
 -- AUTO_INCREMENT for table `lomba`
 --
 ALTER TABLE `lomba`
-  MODIFY `id_lomba` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_lomba` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `mahasiswa`
 --
 ALTER TABLE `mahasiswa`
-  MODIFY `id_mahasiswa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_mahasiswa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `undangan`
@@ -209,7 +223,7 @@ ALTER TABLE `undangan`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables
