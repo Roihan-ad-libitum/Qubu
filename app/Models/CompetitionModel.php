@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/app.php';
 
 class CompetitionModel
 {
@@ -37,6 +38,77 @@ class CompetitionModel
         $stmt->execute([':id' => $id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row === false ? null : $row;
+    }
+
+    /**
+     * Pencarian dan Filter Data Kompetisi / Lomba secara Terpadu
+     * Mendukung pencarian keyword pada berbagai kolom (nama_lomba, penyelenggara, deskripsi, tingkat, partisipasi)
+     * dan filter bidang secara ketat berdasarkan whitelist BIDANG_QUBU.
+     *
+     * @param string|null $keyword Kata kunci pencarian (opsional)
+     * @param string|null $bidang  Filter bidang spesifik sesuai BIDANG_QUBU (opsional)
+     * @param int         $limit   Batas maksimal jumlah record (default 50, maks 100)
+     * @return array Daftar kompetisi hasil query
+     */
+    public function searchAndFilter(?string $keyword = null, ?string $bidang = null, int $limit = 50): array
+    {
+        $db = $this->pdo();
+        $where = [];
+        $params = [];
+
+        // 1. Filter Keyword dinamis menggunakan parameterized query
+        $kw = trim((string) $keyword);
+        if ($kw !== '') {
+            $where[] = "(nama_lomba LIKE :kw1 
+                         OR penyelenggara LIKE :kw2 
+                         OR deskripsi LIKE :kw3 
+                         OR tingkat LIKE :kw4 
+                         OR partisipasi LIKE :kw5)";
+            $kwVal = '%' . $kw . '%';
+            $params[':kw1'] = $kwVal;
+            $params[':kw2'] = $kwVal;
+            $params[':kw3'] = $kwVal;
+            $params[':kw4'] = $kwVal;
+            $params[':kw5'] = $kwVal;
+        }
+
+        // 2. Filter Bidang secara ketat dengan whitelist BIDANG_QUBU
+        $b = trim((string) $bidang);
+        if ($b !== '' && !in_array(strtolower($b), ['semua', 'semua bidang', 'all'], true)) {
+            $allowedBidang = defined('BIDANG_QUBU') 
+                ? BIDANG_QUBU 
+                : ['Frontend', 'Backend', 'UI/UX Design', 'Data Science', 'Robotic'];
+
+            $validBidang = null;
+            foreach ($allowedBidang as $item) {
+                if (strcasecmp($item, $b) === 0) {
+                    $validBidang = $item;
+                    break;
+                }
+            }
+
+            if ($validBidang !== null) {
+                $where[] = "bidang = :bidang";
+                $params[':bidang'] = $validBidang;
+            } else {
+                // Bidang di luar whitelist tidak valid, cegah kebocoran data
+                $where[] = "1 = 0";
+            }
+        }
+
+        // 3. Batasi limit data dengan rentang aman (1 - 100)
+        $safeLimit = max(1, min((int) $limit, 100));
+
+        $sql = "SELECT * FROM lomba";
+        if (!empty($where)) {
+            $sql .= " WHERE " . implode(" AND ", $where);
+        }
+        $sql .= " ORDER BY id_lomba DESC LIMIT " . $safeLimit;
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
