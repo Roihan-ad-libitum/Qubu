@@ -41,6 +41,85 @@ class CompetitionModel
     }
 
     /**
+     * Ambil rekomendasi kompetisi terkait (Related Competitions) pada bidang yang sama
+     *
+     * @param int    $currentId ID kompetisi yang sedang aktif (dikecualikan dari hasil)
+     * @param string $bidang    Bidang kompetisi
+     * @param int    $limit     Maksimal jumlah rekomendasi (default 4, maks 10)
+     * @param bool   $fallback  Jika true, tambahkan kompetisi lain jika lomba sebidang kurang dari target limit
+     * @return array Daftar kompetisi terkait
+     */
+    public function getRelatedCompetitions(int $currentId, string $bidang, int $limit = 4, bool $fallback = true): array
+    {
+        $db = $this->pdo();
+        $safeLimit = max(1, min((int) $limit, 10));
+        $bidang = trim($bidang);
+
+        $related = [];
+        if ($bidang !== '') {
+            $stmt = $db->prepare("
+                SELECT * FROM lomba 
+                WHERE id_lomba != :current_id 
+                  AND (bidang = :bidang OR LOWER(bidang) = LOWER(:bidang_lower))
+                ORDER BY deadline_daftar ASC, id_lomba DESC 
+                LIMIT " . $safeLimit
+            );
+            $stmt->execute([
+                ':current_id'   => $currentId,
+                ':bidang'       => $bidang,
+                ':bidang_lower' => strtolower($bidang),
+            ]);
+            $related = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        // Fallback jika lomba dengan bidang sama kurang dari target limit
+        if ($fallback && count($related) < $safeLimit) {
+            $remaining = $safeLimit - count($related);
+            $excludeIds = array_merge([$currentId], array_column($related, 'id_lomba'));
+            $placeholders = implode(',', array_fill(0, count($excludeIds), '?'));
+
+            $stmtFallback = $db->prepare("
+                SELECT * FROM lomba 
+                WHERE id_lomba NOT IN ($placeholders)
+                ORDER BY deadline_daftar ASC, id_lomba DESC 
+                LIMIT " . (int) $remaining
+            );
+            $stmtFallback->execute($excludeIds);
+            $fallbackLomba = $stmtFallback->fetchAll(PDO::FETCH_ASSOC);
+
+            $related = array_merge($related, $fallbackLomba);
+        }
+
+        return $related;
+    }
+
+    /**
+     * Ambil data detail lomba lengkap beserta kompetisi terkait (Related Competitions)
+     * Mengambil 1 kompetisi spesifik berdasarkan id_lomba, dan 3-4 kompetisi lain pada bidang yang sama.
+     *
+     * @param int  $id           ID Lomba yang ingin dilihat detailnya
+     * @param int  $relatedLimit Jumlah maksimal rekomendasi lomba terkait (default 4)
+     * @param bool $fallback     Apakah menyertakan kompetisi lain jika lomba sebidang kurang dari limit
+     * @return array|null Mengembalikan data lomba lengkap dengan key 'related', atau null jika id tidak ditemukan
+     */
+    public function getDetailWithRelated(int $id, int $relatedLimit = 4, bool $fallback = true): ?array
+    {
+        $competition = $this->getById($id);
+        if (!$competition) {
+            return null;
+        }
+
+        $competition['related'] = $this->getRelatedCompetitions(
+            $id,
+            $competition['bidang'] ?? '',
+            $relatedLimit,
+            $fallback
+        );
+
+        return $competition;
+    }
+
+    /**
      * Pencarian dan Filter Data Kompetisi / Lomba secara Terpadu
      * Mendukung pencarian keyword pada berbagai kolom (nama_lomba, penyelenggara, deskripsi, tingkat, partisipasi)
      * dan filter bidang secara ketat berdasarkan whitelist BIDANG_QUBU.
