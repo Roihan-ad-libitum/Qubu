@@ -77,6 +77,10 @@ switch ($page) {
         (new MahasiswaController())->apiPartners($_GET);
         break;
 
+    case 'lihat-profil':
+        (new MahasiswaController())->lihatProfil($_GET['id'] ?? null);
+        break;
+
     case 'dosen-pembimbing':
         redirect('?page=mahasiswa-dashboard#section-semua-lomba');
         break;
