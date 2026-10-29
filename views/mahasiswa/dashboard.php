@@ -322,26 +322,40 @@ require_once __DIR__ . '/../layouts/headers.php';
     </main>
 
     <!-- ========================================================================= -->
-    <!-- 4. MODAL DETAIL LOMBA INTERAKTIF                                          -->
+    <!-- 4. MODAL DETAIL LOMBA INTERAKTIF (HERO POSTER HD, COUNTDOWN, CTA & SHARE) -->
     <!-- ========================================================================= -->
     <div class="dash-modal-overlay" id="detail-modal-overlay" style="display: none;" onclick="closeDetailModal(event)">
-        <div class="dash-modal-card" onclick="event.stopPropagation()">
+        <div
+            class="dash-modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+            aria-describedby="modal-desc"
+            onclick="event.stopPropagation()"
+        >
             <button type="button" class="dash-modal-close" onclick="closeDetailModal()" aria-label="Tutup Detail">✕</button>
 
             <div class="dash-modal-header">
-                <span class="modal-badge-cat" id="modal-cat">-</span>
+                <div class="modal-badges-row">
+                    <span class="modal-badge-cat" id="modal-cat">-</span>
+                    <span class="modal-badge-level" id="modal-tingkat-badge">-</span>
+                    <span class="modal-badge-countdown" id="modal-countdown-badge">-</span>
+                </div>
                 <h3 class="modal-title" id="modal-title">-</h3>
                 <p class="modal-organizer" id="modal-organizer">-</p>
             </div>
 
             <div class="dash-modal-media" id="modal-media-box">
                 <img src="" alt="Poster Lomba" id="modal-img" class="modal-poster-img" style="display: none;">
-                <div id="modal-placeholder" class="modal-poster-placeholder"></div>
+                <div id="modal-placeholder" class="modal-poster-placeholder">
+                    <strong id="modal-placeholder-title"></strong>
+                    <span id="modal-placeholder-cat"></span>
+                </div>
             </div>
 
             <div class="dash-modal-body">
                 <h4 class="modal-subheading">Deskripsi Kompetisi</h4>
-                <p class="modal-desc" id="modal-desc">-</p>
+                <div class="modal-desc" id="modal-desc">-</div>
 
                 <h4 class="modal-subheading">Informasi &amp; Persyaratan</h4>
                 <div class="modal-info-grid">
@@ -373,7 +387,7 @@ require_once __DIR__ . '/../layouts/headers.php';
 
                 <div class="dash-modal-actions">
                     <a href="#" target="_blank" rel="noopener noreferrer" class="btn-modal-primary" id="modal-link-resmi">
-                        <span>Kunjungi Web Resmi Lomba</span>
+                        <span>Daftar Sekarang (Link Resmi)</span>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
                             <polyline points="15 3 21 3 21 9"></polyline>
@@ -386,6 +400,23 @@ require_once __DIR__ . '/../layouts/headers.php';
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="7 10 12 15 17 10"></polyline>
                             <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="dash-modal-subactions">
+                    <button type="button" class="btn-modal-share" id="modal-btn-copy-link" onclick="copyModalLombaLink()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                        </svg>
+                        <span id="modal-copy-label">Salin Link Lomba</span>
+                    </button>
+                    <a href="#" class="btn-modal-fullpage" id="modal-link-fullpage">
+                        <span>Buka Halaman Penuh</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
                     </a>
                 </div>
@@ -566,51 +597,115 @@ function scrollSlider(sliderId, offset) {
     }
 }
 
-// 5. Modal Detail Lomba
+// 5. Modal Detail Lomba (Hero Poster HD, Live Countdown, CTA & Share Link)
+let currentModalDetailUrl = '';
+
+function computeDeadlineCountdown(deadlineStr) {
+    if (!deadlineStr) {
+        return { text: 'Jadwal menyusul', isClosed: false };
+    }
+    const normalized = String(deadlineStr).replace(' ', 'T');
+    const targetMs = new Date(normalized).getTime() || new Date(deadlineStr).getTime();
+    if (!targetMs || isNaN(targetMs)) {
+        return { text: 'Jadwal menyusul', isClosed: false };
+    }
+
+    const diffMs = targetMs - Date.now();
+    if (diffMs <= 0) {
+        return { text: 'Pendaftaran Ditutup', isClosed: true };
+    }
+
+    const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const days = Math.floor(totalHours / 24);
+    const hours = totalHours % 24;
+
+    if (days > 0) {
+        return { text: 'Sisa ' + days + ' Hari ' + hours + ' Jam', isClosed: false };
+    }
+    return { text: 'Sisa ' + Math.max(1, hours) + ' Jam Lagi!', isClosed: false };
+}
+
 function openDetailModal(data) {
     const modal = document.getElementById('detail-modal-overlay');
     if (!modal || !data) return;
 
-    document.getElementById('modal-title').textContent = data.nama_lomba || '-';
-    document.getElementById('modal-cat').textContent   = data.bidang || 'Umum';
-    document.getElementById('modal-organizer').textContent = 'Diselenggarakan oleh: ' + (data.penyelenggara || '-');
-    document.getElementById('modal-desc').textContent  = data.deskripsi || 'Belum ada deskripsi rinci.';
-    
-    // Formatting date
-    const deadline = data.deadline_daftar ? new Date(data.deadline_daftar).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '-';
-    const pelaksanaan = data.tanggal_pelaksanaan ? new Date(data.tanggal_pelaksanaan).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'}) : '-';
-    
-    document.getElementById('modal-deadline').textContent    = deadline;
-    document.getElementById('modal-pelaksanaan').textContent = pelaksanaan;
-    document.getElementById('modal-biaya').textContent       = (parseFloat(data.biaya) === 0) ? 'Gratis (Rp 0)' : 'Rp ' + Number(data.biaya).toLocaleString('id-ID');
-    document.getElementById('modal-partisipasi').textContent = data.partisipasi || 'Individu/Tim';
-    document.getElementById('modal-tingkat').textContent     = data.tingkat || 'Nasional';
-    document.getElementById('modal-bidang').textContent      = data.bidang || 'Umum';
+    const idLomba = data.id_lomba || '';
+    const bidang = data.bidang || 'UI/UX Design';
+    const tingkat = data.tingkat || 'Nasional';
+    const partisipasiRaw = data.partisipasi || 'Individu/Tim';
+    const partisipasiFormatted = data.partisipasi_formatted
+        || (partisipasiRaw === 'Individu/Tim' ? 'Individu & Tim' : partisipasiRaw);
 
-    // Poster Image
+    document.getElementById('modal-title').textContent = data.nama_lomba || '-';
+    document.getElementById('modal-cat').textContent = bidang;
+    document.getElementById('modal-tingkat-badge').textContent = tingkat;
+    document.getElementById('modal-organizer').textContent = 'Diselenggarakan oleh: ' + (data.penyelenggara || '-');
+    document.getElementById('modal-desc').textContent = data.deskripsi || 'Belum ada deskripsi rinci.';
+
+    // Countdown menuju deadline
+    const countdownBadge = document.getElementById('modal-countdown-badge');
+    if (countdownBadge) {
+        const cd = computeDeadlineCountdown(data.deadline_daftar);
+        countdownBadge.textContent = cd.text;
+        countdownBadge.classList.toggle('is-closed', cd.isClosed);
+    }
+
+    // Format Tanggal & Informasi
+    const deadline = data.deadline_formatted || (data.deadline_daftar
+        ? new Date(data.deadline_daftar).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+        : '-');
+    const pelaksanaan = data.tanggal_pelaksanaan_formatted || (data.tanggal_pelaksanaan
+        ? new Date(data.tanggal_pelaksanaan).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+        : '-');
+    const biayaVal = parseFloat(data.biaya || 0);
+
+    document.getElementById('modal-deadline').textContent = deadline;
+    document.getElementById('modal-pelaksanaan').textContent = pelaksanaan;
+    document.getElementById('modal-biaya').textContent = biayaVal <= 0
+        ? 'Gratis (Rp 0)'
+        : 'Rp ' + Number(biayaVal).toLocaleString('id-ID');
+    document.getElementById('modal-partisipasi').textContent = partisipasiFormatted;
+    document.getElementById('modal-tingkat').textContent = tingkat;
+    document.getElementById('modal-bidang').textContent = bidang;
+
+    // Hero Poster HD (Safe DOM rendering tanpa innerHTML)
     const imgEl = document.getElementById('modal-img');
     const placeholderEl = document.getElementById('modal-placeholder');
-    if (data.poster && data.poster.trim() !== '') {
-        imgEl.src = data.poster;
+    const placeholderTitle = document.getElementById('modal-placeholder-title');
+    const placeholderCat = document.getElementById('modal-placeholder-cat');
+    const posterSrc = (data.poster_url && data.poster && String(data.poster).trim() !== '')
+        ? data.poster_url
+        : ((data.poster && String(data.poster).trim() !== '') ? data.poster : '');
+
+    if (posterSrc !== '') {
+        imgEl.src = posterSrc;
+        imgEl.alt = 'Poster ' + (data.nama_lomba || 'Lomba');
         imgEl.style.display = 'block';
         if (placeholderEl) placeholderEl.style.display = 'none';
     } else {
         imgEl.style.display = 'none';
         if (placeholderEl) {
-            placeholderEl.style.display = 'block';
-            placeholderEl.innerHTML = '<strong>' + (data.nama_lomba || '') + '</strong><span>' + (data.bidang || '') + '</span>';
+            placeholderEl.style.display = 'flex';
+            if (placeholderTitle) placeholderTitle.textContent = data.nama_lomba || '';
+            if (placeholderCat) placeholderCat.textContent = bidang;
         }
     }
 
-    // Links
+    // Tombol CTA: Daftar Sekarang (Link Resmi) & Unduh Guidebook
     const linkResmi = document.getElementById('modal-link-resmi');
     if (linkResmi) {
-        linkResmi.href = data.link_resmi || '#';
+        if (data.link_resmi && String(data.link_resmi).trim() !== '') {
+            linkResmi.href = data.link_resmi;
+            linkResmi.style.display = 'inline-flex';
+        } else {
+            linkResmi.href = '#';
+            linkResmi.style.display = 'none';
+        }
     }
 
     const linkGuidebook = document.getElementById('modal-link-guidebook');
     if (linkGuidebook) {
-        if (data.link_guidebook && data.link_guidebook.trim() !== '') {
+        if (data.link_guidebook && String(data.link_guidebook).trim() !== '') {
             linkGuidebook.href = data.link_guidebook;
             linkGuidebook.style.display = 'inline-flex';
         } else {
@@ -618,8 +713,33 @@ function openDetailModal(data) {
         }
     }
 
+    // Shareable Deep-Link & Buka Halaman Penuh
+    currentModalDetailUrl = data.detail_url
+        || (window.location.origin + window.location.pathname + '?page=lomba-detail&id=' + encodeURIComponent(idLomba));
+    const linkFullpage = document.getElementById('modal-link-fullpage');
+    if (linkFullpage) {
+        linkFullpage.href = currentModalDetailUrl;
+    }
+    const copyLabel = document.getElementById('modal-copy-label');
+    if (copyLabel) {
+        copyLabel.textContent = 'Salin Link Lomba';
+    }
+
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+}
+
+function copyModalLombaLink() {
+    const targetUrl = currentModalDetailUrl || window.location.href;
+    const copyLabel = document.getElementById('modal-copy-label');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(targetUrl).then(() => {
+            if (copyLabel) {
+                copyLabel.textContent = 'Link Tersalin!';
+                setTimeout(() => { copyLabel.textContent = 'Salin Link Lomba'; }, 2000);
+            }
+        });
+    }
 }
 
 function closeDetailModal(e) {
@@ -632,6 +752,15 @@ function closeDetailModal(e) {
         document.body.style.overflow = 'auto';
     }
 }
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('detail-modal-overlay');
+        if (modal && modal.style.display !== 'none') {
+            closeDetailModal();
+        }
+    }
+});
 </script>
 
 <?php
