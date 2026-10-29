@@ -448,5 +448,73 @@ class MahasiswaModel
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Ambil detail profil publik mahasiswa berdasarkan id_mahasiswa (tanpa mengekspos password)
+     * Digunakan untuk fitur "Lihat Profil" pada halaman Cari Partner.
+     */
+    public function findPublicProfileById(int $idMahasiswa): ?array
+    {
+        if ($idMahasiswa <= 0) {
+            return null;
+        }
+
+        $sql = "SELECT
+                    m.id_mahasiswa,
+                    m.id_user,
+                    m.npm,
+                    m.nama_mahasiswa,
+                    m.program_studi,
+                    m.angkatan,
+                    m.bidang_minat,
+                    m.bio,
+                    m.foto,
+                    u.username,
+                    u.email,
+                    u.no_hp
+                FROM mahasiswa m
+                JOIN users u ON u.id_user = m.id_user
+                WHERE m.id_mahasiswa = :id_mahasiswa
+                LIMIT 1";
+
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute([':id_mahasiswa' => $idMahasiswa]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row === false) {
+            return null;
+        }
+
+        $row['bidang_tags'] = $this->parseBidangTags($row['bidang_minat'] ?? '');
+
+        return $row;
+    }
+
+    /**
+     * Ubah string bidang_minat yang dipisahkan koma menjadi array tag bersih
+     *
+     * @return array<int, string>
+     */
+    public function parseBidangTags(?string $bidangMinat): array
+    {
+        $rawParts = array_filter(array_map('trim', explode(',', (string) $bidangMinat)));
+        $allowed  = $this->getBidangPeminatanOptions();
+        $tags     = [];
+
+        foreach ($rawParts as $part) {
+            $matched = null;
+            foreach ($allowed as $opt) {
+                if (strcasecmp($part, $opt) === 0) {
+                    $matched = $opt;
+                    break;
+                }
+            }
+            $tags[] = $matched ?? $part;
+        }
+
+        $tags = array_values(array_unique(array_filter($tags)));
+
+        return !empty($tags) ? $tags : ['Frontend'];
+    }
 }
 
