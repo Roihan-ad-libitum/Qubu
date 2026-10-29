@@ -13,6 +13,7 @@ require_once __DIR__ . '/app/Controllers/AuthController.php';
 require_once __DIR__ . '/app/Controllers/MahasiswaController.php';
 require_once __DIR__ . '/app/Controllers/DosenController.php';
 require_once __DIR__ . '/app/Controllers/AdminController.php';
+require_once __DIR__ . '/app/Controllers/CompetitionController.php';
 
 // Pastikan sesi selalu aktif untuk setiap permintaan
 Session::start();
@@ -56,6 +57,10 @@ switch ($page) {
     case 'dashboard':
     case 'mahasiswa-dashboard':
         (new MahasiswaController())->dashboard();
+        break;
+
+    case 'api-competitions':
+        (new CompetitionController())->apiCompetitions($_GET);
         break;
 
     case 'cari-partner':
