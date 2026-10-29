@@ -290,6 +290,11 @@ require_once __DIR__ . '/../layouts/headers.php';
         <!-- ===================================================================== -->
         <!-- SECTION 2: SEMUA LOMBA (KATALOG GRID LENGKAP DENGAN FILTER AKTIF)     -->
         <!-- ===================================================================== -->
+        <?php
+        $semuaKatalogCards = !empty($katalogLengkap) ? $katalogLengkap : $semuaLomba;
+        $matchedIdsSet = array_flip(array_map(fn($r) => (int) ($r['id_lomba'] ?? 0), $semuaLomba));
+        $hasInitialFilter = ($activeBidang !== 'Semua Bidang') || ($searchKeyword !== '');
+        ?>
         <section class="dash-section" id="section-semua-lomba">
             <div class="dash-section-header">
                 <div>
@@ -301,10 +306,34 @@ require_once __DIR__ . '/../layouts/headers.php';
                 </div>
             </div>
 
-            <!-- Grid 2-3 Kolom Semua Lomba -->
+            <!-- Bar Status Kombinasi Filter Bidang + Kata Kunci Aktif -->
+            <div class="dash-active-filter-bar" id="active-filter-bar" aria-live="polite" style="<?= $hasInitialFilter ? 'display: flex;' : 'display: none;' ?>">
+                <div class="dash-active-filter-info" id="active-filter-text">
+                    <span class="active-filter-label">Filter Aktif:</span>
+                    <span class="active-filter-chip" id="chip-active-bidang" style="<?= $activeBidang !== 'Semua Bidang' ? 'display: inline-flex;' : 'display: none;' ?>">
+                        Bidang: <strong id="chip-bidang-val"><?= e($activeBidang) ?></strong>
+                    </span>
+                    <span class="active-filter-chip" id="chip-active-query" style="<?= $searchKeyword !== '' ? 'display: inline-flex;' : 'display: none;' ?>">
+                        Kata Kunci: <strong id="chip-query-val">"<?= e($searchKeyword) ?>"</strong>
+                    </span>
+                </div>
+                <button type="button" class="btn-clear-inline" id="btn-clear-inline" onclick="resetFilters()">
+                    Reset Filter &times;
+                </button>
+            </div>
+
+            <!-- Grid 2-3 Kolom Semua Lomba (Seluruh kartu katalog dimuat di DOM untuk sinkronisasi instan) -->
             <div class="semua-lomba-grid" id="semua-lomba-grid" role="tabpanel" aria-label="Daftar Kompetisi">
-                <?php foreach ($semuaLomba as $item): ?>
-                    <?php renderLombaCard($item, ['extraClass' => 'grid-card-item', 'mode' => 'modal']); ?>
+                <?php foreach ($semuaKatalogCards as $item): ?>
+                    <?php
+                    $itemId = (int) ($item['id_lomba'] ?? 0);
+                    $isVisible = isset($matchedIdsSet[$itemId]);
+                    renderLombaCard($item, [
+                        'extraClass' => 'grid-card-item',
+                        'mode'       => 'modal',
+                        'hidden'     => !$isVisible,
+                    ]);
+                    ?>
                 <?php endforeach; ?>
             </div>
 

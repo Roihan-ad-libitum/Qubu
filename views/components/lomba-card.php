@@ -61,6 +61,7 @@ if (!function_exists('renderLombaCard')) {
     {
         $extraClass  = trim((string) ($options['extraClass'] ?? ''));
         $mode        = $options['mode'] ?? 'modal';
+        $isHidden    = !empty($options['hidden']);
         $idLomba     = (int) ($item['id_lomba'] ?? 0);
         $namaLomba   = (string) ($item['nama_lomba'] ?? '-');
         $penyelenggara = (string) ($item['penyelenggara'] ?? '-');
@@ -92,6 +93,7 @@ if (!function_exists('renderLombaCard')) {
             data-desc="<?= e(strtolower($deskripsi)) ?>"
             data-tingkat="<?= e(strtolower($tingkat)) ?>"
             data-partisipasi="<?= e(strtolower($partisipasiFormatted)) ?>"
+            <?= $isHidden ? 'style="display: none;"' : '' ?>
         >
             <!-- 1. Poster Lomba Inset (24px Rounded) -->
             <div class="lomba-card-media">

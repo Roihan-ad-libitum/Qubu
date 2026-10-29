@@ -881,7 +881,73 @@
     box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
 }
 
-/* 8. GRID SEMUA LOMBA */
+/* 8. GRID SEMUA LOMBA & BAR INDIKATOR FILTER AKTIF */
+.dash-active-filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 14px;
+    padding: 0.65rem 1.15rem;
+    margin-bottom: 1.5rem;
+}
+
+.dash-active-filter-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #1e3a8a;
+}
+
+.active-filter-label {
+    font-weight: 700;
+    color: #1e40af;
+    margin-right: 0.25rem;
+}
+
+.active-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #ffffff;
+    border: 1px solid #93c5fd;
+    color: #1d4ed8;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.28rem 0.75rem;
+    border-radius: 9999px;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.06);
+}
+
+.active-filter-chip strong {
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.btn-clear-inline {
+    background: #ffffff;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    border-radius: 9999px;
+    padding: 0.3rem 0.85rem;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-clear-inline:hover {
+    background: #fef2f2;
+    border-color: #f87171;
+    color: #b91c1c;
+}
+
 .semua-lomba-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(335px, 1fr));

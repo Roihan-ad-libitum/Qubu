@@ -257,13 +257,71 @@ document.addEventListener('DOMContentLoaded', () => {
     const emptyTitle  = document.getElementById('empty-search-title');
     const emptyDesc   = document.getElementById('empty-search-desc');
     const countNumber = document.getElementById('count-number');
+    const activeFilterBar  = document.getElementById('active-filter-bar');
+    const chipActiveBidang = document.getElementById('chip-active-bidang');
+    const chipBidangVal    = document.getElementById('chip-bidang-val');
+    const chipActiveQuery  = document.getElementById('chip-active-query');
+    const chipQueryVal     = document.getElementById('chip-query-val');
 
     const initialActiveBtn = pillButtons.find(b => b.classList.contains('is-active')) || pillButtons[0];
     let activeBidangLabel = initialActiveBtn
         ? (initialActiveBtn.dataset.bidang || 'Semua Bidang').trim()
         : 'Semua Bidang';
     let activeBidang = activeBidangLabel.toLowerCase();
+    let rawSearchText = searchInput ? searchInput.value.trim() : '';
     let searchQuery = searchInput ? normalizeSearchText(searchInput.value) : '';
+
+    /**
+     * Sinkronisasi URL Query String (?page=mahasiswa-dashboard&bidang=...&q=...) tanpa reload halaman
+     */
+    function syncUrlQueryParams() {
+        if (!window.history || typeof window.history.replaceState !== 'function') return;
+
+        try {
+            const url = new URL(window.location.href);
+            if (!url.searchParams.get('page')) {
+                url.searchParams.set('page', 'mahasiswa-dashboard');
+            }
+
+            if (activeBidang !== 'semua bidang' && activeBidangLabel !== '') {
+                url.searchParams.set('bidang', activeBidangLabel);
+            } else {
+                url.searchParams.delete('bidang');
+            }
+
+            if (rawSearchText !== '') {
+                url.searchParams.set('q', rawSearchText);
+            } else {
+                url.searchParams.delete('q');
+            }
+
+            window.history.replaceState({}, '', url.toString());
+        } catch (_) {
+            // Abaikan pada environment headless/test tanpa URL valid
+        }
+    }
+
+    /**
+     * Perbarui bar indikator kombinasi Filter Bidang + Kata Kunci aktif secara real-time
+     */
+    function updateActiveFilterBar() {
+        if (!activeFilterBar) return;
+
+        const hasBidang = activeBidang !== 'semua bidang';
+        const hasQuery  = searchQuery !== '';
+
+        activeFilterBar.style.display = (hasBidang || hasQuery) ? 'flex' : 'none';
+
+        if (chipActiveBidang && chipBidangVal) {
+            chipActiveBidang.style.display = hasBidang ? 'inline-flex' : 'none';
+            chipBidangVal.textContent = activeBidangLabel;
+        }
+
+        if (chipActiveQuery && chipQueryVal) {
+            chipActiveQuery.style.display = hasQuery ? 'inline-flex' : 'none';
+            chipQueryVal.textContent = '"' + (rawSearchText || searchQuery) + '"';
+        }
+    }
 
     /**
      * Perbarui pesan pada Empty State secara kontekstual sesuai kombinasi filter & keyword aktif
@@ -275,15 +333,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (visibleCount === 0) {
             const hasQuery = searchQuery !== '';
             const hasBidang = activeBidang !== 'semua bidang';
+            const displayQuery = rawSearchText || searchQuery;
 
             if (emptyTitle) {
                 emptyTitle.textContent = 'Tidak ada lomba yang sesuai';
             }
             if (emptyDesc) {
                 if (hasQuery && hasBidang) {
-                    emptyDesc.textContent = 'Tidak ditemukan lomba dengan kata kunci "' + searchQuery + '" pada bidang "' + activeBidangLabel + '".';
+                    emptyDesc.textContent = 'Tidak ditemukan lomba dengan kata kunci "' + displayQuery + '" pada bidang "' + activeBidangLabel + '".';
                 } else if (hasQuery) {
-                    emptyDesc.textContent = 'Tidak ditemukan lomba yang cocok dengan kata kunci "' + searchQuery + '".';
+                    emptyDesc.textContent = 'Tidak ditemukan lomba yang cocok dengan kata kunci "' + displayQuery + '".';
                 } else if (hasBidang) {
                     emptyDesc.textContent = 'Belum ada lomba yang tersedia pada bidang "' + activeBidangLabel + '" saat ini.';
                 } else {
@@ -294,37 +353,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Sinkronisasi state filter & pencarian pada kartu DOM (Multi-atribut: nama_lomba, penyelenggara, deskripsi, bidang, tingkat, partisipasi)
+     * Sinkronisasi kombinasi Filter Bidang + Search Keyword pada kartu DOM (Logika AND ketat)
      */
     function filterCards(matchedIdsFromApi = null) {
         let visibleCount = 0;
 
         gridCards.forEach(card => {
             const cardId      = parseInt(card.dataset.id || '0', 10);
-            const cardBidang  = card.dataset.bidang || '';
+            const cardBidang  = (card.dataset.bidang || '').trim().toLowerCase();
             const cardTitle   = card.dataset.title || '';
             const cardPeny    = card.dataset.penyelenggara || '';
             const cardDesc    = card.dataset.desc || '';
             const cardTingkat = card.dataset.tingkat || '';
             const cardPartis  = card.dataset.partisipasi || '';
 
-            let isMatched = false;
+            const matchBidang = (activeBidang === 'semua bidang')
+                || cardBidang === activeBidang;
+
+            const matchSearch = !searchQuery
+                || cardTitle.includes(searchQuery)
+                || cardPeny.includes(searchQuery)
+                || cardDesc.includes(searchQuery)
+                || cardBidang.includes(searchQuery)
+                || cardTingkat.includes(searchQuery)
+                || cardPartis.includes(searchQuery);
+
+            let isMatched = matchBidang && matchSearch;
 
             if (Array.isArray(matchedIdsFromApi)) {
-                isMatched = matchedIdsFromApi.includes(cardId);
-            } else {
-                const matchBidang = (activeBidang === 'semua bidang')
-                    || cardBidang === activeBidang
-                    || cardBidang.includes(activeBidang);
-                const matchSearch = !searchQuery
-                    || cardTitle.includes(searchQuery)
-                    || cardPeny.includes(searchQuery)
-                    || cardDesc.includes(searchQuery)
-                    || cardBidang.includes(searchQuery)
-                    || cardTingkat.includes(searchQuery)
-                    || cardPartis.includes(searchQuery);
-
-                isMatched = matchBidang && matchSearch;
+                isMatched = matchBidang && matchedIdsFromApi.includes(cardId);
             }
 
             if (isMatched) {
@@ -338,6 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (countNumber) {
             countNumber.textContent = String(visibleCount);
         }
+        updateActiveFilterBar();
         updateEmptyStateMessage(visibleCount);
     }
 
@@ -380,8 +438,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Debounced handler (300ms) untuk input pencarian real-time
     const debouncedSearch = debounce(() => {
-        searchQuery = searchInput ? normalizeSearchText(searchInput.value) : '';
+        rawSearchText = searchInput ? searchInput.value.trim() : '';
+        searchQuery   = searchInput ? normalizeSearchText(searchInput.value) : '';
         filterCards();
+        syncUrlQueryParams();
         syncWithBackendApi();
     }, 300);
 
@@ -402,6 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
         activeBidangLabel = (targetBtn.dataset.bidang || 'Semua Bidang').trim();
         activeBidang = activeBidangLabel.toLowerCase();
         filterCards();
+        syncUrlQueryParams();
         syncWithBackendApi();
     }
 
@@ -445,8 +506,10 @@ document.addEventListener('DOMContentLoaded', () => {
         searchForm.addEventListener('submit', (e) => {
             e.preventDefault();
             debouncedSearch.cancel();
-            searchQuery = searchInput ? normalizeSearchText(searchInput.value) : '';
+            rawSearchText = searchInput ? searchInput.value.trim() : '';
+            searchQuery   = searchInput ? normalizeSearchText(searchInput.value) : '';
             filterCards();
+            syncUrlQueryParams();
             syncWithBackendApi();
             const gridEl = document.getElementById('section-semua-lomba');
             if (gridEl) gridEl.scrollIntoView({ behavior: 'smooth' });
@@ -456,13 +519,15 @@ document.addEventListener('DOMContentLoaded', () => {
     window.resetFilters = function () {
         debouncedSearch.cancel();
         if (searchInput) searchInput.value = '';
-        searchQuery = '';
+        rawSearchText = '';
+        searchQuery   = '';
         if (pillButtons.length > 0) {
             activatePill(pillButtons[0], false);
         } else {
             activeBidangLabel = 'Semua Bidang';
             activeBidang = 'semua bidang';
             filterCards();
+            syncUrlQueryParams();
         }
     };
 
