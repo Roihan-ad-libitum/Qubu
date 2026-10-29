@@ -358,6 +358,16 @@ require __DIR__ . '/../layouts/headers.php';
                                 </div>
                             <?php endif; ?>
 
+                            <a href="<?= e(url('?page=cari-partner&id_lomba=' . (int) ($lomba['id_lomba'] ?? 0) . '&bidang=' . rawurlencode((string) ($lomba['bidang'] ?? '')))) ?>" class="btn-modal-secondary" id="btn-detail-cari-tim">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                <span>Cari Tim</span>
+                            </a>
+
                             <button type="button" class="btn-share-link" id="btn-copy-detail-link" data-share-url="<?= e($lomba['detail_url'] ?? '') ?>" onclick="copyShareableLink(this.dataset.shareUrl)">
                                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>

@@ -79,7 +79,7 @@ require_once __DIR__ . '/../layouts/headers.php';
             <!-- Menu Navigasi di Kanan Atas Persis Mockup -->
             <nav class="dash-nav-menu" aria-label="Menu Utama">
                 <a href="<?= url('?page=mahasiswa-dashboard') ?>" class="dash-nav-link is-active">Info Lomba</a>
-                <a href="javascript:void(0);" onclick="switchRekanTab('teman'); document.getElementById('section-rekomendasi').scrollIntoView({behavior: 'smooth'});" class="dash-nav-link" id="link-cari-partner">Cari Partner</a>
+                <a href="<?= url('?page=cari-partner') ?>" class="dash-nav-link" id="link-cari-partner">Cari Partner</a>
                 <a href="<?= url('?page=dosen-profile') ?>" class="dash-nav-link">Dosen Pembimbing</a>
 
                 <!-- Profil Avatar User -->
@@ -457,6 +457,9 @@ require_once __DIR__ . '/../layouts/headers.php';
                             <line x1="12" y1="15" x2="12" y2="3"></line>
                         </svg>
                     </a>
+                    <div class="modal-no-links-notice" id="modal-no-links-notice" style="display: none;">
+                        Tautan pendaftaran resmi &amp; guidebook belum tersedia dari penyelenggara.
+                    </div>
                 </div>
 
                 <div class="dash-modal-subactions">
@@ -467,6 +470,15 @@ require_once __DIR__ . '/../layouts/headers.php';
                         </svg>
                         <span id="modal-copy-label">Salin Link Lomba</span>
                     </button>
+                    <a href="<?= url('?page=cari-partner') ?>" class="btn-modal-fullpage" id="modal-link-cari-tim">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span>Cari Tim</span>
+                    </a>
                     <a href="#" class="btn-modal-fullpage" id="modal-link-fullpage">
                         <span>Buka Halaman Penuh</span>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">

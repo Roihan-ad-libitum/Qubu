@@ -203,6 +203,12 @@ function openDetailModal(data) {
     if (linkFullpage) {
         linkFullpage.href = currentModalDetailUrl;
     }
+    const linkCariTim = document.getElementById('modal-link-cari-tim');
+    if (linkCariTim) {
+        linkCariTim.href = window.location.origin + window.location.pathname
+            + '?page=cari-partner&id_lomba=' + encodeURIComponent(idLomba)
+            + '&bidang=' + encodeURIComponent(bidang);
+    }
     const copyLabel = document.getElementById('modal-copy-label');
     if (copyLabel) {
         copyLabel.textContent = 'Salin Link Lomba';
