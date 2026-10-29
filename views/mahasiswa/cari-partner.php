@@ -146,7 +146,12 @@ require_once __DIR__ . '/../layouts/headers.php';
     <!-- ========================================================================= -->
     <!-- 3. KONTAINER UTAMA: BANNER CTA, REKOMENDASI REKAN & SEMUA POSTINGAN       -->
     <!-- ========================================================================= -->
-    <main class="partner-main-container" data-api-url="<?= e(url('?page=api-partners')) ?>">
+    <main
+        class="partner-main-container"
+        id="partner-main-container"
+        data-api-url="<?= e(url('?page=api-partners')) ?>"
+        data-id-lomba="<?= !empty($targetLomba['id_lomba']) ? (int) $targetLomba['id_lomba'] : '' ?>"
+    >
 
         <!-- Banner Biru "+ Posting Cari Tim" Persis Mockup (Placeholder Visual) -->
         <section class="partner-cta-banner" aria-label="Ajakan Posting Cari Tim">
