@@ -63,9 +63,18 @@ switch ($page) {
         (new CompetitionController())->apiCompetitions($_GET);
         break;
 
+    case 'lomba-detail':
+    case 'detail-lomba':
+        (new CompetitionController())->detail($_GET['id'] ?? null);
+        break;
+
     case 'cari-partner':
     case 'find-partners':
-        redirect('?page=mahasiswa-dashboard#section-rekomendasi');
+        (new MahasiswaController())->cariPartner();
+        break;
+
+    case 'api-partners':
+        (new MahasiswaController())->apiPartners($_GET);
         break;
 
     case 'dosen-pembimbing':

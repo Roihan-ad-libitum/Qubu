@@ -37,6 +37,16 @@ if (!defined('BIDANG_QUBU')) {
 }
 
 /**
+ * Daftar Program Studi Resmi Fasilkom Qubu (Informatika & Sistem Informasi)
+ */
+if (!defined('PRODI_FASILKOM')) {
+    define('PRODI_FASILKOM', [
+        'Informatika',
+        'Sistem Informasi'
+    ]);
+}
+
+/**
  * BASE_URL otomatis tanpa trailing slash, mis. http://localhost/InfoLomba
  * Dapat di-override melalui environment variable APP_URL jika diperlukan.
  */
