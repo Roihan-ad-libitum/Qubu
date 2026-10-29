@@ -523,4 +523,50 @@ class MahasiswaController
 
         echo json_encode($payload['body'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
+
+    /**
+     * Menampilkan Halaman Profil Publik Kandidat Partner Read-Only (?page=lihat-profil&id={id_mahasiswa})
+     * Hanya dapat diakses oleh pengguna yang sudah login.
+     */
+    public function lihatProfil($rawId = null): void
+    {
+        Session::start();
+        AuthMiddleware::check();
+
+        $idUser        = (int) Session::get('id_user');
+        $loggedProfile = $idUser > 0 ? $this->mahasiswaModel->findByUserId($idUser) : null;
+        $namaMahasiswa = $loggedProfile['nama_mahasiswa'] ?? (Session::get('nama_lengkap') ?? 'Mahasiswa');
+        $userFoto      = $loggedProfile['foto'] ?? (Session::get('demo_profile_data')['foto'] ?? null);
+
+        $inputId = $rawId ?? ($_GET['id'] ?? null);
+        $validId = Validator::validatePositiveInt($inputId);
+
+        $kandidat   = null;
+        $isNotFound = false;
+
+        if ($validId !== null) {
+            $rawKandidat = $this->mahasiswaModel->findPublicProfileById($validId);
+            if ($rawKandidat !== null) {
+                $kandidat = $this->formatPartnerItem($rawKandidat);
+            } else {
+                $isNotFound = true;
+            }
+        } else {
+            $isNotFound = true;
+        }
+
+        if ($isNotFound && !headers_sent()) {
+            http_response_code(404);
+        }
+
+        $title = $kandidat
+            ? ('Profil ' . $kandidat['nama_mahasiswa'] . ' - ' . APP_NAME)
+            : ('404 Profil Tidak Ditemukan - ' . APP_NAME);
+        $extraCss = ['public/css/components.css', 'public/css/dashboard.css', 'public/css/cari-partner.css'];
+
+        $viewPath = __DIR__ . '/../../views/mahasiswa/lihat-profil.php';
+        if (file_exists($viewPath)) {
+            require $viewPath;
+        }
+    }
 }
