@@ -310,5 +310,143 @@ class MahasiswaModel
             return [];
         }
     }
+
+    /**
+     * Daftar Program Studi resmi Fasilkom Qubu
+     *
+     * @return array<int, string>
+     */
+    public function getProdiOptions(): array
+    {
+        if (defined('PRODI_FASILKOM') && is_array(PRODI_FASILKOM)) {
+            return PRODI_FASILKOM;
+        }
+
+        return [
+            'Informatika',
+            'Sistem Informasi',
+        ];
+    }
+
+    /**
+     * Validasi dan normalisasi filter bidang terhadap whitelist 5 Bidang Qubu
+     */
+    public function normalizeBidangFilter(?string $bidang): ?string
+    {
+        $raw = trim((string) $bidang);
+        if ($raw === '' || strcasecmp($raw, 'Semua Bidang') === 0 || strcasecmp($raw, 'semua') === 0) {
+            return null;
+        }
+
+        foreach ($this->getBidangPeminatanOptions() as $allowed) {
+            if (strcasecmp($raw, $allowed) === 0) {
+                return $allowed;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Validasi dan normalisasi filter program studi terhadap whitelist Prodi Fasilkom
+     */
+    public function normalizeProdiFilter(?string $prodi): ?string
+    {
+        $raw = trim((string) $prodi);
+        if ($raw === '' || strcasecmp($raw, 'Semua Prodi') === 0 || strcasecmp($raw, 'semua') === 0) {
+            return null;
+        }
+
+        foreach ($this->getProdiOptions() as $allowed) {
+            if (strcasecmp($raw, $allowed) === 0) {
+                return $allowed;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Cari dan filter kandidat partner mahasiswa (wajib mengecualikan diri sendiri: m.id_user != :exclude_user_id)
+     *
+     * @param int         $excludeUserId ID user mahasiswa yang sedang login (wajib dikecualikan)
+     * @param string|null $bidang        Filter bidang keahlian (Frontend, Backend, UI/UX Design, Data Science, Robotic)
+     * @param string|null $prodi         Filter program studi (Informatika, Sistem Informasi)
+     * @param string|null $keyword       Kata kunci pencarian (nama, bidang_minat, prodi, bio, username)
+     * @param int         $limit         Batas jumlah baris hasil (1..100, default 50)
+     * @return array<int, array<string, mixed>>
+     */
+    public function searchPartners(
+        int $excludeUserId,
+        ?string $bidang = null,
+        ?string $prodi = null,
+        ?string $keyword = null,
+        int $limit = 50
+    ): array {
+        $safeLimit = max(1, min(100, $limit));
+        $validBidang = $this->normalizeBidangFilter($bidang);
+        $validProdi  = $this->normalizeProdiFilter($prodi);
+        $cleanKw     = trim((string) preg_replace('/\s+/', ' ', strip_tags((string) $keyword)));
+        if (mb_strlen($cleanKw) > 100) {
+            $cleanKw = mb_substr($cleanKw, 0, 100);
+        }
+
+        $whereClauses = ['m.id_user != :exclude_user_id'];
+        $params = [
+            ':exclude_user_id' => $excludeUserId,
+        ];
+
+        if ($validBidang !== null) {
+            $whereClauses[] = 'LOWER(m.bidang_minat) LIKE LOWER(:bidang_like)';
+            $params[':bidang_like'] = '%' . $validBidang . '%';
+        }
+
+        if ($validProdi !== null) {
+            $whereClauses[] = 'LOWER(m.program_studi) = LOWER(:prodi)';
+            $params[':prodi'] = $validProdi;
+        }
+
+        if ($cleanKw !== '') {
+            $kwLike = '%' . $cleanKw . '%';
+            $whereClauses[] = '(
+                LOWER(m.nama_mahasiswa) LIKE LOWER(:kw1)
+                OR LOWER(m.bidang_minat) LIKE LOWER(:kw2)
+                OR LOWER(m.program_studi) LIKE LOWER(:kw3)
+                OR LOWER(m.bio) LIKE LOWER(:kw4)
+                OR LOWER(u.username) LIKE LOWER(:kw5)
+            )';
+            $params[':kw1'] = $kwLike;
+            $params[':kw2'] = $kwLike;
+            $params[':kw3'] = $kwLike;
+            $params[':kw4'] = $kwLike;
+            $params[':kw5'] = $kwLike;
+        }
+
+        $whereSql = implode(' AND ', $whereClauses);
+
+        $sql = "SELECT
+                    m.id_mahasiswa,
+                    m.id_user,
+                    m.npm,
+                    m.nama_mahasiswa,
+                    m.program_studi,
+                    m.angkatan,
+                    m.bidang_minat,
+                    m.bio,
+                    m.foto,
+                    u.username,
+                    u.email,
+                    u.no_hp
+                FROM mahasiswa m
+                JOIN users u ON u.id_user = m.id_user
+                WHERE {$whereSql}
+                ORDER BY m.nama_mahasiswa ASC, m.id_mahasiswa DESC
+                LIMIT {$safeLimit}";
+
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 
