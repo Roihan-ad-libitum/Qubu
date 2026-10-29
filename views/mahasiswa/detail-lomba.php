@@ -178,6 +178,30 @@ require __DIR__ . '/../layouts/headers.php';
         font-size: 1.55rem;
     }
 }
+@media (max-width: 640px) {
+    .detail-page-wrapper {
+        padding: 0 1rem;
+        margin: 1.25rem auto 3rem;
+    }
+    .detail-main-card {
+        padding: 1.25rem;
+        border-radius: 28px;
+    }
+    .detail-title {
+        font-size: 1.32rem;
+    }
+    .detail-cta-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .detail-cta-row .btn-modal-primary,
+    .detail-cta-row .btn-modal-secondary,
+    .detail-cta-row .btn-share-link {
+        width: 100%;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+}
 </style>
 
 <div class="dash-page">
