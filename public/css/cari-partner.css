@@ -1,0 +1,550 @@
+/**
+ * Stylesheet Halaman Cari Partner Qubu (public/css/cari-partner.css)
+ * Presisi mengikuti mockup desain:
+ * - Hero biru bertekstur noise ("Temukan Rekan Tim Terbaikmu") + 6 Pills Bidang
+ * - Banner biru gradasi ("Bentuk tim lomba impianmu") + tombol putih "+ Posting Cari Tim"
+ * - Section "Rekomendasi Rekan" (3 kartu sejajar) & Section "Semua Postingan" (Grid 3 kolom)
+ * - Kartu Partner putih rounded 28px dengan avatar biru inisial, box target lomba, pill bidang,
+ *   tombol outline "Lihat Profil", dan tombol hijau (#22c55e) "Ajak ke Tim"
+ * - Responsif penuh: Desktop (3 kolom), Tablet 768px (2 kolom), Mobile 375px-414px (1 kolom 100%)
+ */
+
+/* 1. HERO CARI PARTNER */
+.partner-hero-section {
+    position: relative;
+    width: 100%;
+    padding: 6.5rem 2rem 4.25rem;
+    background: linear-gradient(180deg, #1b2278 0%, #1d3587 42%, #2563eb 78%, #f8fafc 100%);
+    overflow: hidden;
+}
+
+.partner-hero-inner {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.partner-hero-title {
+    font-size: clamp(2rem, 3.8vw, 2.85rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.18;
+    letter-spacing: -0.025em;
+    margin: 0 0 2rem 0;
+    text-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+}
+
+.partner-pills-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    width: 100%;
+}
+
+.partner-pill-btn {
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 600;
+    padding: 0.55rem 1.35rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    white-space: nowrap;
+}
+
+.partner-pill-btn:hover {
+    background: rgba(255, 255, 255, 0.32);
+    transform: translateY(-2px);
+}
+
+.partner-pill-btn.is-active {
+    background: #ffffff;
+    color: #0f172a;
+    font-weight: 700;
+    border-color: #ffffff;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.16);
+}
+
+.partner-pill-btn:focus-visible {
+    outline: 2.5px solid #38bdf8;
+    outline-offset: 3px;
+}
+
+/* 2. KONTAINER UTAMA & BANNER BIRU "+ POSTING CARI TIM" */
+.partner-main-container {
+    width: 100%;
+    max-width: 1180px;
+    margin: -0.5rem auto 4.5rem;
+    padding: 0 2rem;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 20;
+}
+
+.partner-cta-banner {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 55%, #172554 100%);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    box-shadow: 0 14px 32px rgba(29, 78, 216, 0.22);
+    margin-bottom: 2.25rem;
+}
+
+.partner-cta-text h2 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 0.25rem 0;
+    letter-spacing: -0.01em;
+}
+
+.partner-cta-text p {
+    font-size: 0.88rem;
+    color: #dbeafe;
+    margin: 0;
+}
+
+.btn-posting-placeholder {
+    background: #ffffff;
+    color: #1e3a8a;
+    border: none;
+    border-radius: 9999px;
+    padding: 0.65rem 1.35rem;
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-posting-placeholder:hover {
+    background: #f1f5f9;
+    transform: translateY(-2px);
+}
+
+/* Banner Konteks Lomba jika masuk dari tombol "Cari Tim" di Halaman Detail Lomba */
+.partner-lomba-context {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    background: #eff6ff;
+    border: 1.5px solid #93c5fd;
+    border-radius: 16px;
+    padding: 0.85rem 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.partner-lomba-context-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #1e3a8a;
+}
+
+.partner-lomba-context-info strong {
+    font-weight: 800;
+    color: #0f172a;
+}
+
+/* 3. SECTION REKOMENDASI REKAN & SEMUA POSTINGAN */
+.partner-section {
+    margin-bottom: 3rem;
+}
+
+.partner-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.partner-section-title {
+    font-size: 1.38rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+/* 4. FILTER BAR (SEARCH INPUT & DROPDOWN PROGRAM STUDI) */
+.partner-filter-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.partner-search-wrap {
+    flex: 1;
+    min-width: 240px;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 0.5rem 0.9rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.partner-search-wrap:focus-within {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    background: #ffffff;
+}
+
+.partner-search-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #0f172a;
+}
+
+.partner-prodi-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.partner-prodi-label {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.partner-prodi-select {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 0.52rem 1rem;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0f172a;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.partner-prodi-select:focus {
+    border-color: #2563eb;
+}
+
+/* 5. GRID 3 KOLOM KARTU PARTNER PERSIS MOCKUP */
+.partner-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 6. DESAIN KARTU PARTNER (PUTIH ROUNDED 28PX, AVATAR INISIAL BIRU, TOMBOL HIJAU) */
+.partner-card {
+    background: #ffffff;
+    border-radius: 26px;
+    padding: 1.35rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 12px 30px -6px rgba(15, 23, 42, 0.1), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.95rem;
+    box-sizing: border-box;
+    transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+}
+
+.partner-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 38px -8px rgba(15, 23, 42, 0.16);
+    border-color: #cbd5e1;
+}
+
+.pcard-header {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.pcard-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+}
+
+.pcard-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.pcard-identity {
+    min-width: 0;
+    flex: 1;
+}
+
+.pcard-name {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pcard-sub {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Kotak Info Abu-abu ("Mencari Tim Untuk: ...") */
+.pcard-target-box {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 0.65rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pcard-target-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.pcard-target-title {
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Deretan Pill Bidang / Keahlian */
+.pcard-skills-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    flex: 1;
+}
+
+.pcard-skills-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #94a3b8;
+}
+
+.pcard-skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.pcard-skill-pill {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+    border-radius: 9999px;
+    padding: 3px 10px;
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+
+/* Tombol Aksi Bawah Kartu (Outline "Lihat Profil" & Hijau "Ajak ke Tim") */
+.pcard-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.btn-pcard-outline {
+    width: 100%;
+    height: 36px;
+    background: #f8fafc;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    border-radius: 9999px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-pcard-outline:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.btn-pcard-green {
+    width: 100%;
+    height: 36px;
+    background: #22c55e;
+    color: #ffffff;
+    border: none;
+    border-radius: 9999px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+    transition: all 0.2s ease;
+}
+
+.btn-pcard-green:hover {
+    background: #16a34a;
+    transform: translateY(-1px);
+}
+
+/* 7. LOADING STATE & TOAST PEMBERITAHUAN PLACEHOLDER */
+.partner-loading-state {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: #475569;
+    gap: 0.75rem;
+}
+
+.partner-spinner {
+    width: 38px;
+    height: 38px;
+    border: 3.5px solid #dbeafe;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: partnerSpin 0.75s linear infinite;
+}
+
+@keyframes partnerSpin {
+    to { transform: rotate(360deg); }
+}
+
+.partner-toast {
+    position: fixed;
+    bottom: 1.75rem;
+    right: 1.75rem;
+    background: #0f172a;
+    color: #ffffff;
+    padding: 0.85rem 1.35rem;
+    border-radius: 14px;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.28);
+    font-size: 0.88rem;
+    font-weight: 700;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    gap: 0.6rem;
+    border: 1px solid #334155;
+}
+
+/* 8. RESPONSIVE BREAKPOINTS (TABLET 2 KOLOM, MOBILE 1 KOLOM FIT 100%) */
+@media (max-width: 1080px) and (min-width: 641px) {
+    .partner-grid-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .partner-hero-section {
+        padding: 5.5rem 1rem 3rem;
+    }
+
+    .partner-main-container {
+        padding: 0 1rem;
+    }
+
+    .partner-cta-banner {
+        padding: 1.25rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .btn-posting-placeholder {
+        width: 100%;
+        text-align: center;
+    }
+
+    .partner-filter-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .partner-prodi-wrap {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .partner-prodi-select {
+        flex: 1;
+    }
+
+    .partner-grid-3 {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.15rem;
+    }
+
+    .partner-card {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
