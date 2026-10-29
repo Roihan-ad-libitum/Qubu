@@ -10,6 +10,12 @@
  */
 $title = $title ?? 'Dashboard Info Lomba - ' . APP_NAME;
 $extraCss = ['public/css/components.css', 'public/css/dashboard.css'];
+$searchKeyword = $searchKeyword ?? '';
+$activeBidang  = $activeBidang ?? 'Semua Bidang';
+$categoryPills = $categoryPills ?? array_merge(
+    ['Semua Bidang'],
+    defined('BIDANG_QUBU') ? BIDANG_QUBU : ['Frontend', 'Backend', 'UI/UX Design', 'Data Science', 'Robotic']
+);
 
 // Helper format tanggal bahasa Indonesia persis mockup ("15 Juli 2025")
 $formatTanggalIndo = function (?string $datetime): string {
@@ -141,6 +147,8 @@ require_once __DIR__ . '/../layouts/headers.php';
                     <input 
                         type="text" 
                         id="dash-search-input" 
+                        name="q"
+                        value="<?= e($searchKeyword) ?>"
                         class="dash-search-input" 
                         placeholder="Cari nama lomba, bidang, atau penyelenggara..." 
                         aria-label="Cari nama lomba atau bidang"
@@ -152,15 +160,21 @@ require_once __DIR__ . '/../layouts/headers.php';
                 </div>
             </form>
 
-            <!-- Kategori Filter Pills di Bawah Search Bar -->
+            <!-- Kategori Filter Pills di Bawah Search Bar (WAI-ARIA Tablist & Keyboard Accessible) -->
             <div class="dash-pills-row" id="dash-pills-container" role="tablist" aria-label="Filter Kategori Bidang">
-                <?php foreach ($categoryPills as $idx => $pill): ?>
+                <?php foreach ($categoryPills as $idx => $pill):
+                    $isPillActive = (strcasecmp((string) $activeBidang, (string) $pill) === 0)
+                        || ($idx === 0 && empty($activeBidang));
+                ?>
                     <button 
                         type="button" 
-                        class="dash-pill-btn <?= $idx === 0 ? 'is-active' : '' ?>" 
+                        id="pill-tab-<?= (int) $idx ?>"
+                        class="dash-pill-btn <?= $isPillActive ? 'is-active' : '' ?>" 
                         data-bidang="<?= e($pill) ?>"
                         role="tab"
-                        aria-selected="<?= $idx === 0 ? 'true' : 'false' ?>"
+                        aria-selected="<?= $isPillActive ? 'true' : 'false' ?>"
+                        aria-controls="semua-lomba-grid"
+                        tabindex="<?= $isPillActive ? '0' : '-1' ?>"
                     >
                         <?= e($pill) ?>
                     </button>
@@ -282,13 +296,13 @@ require_once __DIR__ . '/../layouts/headers.php';
                     <h2 class="dash-section-title">Semua Lomba</h2>
                     <p class="dash-section-desc">Eksplorasi seluruh kompetisi nasional dan internasional yang tersedia di Qubu.</p>
                 </div>
-                <div class="dash-count-badge" id="lomba-count-badge">
+                <div class="dash-count-badge" id="lomba-count-badge" aria-live="polite" aria-atomic="true">
                     Menampilkan <span id="count-number"><?= count($semuaLomba) ?></span> Lomba
                 </div>
             </div>
 
             <!-- Grid 2-3 Kolom Semua Lomba -->
-            <div class="semua-lomba-grid" id="semua-lomba-grid">
+            <div class="semua-lomba-grid" id="semua-lomba-grid" role="tabpanel" aria-label="Daftar Kompetisi">
                 <?php foreach ($semuaLomba as $item): ?>
                     <?php renderLombaCard($item, ['extraClass' => 'grid-card-item', 'mode' => 'modal']); ?>
                 <?php endforeach; ?>
@@ -402,16 +416,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. Filter Pills & Pencarian
-    const pillButtons = document.querySelectorAll('.dash-pill-btn');
+    // 2. Filter Pills (a11y Tablist) & Pencarian
+    const pillButtons = Array.from(document.querySelectorAll('.dash-pill-btn'));
     const searchInput = document.getElementById('dash-search-input');
     const searchForm  = document.getElementById('dash-search-form');
     const gridCards   = document.querySelectorAll('.grid-card-item');
     const emptyState  = document.getElementById('empty-search-state');
     const countNumber = document.getElementById('count-number');
 
-    let activeBidang = 'semua bidang';
-    let searchQuery  = '';
+    const initialActiveBtn = pillButtons.find(b => b.classList.contains('is-active')) || pillButtons[0];
+    let activeBidang = initialActiveBtn
+        ? (initialActiveBtn.dataset.bidang || 'semua bidang').toLowerCase().trim()
+        : 'semua bidang';
+    let searchQuery = searchInput ? (searchInput.value || '').toLowerCase().trim() : '';
 
     function filterCards() {
         let visibleCount = 0;
@@ -422,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const cardPeny   = card.dataset.penyelenggara || '';
             const cardDesc   = card.dataset.desc || '';
 
-            const matchBidang = (activeBidang === 'semua bidang') || cardBidang.includes(activeBidang) || activeBidang.includes(cardBidang);
+            const matchBidang = (activeBidang === 'semua bidang') || cardBidang === activeBidang || cardBidang.includes(activeBidang);
             const matchSearch = !searchQuery || cardTitle.includes(searchQuery) || cardPeny.includes(searchQuery) || cardBidang.includes(searchQuery) || cardDesc.includes(searchQuery);
 
             if (matchBidang && matchSearch) {
@@ -439,13 +456,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Event listener pill buttons
-    pillButtons.forEach(btn => {
+    /**
+     * Aktifkan pill tab tertentu dan sinkronkan atribut WAI-ARIA (aria-selected & roving tabindex)
+     */
+    function activatePill(targetBtn, shouldFocus = false) {
+        if (!targetBtn) return;
+
+        pillButtons.forEach(b => {
+            const isTarget = (b === targetBtn);
+            b.classList.toggle('is-active', isTarget);
+            b.setAttribute('aria-selected', isTarget ? 'true' : 'false');
+            b.setAttribute('tabindex', isTarget ? '0' : '-1');
+        });
+
+        if (shouldFocus) {
+            targetBtn.focus();
+        }
+
+        activeBidang = (targetBtn.dataset.bidang || 'semua bidang').toLowerCase().trim();
+        filterCards();
+    }
+
+    // Event listener klik & navigasi keyboard (Enter, Space, ArrowLeft, ArrowRight, Home, End)
+    pillButtons.forEach((btn, index) => {
         btn.addEventListener('click', () => {
-            pillButtons.forEach(b => b.classList.remove('is-active'));
-            btn.classList.add('is-active');
-            activeBidang = (btn.dataset.bidang || '').toLowerCase().trim();
-            filterCards();
+            activatePill(btn, false);
+        });
+
+        btn.addEventListener('keydown', (e) => {
+            const total = pillButtons.length;
+            if (total === 0) return;
+
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                activatePill(btn, true);
+            } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                const nextBtn = pillButtons[(index + 1) % total];
+                activatePill(nextBtn, true);
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                const prevBtn = pillButtons[(index - 1 + total) % total];
+                activatePill(prevBtn, true);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                activatePill(pillButtons[0], true);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                activatePill(pillButtons[total - 1], true);
+            }
         });
     });
 
@@ -470,11 +529,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.resetFilters = function() {
         if (searchInput) searchInput.value = '';
         searchQuery = '';
-        activeBidang = 'semua bidang';
-        pillButtons.forEach((b, idx) => {
-            b.classList.toggle('is-active', idx === 0);
-        });
-        filterCards();
+        if (pillButtons.length > 0) {
+            activatePill(pillButtons[0], false);
+        } else {
+            activeBidang = 'semua bidang';
+            filterCards();
+        }
     };
 });
 
