@@ -296,4 +296,235 @@ class DosenModel
             'Robotic'
         ];
     }
+
+    // =========================================================================
+    // DP-1.2: QUERY PENCARIAN, FILTER BIDANG & REKOMENDASI DOSEN PEMBIMBING
+    // =========================================================================
+
+    /**
+     * Pecah string `bidang_keahlian` (dipisahkan koma) menjadi array tag resmi Qubu
+     */
+    public function parseBidangTags(?string $bidangKeahlian): array
+    {
+        $raw = array_values(array_filter(array_map('trim', explode(',', (string) $bidangKeahlian))));
+        $allowed = $this->getBidangKeahlianOptions();
+        $result = [];
+
+        foreach ($raw as $tag) {
+            foreach ($allowed as $validOption) {
+                if (strcasecmp($tag, $validOption) === 0) {
+                    $result[] = $validOption;
+                    break;
+                }
+            }
+        }
+
+        if (empty($result) && !empty($raw)) {
+            $result = array_slice($raw, 0, 3);
+        }
+
+        return !empty($result) ? array_values(array_unique($result)) : ['Frontend'];
+    }
+
+    /**
+     * Normalisasi parameter filter bidang ke daftar whitelist 5 Bidang Qubu
+     * Mengembalikan null jika kosong / 'Semua Bidang' / tidak valid.
+     */
+    public function normalizeBidangFilter(?string $bidang): ?string
+    {
+        $clean = trim((string) $bidang);
+        if ($clean === '' || strcasecmp($clean, 'Semua Bidang') === 0 || strcasecmp($clean, 'semua') === 0) {
+            return null;
+        }
+
+        foreach ($this->getBidangKeahlianOptions() as $validBidang) {
+            if (strcasecmp($clean, $validBidang) === 0) {
+                return $validBidang;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Ambil profil publik dosen berdasarkan id_dosen (tanpa kolom password)
+     */
+    public function findDosenById(int $idDosen): ?array
+    {
+        if ($idDosen <= 0) {
+            return null;
+        }
+
+        $sql = "SELECT
+                    d.id_dosen,
+                    d.id_user,
+                    d.nama_dosen,
+                    d.bidang_keahlian,
+                    d.nidn,
+                    d.status,
+                    d.foto,
+                    u.username,
+                    u.email,
+                    u.no_hp
+                FROM dosen d
+                JOIN users u ON u.id_user = d.id_user
+                WHERE d.id_dosen = :id_dosen
+                LIMIT 1";
+
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute([':id_dosen' => $idDosen]);
+        $row = $stmt->fetch();
+
+        if ($row === false) {
+            return null;
+        }
+
+        $row['id_dosen']    = (int) $row['id_dosen'];
+        $row['id_user']     = (int) $row['id_user'];
+        $row['bidang_tags'] = $this->parseBidangTags($row['bidang_keahlian'] ?? '');
+        return $row;
+    }
+
+    /**
+     * Cari dan filter daftar dosen pembimbing berdasarkan bidang keahlian dan kata kunci nama/NIDN.
+     * Dosen dengan status `bersedia` diurutkan lebih dulu, diikuti `tidak_bersedia`.
+     *
+     * @param string|null $bidang  Nama bidang Qubu atau null untuk Semua Bidang
+     * @param string|null $keyword Kata kunci pencarian nama dosen / NIDN / bidang
+     * @param int         $limit   Batas jumlah hasil
+     * @return array
+     */
+    public function searchDosen(?string $bidang = null, ?string $keyword = null, int $limit = 50): array
+    {
+        $limit = max(1, min(100, $limit));
+        $normalizedBidang = $this->normalizeBidangFilter($bidang);
+        $cleanKeyword     = trim((string) $keyword);
+
+        $whereClauses = [];
+        $params       = [];
+
+        // Filter Bidang Keahlian (mendukung multi-tag dipisahkan koma pada kolom bidang_keahlian)
+        if ($normalizedBidang !== null) {
+            $whereClauses[] = "d.bidang_keahlian LIKE :bidang_like";
+            $params[':bidang_like'] = '%' . $normalizedBidang . '%';
+        }
+
+        // Filter Kata Kunci (Nama Dosen, NIDN, atau Bidang Keahlian) dengan parameter PDO unik
+        if ($cleanKeyword !== '') {
+            $likeVal = '%' . $cleanKeyword . '%';
+            $whereClauses[] = "(d.nama_dosen LIKE :kw1 OR d.nidn LIKE :kw2 OR d.bidang_keahlian LIKE :kw3)";
+            $params[':kw1'] = $likeVal;
+            $params[':kw2'] = $likeVal;
+            $params[':kw3'] = $likeVal;
+        }
+
+        $whereSql = !empty($whereClauses) ? ('WHERE ' . implode(' AND ', $whereClauses)) : '';
+
+        $sql = "SELECT
+                    d.id_dosen,
+                    d.id_user,
+                    d.nama_dosen,
+                    d.bidang_keahlian,
+                    d.nidn,
+                    d.status,
+                    d.foto,
+                    u.username,
+                    u.email,
+                    u.no_hp
+                FROM dosen d
+                JOIN users u ON u.id_user = d.id_user
+                {$whereSql}
+                ORDER BY
+                    CASE WHEN d.status = 'bersedia' THEN 0 ELSE 1 END ASC,
+                    d.nama_dosen ASC
+                LIMIT {$limit}";
+
+        $stmt = $this->pdo()->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+
+        foreach ($rows as &$row) {
+            $row['id_dosen']    = (int) $row['id_dosen'];
+            $row['id_user']     = (int) $row['id_user'];
+            $row['bidang_tags'] = $this->parseBidangTags($row['bidang_keahlian'] ?? '');
+        }
+        unset($row);
+
+        return $rows;
+    }
+
+    /**
+     * Ambil daftar Rekomendasi Dosen Pembimbing:
+     * HANYA dosen yang berstatus `bersedia` dan memiliki minimal satu bidang keahlian
+     * yang sama dengan bidang minat mahasiswa (atau bidang lomba yang dipilih).
+     *
+     * @param string|null $bidangMinatMahasiswa String bidang minat mahasiswa (mis. "Frontend, UI/UX Design")
+     * @param int         $limit                Jumlah rekomendasi (default 3 sesuai gambar mockup)
+     * @return array
+     */
+    public function getRecommendedDosen(?string $bidangMinatMahasiswa = null, int $limit = 3): array
+    {
+        $limit = max(1, min(12, $limit));
+        $targetTags = $this->parseBidangTags($bidangMinatMahasiswa);
+
+        // Ambil seluruh dosen yang berstatus 'bersedia'
+        $sql = "SELECT
+                    d.id_dosen,
+                    d.id_user,
+                    d.nama_dosen,
+                    d.bidang_keahlian,
+                    d.nidn,
+                    d.status,
+                    d.foto,
+                    u.username,
+                    u.email,
+                    u.no_hp
+                FROM dosen d
+                JOIN users u ON u.id_user = d.id_user
+                WHERE d.status = 'bersedia'
+                ORDER BY d.nama_dosen ASC";
+
+        $stmt = $this->pdo()->query($sql);
+        $allBersedia = $stmt ? $stmt->fetchAll() : [];
+
+        $matched = [];
+        foreach ($allBersedia as $row) {
+            $row['id_dosen']    = (int) $row['id_dosen'];
+            $row['id_user']     = (int) $row['id_user'];
+            $dosenTags          = $this->parseBidangTags($row['bidang_keahlian'] ?? '');
+            $row['bidang_tags'] = $dosenTags;
+
+            // Hitung jumlah irisan bidang yang sama (case-insensitive)
+            $overlapCount = 0;
+            foreach ($targetTags as $tTag) {
+                foreach ($dosenTags as $dTag) {
+                    if (strcasecmp($tTag, $dTag) === 0) {
+                        $overlapCount++;
+                        break;
+                    }
+                }
+            }
+
+            if ($overlapCount > 0) {
+                $row['_match_score'] = $overlapCount;
+                $matched[] = $row;
+            }
+        }
+
+        // Urutkan berdasarkan jumlah kecocokan bidang tertinggi, lalu nama_dosen ASC
+        usort($matched, function (array $a, array $b): int {
+            if ($b['_match_score'] !== $a['_match_score']) {
+                return $b['_match_score'] <=> $a['_match_score'];
+            }
+            return strcmp((string) $a['nama_dosen'], (string) $b['nama_dosen']);
+        });
+
+        $sliced = array_slice($matched, 0, $limit);
+        foreach ($sliced as &$item) {
+            unset($item['_match_score']);
+        }
+        unset($item);
+
+        return $sliced;
+    }
 }
