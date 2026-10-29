@@ -352,6 +352,12 @@ require __DIR__ . '/../layouts/headers.php';
                                 </a>
                             <?php endif; ?>
 
+                            <?php if ($safeLinkResmi === '' && $safeLinkGuidebook === ''): ?>
+                                <div class="modal-no-links-notice" id="detail-no-links-notice">
+                                    Tautan pendaftaran resmi &amp; guidebook belum tersedia dari penyelenggara.
+                                </div>
+                            <?php endif; ?>
+
                             <button type="button" class="btn-share-link" id="btn-copy-detail-link" data-share-url="<?= e($lomba['detail_url'] ?? '') ?>" onclick="copyShareableLink(this.dataset.shareUrl)">
                                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
@@ -395,14 +401,35 @@ require __DIR__ . '/../layouts/headers.php';
 function copyShareableLink(linkUrl) {
     const targetUrl = linkUrl || window.location.href;
     const labelEl = document.getElementById('copy-link-label');
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(targetUrl).then(() => {
-            if (labelEl) {
-                labelEl.textContent = 'Link Tersalin!';
-                setTimeout(() => { labelEl.textContent = 'Salin Link Lomba'; }, 2000);
-            }
+    const notifyCopied = () => {
+        if (labelEl) {
+            labelEl.textContent = 'Link Tersalin!';
+            setTimeout(() => { labelEl.textContent = 'Salin Link Lomba'; }, 2000);
+        }
+    };
+
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(targetUrl).then(notifyCopied).catch(() => {
+            fallbackCopyText(targetUrl, notifyCopied);
         });
+    } else {
+        fallbackCopyText(targetUrl, notifyCopied);
     }
+}
+
+function fallbackCopyText(text, onSuccess) {
+    try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (typeof onSuccess === 'function') onSuccess();
+    } catch (_) {}
 }
 </script>
 

@@ -149,7 +149,14 @@ function openDetailModal(data) {
         : ((data.poster && String(data.poster).trim() !== '') ? data.poster : '');
     const posterSrc = sanitizeHttpUrl(rawPosterSrc, true);
 
+    if (placeholderTitle) placeholderTitle.textContent = data.nama_lomba || '';
+    if (placeholderCat) placeholderCat.textContent = bidang;
+
     if (posterSrc !== '') {
+        imgEl.onerror = () => {
+            imgEl.style.display = 'none';
+            if (placeholderEl) placeholderEl.style.display = 'flex';
+        };
         imgEl.src = posterSrc;
         imgEl.alt = 'Poster ' + (data.nama_lomba || 'Lomba');
         imgEl.style.display = 'block';
@@ -158,8 +165,6 @@ function openDetailModal(data) {
         imgEl.style.display = 'none';
         if (placeholderEl) {
             placeholderEl.style.display = 'flex';
-            if (placeholderTitle) placeholderTitle.textContent = data.nama_lomba || '';
-            if (placeholderCat) placeholderCat.textContent = bidang;
         }
     }
 
@@ -187,6 +192,11 @@ function openDetailModal(data) {
         }
     }
 
+    const noLinksNotice = document.getElementById('modal-no-links-notice');
+    if (noLinksNotice) {
+        noLinksNotice.style.display = (safeLinkResmi === '' && safeLinkGuidebook === '') ? 'flex' : 'none';
+    }
+
     const fallbackDetailUrl = window.location.origin + window.location.pathname + '?page=lomba-detail&id=' + encodeURIComponent(idLomba);
     currentModalDetailUrl = sanitizeHttpUrl(data.detail_url, true) || fallbackDetailUrl;
     const linkFullpage = document.getElementById('modal-link-fullpage');
@@ -205,14 +215,35 @@ function openDetailModal(data) {
 function copyModalLombaLink() {
     const targetUrl = currentModalDetailUrl || window.location.href;
     const copyLabel = document.getElementById('modal-copy-label');
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(targetUrl).then(() => {
-            if (copyLabel) {
-                copyLabel.textContent = 'Link Tersalin!';
-                setTimeout(() => { copyLabel.textContent = 'Salin Link Lomba'; }, 2000);
-            }
+    const notifyCopied = () => {
+        if (copyLabel) {
+            copyLabel.textContent = 'Link Tersalin!';
+            setTimeout(() => { copyLabel.textContent = 'Salin Link Lomba'; }, 2000);
+        }
+    };
+
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(targetUrl).then(notifyCopied).catch(() => {
+            fallbackCopyToClipboard(targetUrl, notifyCopied);
         });
+    } else {
+        fallbackCopyToClipboard(targetUrl, notifyCopied);
     }
+}
+
+function fallbackCopyToClipboard(text, onSuccess) {
+    try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (typeof onSuccess === 'function') onSuccess();
+    } catch (_) {}
 }
 
 function closeDetailModal(e) {
