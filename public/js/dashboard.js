@@ -252,8 +252,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const pillButtons = Array.from(document.querySelectorAll('.dash-pill-btn'));
     const searchInput = document.getElementById('dash-search-input');
     const searchForm  = document.getElementById('dash-search-form');
-    const gridCards   = Array.from(document.querySelectorAll('.grid-card-item'));
-    const emptyState  = document.getElementById('empty-search-state');
+    const gridCards      = Array.from(document.querySelectorAll('.grid-card-item'));
+    const semuaLombaGrid = document.getElementById('semua-lomba-grid');
+    const emptyState     = document.getElementById('empty-search-state');
     const emptyTitle  = document.getElementById('empty-search-title');
     const emptyDesc   = document.getElementById('empty-search-desc');
     const countNumber = document.getElementById('count-number');
@@ -327,6 +328,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * Perbarui pesan pada Empty State secara kontekstual sesuai kombinasi filter & keyword aktif
      */
     function updateEmptyStateMessage(visibleCount) {
+        if (semuaLombaGrid) {
+            semuaLombaGrid.style.display = visibleCount === 0 ? 'none' : 'grid';
+        }
         if (!emptyState) return;
         emptyState.style.display = visibleCount === 0 ? 'flex' : 'none';
 

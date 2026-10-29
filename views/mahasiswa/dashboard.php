@@ -294,6 +294,17 @@ require_once __DIR__ . '/../layouts/headers.php';
         $semuaKatalogCards = !empty($katalogLengkap) ? $katalogLengkap : $semuaLomba;
         $matchedIdsSet = array_flip(array_map(fn($r) => (int) ($r['id_lomba'] ?? 0), $semuaLomba));
         $hasInitialFilter = ($activeBidang !== 'Semua Bidang') || ($searchKeyword !== '');
+        $isInitialEmpty = count($semuaLomba) === 0;
+
+        if ($searchKeyword !== '' && $activeBidang !== 'Semua Bidang') {
+            $initialEmptyDesc = 'Tidak ditemukan lomba dengan kata kunci "' . $searchKeyword . '" pada bidang "' . $activeBidang . '".';
+        } elseif ($searchKeyword !== '') {
+            $initialEmptyDesc = 'Tidak ditemukan lomba yang cocok dengan kata kunci "' . $searchKeyword . '".';
+        } elseif ($activeBidang !== 'Semua Bidang') {
+            $initialEmptyDesc = 'Belum ada lomba yang tersedia pada bidang "' . $activeBidang . '" saat ini.';
+        } else {
+            $initialEmptyDesc = 'Coba kata kunci lain atau pilih filter kategori "Semua Bidang".';
+        }
         ?>
         <section class="dash-section" id="section-semua-lomba">
             <div class="dash-section-header">
@@ -323,7 +334,7 @@ require_once __DIR__ . '/../layouts/headers.php';
             </div>
 
             <!-- Grid 2-3 Kolom Semua Lomba (Seluruh kartu katalog dimuat di DOM untuk sinkronisasi instan) -->
-            <div class="semua-lomba-grid" id="semua-lomba-grid" role="tabpanel" aria-label="Daftar Kompetisi">
+            <div class="semua-lomba-grid" id="semua-lomba-grid" role="tabpanel" aria-label="Daftar Kompetisi" style="<?= $isInitialEmpty ? 'display: none;' : 'display: grid;' ?>">
                 <?php foreach ($semuaKatalogCards as $item): ?>
                     <?php
                     $itemId = (int) ($item['id_lomba'] ?? 0);
@@ -337,15 +348,30 @@ require_once __DIR__ . '/../layouts/headers.php';
                 <?php endforeach; ?>
             </div>
 
-            <!-- Pesan Kosong Jika Filter / Pencarian Tidak Menemukan Hasil -->
-            <div class="dash-empty-search" id="empty-search-state" role="status" aria-live="polite" style="display: none;">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
+            <!-- Pesan Kosong (Empty State UI) Jika Filter / Pencarian Tidak Menemukan Hasil -->
+            <div class="dash-empty-search" id="empty-search-state" role="status" aria-live="polite" style="<?= $isInitialEmpty ? 'display: flex;' : 'display: none;' ?>">
+                <div class="dash-empty-illustration" aria-hidden="true">
+                    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="32" cy="32" r="30" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="2" stroke-dasharray="4 4"/>
+                        <rect x="18" y="16" width="24" height="30" rx="5" fill="#DBEAFE" stroke="#3B82F6" stroke-width="2"/>
+                        <line x1="23" y1="24" x2="35" y2="24" stroke="#2563EB" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="23" y1="30" x2="31" y2="30" stroke="#60A5FA" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="39" cy="39" r="9" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="2.5"/>
+                        <line x1="45.5" y1="45.5" x2="51" y2="51" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M36.5 39H41.5" stroke="#EF4444" stroke-width="2.2" stroke-linecap="round"/>
+                    </svg>
+                </div>
                 <h3 id="empty-search-title">Tidak ada lomba yang sesuai</h3>
-                <p id="empty-search-desc">Coba kata kunci lain atau pilih filter kategori "Semua Bidang".</p>
-                <button type="button" class="btn-reset-filter" id="btn-reset-filter" onclick="resetFilters()">Tampilkan Semua Lomba / Reset Filter</button>
+                <p id="empty-search-desc"><?= e($initialEmptyDesc) ?></p>
+                <div class="dash-empty-actions">
+                    <button type="button" class="btn-reset-filter" id="btn-reset-filter" onclick="resetFilters()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg>
+                        <span>Tampilkan Semua Lomba / Reset Filter</span>
+                    </button>
+                </div>
             </div>
         </section>
     </main>
