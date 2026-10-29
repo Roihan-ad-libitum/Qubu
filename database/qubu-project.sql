@@ -31,7 +31,7 @@ CREATE TABLE `dosen` (
   `id_dosen` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
   `nama_dosen` varchar(100) NOT NULL,
-  `bidang_keahlian` varchar(50) NOT NULL,
+  `bidang_keahlian` varchar(150) NOT NULL,
   `nidn` varchar(20) NOT NULL,
   `status` enum('bersedia','tidak_bersedia') NOT NULL,
   `foto` varchar(255) DEFAULT NULL
@@ -121,6 +121,60 @@ CREATE TABLE `undangan` (
   `id_lomba` int(11) NOT NULL,
   `bidang_dibutuhkan` varchar(80) NOT NULL,
   `catatan` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tim`
+--
+
+CREATE TABLE IF NOT EXISTS `tim` (
+  `id_tim` int(11) NOT NULL AUTO_INCREMENT,
+  `nama_tim` varchar(100) NOT NULL,
+  `id_lomba` int(11) NOT NULL,
+  `id_dosen` int(11) DEFAULT NULL,
+  `status_bimbingan` enum('belum_mengajukan','menunggu','disetujui','ditolak') NOT NULL DEFAULT 'belum_mengajukan',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_tim`),
+  KEY `idx_tim_lomba` (`id_lomba`),
+  KEY `idx_tim_dosen` (`id_dosen`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `anggota_tim` (tanpa peran ketua/anggota)
+--
+
+CREATE TABLE IF NOT EXISTS `anggota_tim` (
+  `id_anggota` int(11) NOT NULL AUTO_INCREMENT,
+  `id_tim` int(11) NOT NULL,
+  `id_mahasiswa` int(11) NOT NULL,
+  PRIMARY KEY (`id_anggota`),
+  UNIQUE KEY `uniq_tim_mahasiswa` (`id_tim`, `id_mahasiswa`),
+  KEY `idx_anggota_mahasiswa` (`id_mahasiswa`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pengajuan_bimbingan` (tanpa alasan penolakan)
+--
+
+CREATE TABLE IF NOT EXISTS `pengajuan_bimbingan` (
+  `id_pengajuan` int(11) NOT NULL AUTO_INCREMENT,
+  `id_tim` int(11) NOT NULL,
+  `id_lomba` int(11) NOT NULL,
+  `id_dosen` int(11) NOT NULL,
+  `id_pengaju` int(11) NOT NULL,
+  `status` enum('menunggu','disetujui','ditolak') NOT NULL DEFAULT 'menunggu',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_pengajuan`),
+  KEY `idx_pengajuan_tim` (`id_tim`),
+  KEY `idx_pengajuan_lomba` (`id_lomba`),
+  KEY `idx_pengajuan_dosen` (`id_dosen`),
+  KEY `idx_pengajuan_pengaju` (`id_pengaju`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

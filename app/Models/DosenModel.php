@@ -8,15 +8,130 @@ require_once __DIR__ . '/../../config/database.php';
 class DosenModel
 {
     private ?PDO $pdo = null;
+    private static bool $columnsVerified = false;
 
     public function __construct(?PDO $pdo = null)
     {
         $this->pdo = $pdo;
+        $this->ensureDosenColumns();
     }
 
     private function pdo(): PDO
     {
         return $this->pdo ??= db();
+    }
+
+    /**
+     * DP-1.1: Pastikan kolom `bidang_keahlian` pada tabel `dosen` berukuran VARCHAR(150)
+     * agar multi-tag keahlian tidak terpotong, serta pastikan seed data dosen pembimbing
+     * tersedia lintas 5 bidang Qubu (status `bersedia` dan `tidak_bersedia`).
+     */
+    public function ensureDosenColumns(): void
+    {
+        if (self::$columnsVerified) {
+            return;
+        }
+
+        try {
+            $db = $this->pdo();
+
+            // 1. Perlebar dosen.bidang_keahlian menjadi VARCHAR(150) jika masih sempit
+            $colStmt = $db->query("SHOW COLUMNS FROM dosen LIKE 'bidang_keahlian'");
+            $colInfo = $colStmt ? $colStmt->fetch() : false;
+            if ($colInfo && isset($colInfo['Type'])) {
+                if (preg_match('/varchar\((\d+)\)/i', (string) $colInfo['Type'], $matches)) {
+                    if ((int) $matches[1] < 150) {
+                        $db->exec("ALTER TABLE dosen MODIFY COLUMN bidang_keahlian VARCHAR(150) NOT NULL DEFAULT 'Frontend'");
+                    }
+                }
+            }
+
+            // 2. Pastikan kolom foto tersedia
+            $fotoStmt = $db->query("SHOW COLUMNS FROM dosen LIKE 'foto'");
+            if ($fotoStmt && !$fotoStmt->fetch()) {
+                $db->exec("ALTER TABLE dosen ADD COLUMN foto VARCHAR(255) DEFAULT NULL");
+            }
+
+            // 3. Seed dosen pembimbing tambahan jika jumlah dosen masih < 5
+            $countDosen = (int) $db->query("SELECT COUNT(*) FROM dosen")->fetchColumn();
+            if ($countDosen < 5) {
+                $seedDosen = [
+                    [
+                        'username'        => 'budi_dosen',
+                        'password'        => 'dosen123',
+                        'no_hp'           => '081210000002',
+                        'email'           => 'budi.raharjo@dosen.unsika.ac.id',
+                        'nama_dosen'      => 'Dr. Budi Raharjo, M.Kom',
+                        'bidang_keahlian' => 'UI/UX Design, Frontend',
+                        'nidn'            => '0411028801',
+                        'status'          => 'bersedia',
+                    ],
+                    [
+                        'username'        => 'siti_dosen',
+                        'password'        => 'dosen123',
+                        'no_hp'           => '081210000003',
+                        'email'           => 'siti.nurhaliza@dosen.unsika.ac.id',
+                        'nama_dosen'      => 'Siti Nurhaliza, S.Kom., M.T.',
+                        'bidang_keahlian' => 'Data Science, Backend',
+                        'nidn'            => '0415058902',
+                        'status'          => 'bersedia',
+                    ],
+                    [
+                        'username'        => 'hendra_dosen',
+                        'password'        => 'dosen123',
+                        'no_hp'           => '081210000004',
+                        'email'           => 'hendra.wijaya@dosen.unsika.ac.id',
+                        'nama_dosen'      => 'Ir. Hendra Wijaya, M.Eng.',
+                        'bidang_keahlian' => 'Robotic, Backend',
+                        'nidn'            => '0420088503',
+                        'status'          => 'bersedia',
+                    ],
+                    [
+                        'username'        => 'rina_dosen',
+                        'password'        => 'dosen123',
+                        'no_hp'           => '081210000005',
+                        'email'           => 'rina.kartika@dosen.unsika.ac.id',
+                        'nama_dosen'      => 'Rina Kartika, M.Kom',
+                        'bidang_keahlian' => 'Frontend, UI/UX Design',
+                        'nidn'            => '0412119004',
+                        'status'          => 'tidak_bersedia',
+                    ],
+                    [
+                        'username'        => 'arif_dosen',
+                        'password'        => 'dosen123',
+                        'no_hp'           => '081210000006',
+                        'email'           => 'arif.pratama@dosen.unsika.ac.id',
+                        'nama_dosen'      => 'Dr. Arif Pratama, M.Cs',
+                        'bidang_keahlian' => 'Data Science, Robotic',
+                        'nidn'            => '0409038705',
+                        'status'          => 'tidak_bersedia',
+                    ],
+                ];
+
+                foreach ($seedDosen as $sd) {
+                    if (!$this->isNidnExists($sd['nidn'])) {
+                        $this->registerDosen(
+                            [
+                                'username' => $sd['username'],
+                                'password' => $sd['password'],
+                                'no_hp'    => $sd['no_hp'],
+                                'email'    => $sd['email'],
+                            ],
+                            [
+                                'nama_dosen'      => $sd['nama_dosen'],
+                                'bidang_keahlian' => $sd['bidang_keahlian'],
+                                'nidn'            => $sd['nidn'],
+                                'status'          => $sd['status'],
+                            ]
+                        );
+                    }
+                }
+            }
+
+            self::$columnsVerified = true;
+        } catch (Throwable $e) {
+            // Jangan hentikan aplikasi jika koneksi DB sedang di-mock
+        }
     }
 
     /**
