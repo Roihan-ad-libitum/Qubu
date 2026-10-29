@@ -78,6 +78,24 @@ function computeDeadlineCountdown(deadlineStr) {
 }
 
 /**
+ * Sanitasi URL di sisi klien untuk mencegah XSS via protokol javascript:, data:, atau vbscript:
+ */
+function sanitizeHttpUrl(rawUrl, allowRelative = false) {
+    const cleaned = String(rawUrl || '').replace(/[\r\n\0\t]/g, '').trim();
+    if (!cleaned) return '';
+    if (/^(?:javascript|vbscript|data):/i.test(cleaned)) {
+        return '';
+    }
+    if (/^https?:\/\//i.test(cleaned)) {
+        return cleaned;
+    }
+    if (allowRelative && !/^[a-z][a-z0-9+.-]*:/i.test(cleaned)) {
+        return cleaned;
+    }
+    return '';
+}
+
+/**
  * Buka Modal Detail Perlombaan Pop-up
  */
 function openDetailModal(data) {
@@ -126,9 +144,10 @@ function openDetailModal(data) {
     const placeholderEl = document.getElementById('modal-placeholder');
     const placeholderTitle = document.getElementById('modal-placeholder-title');
     const placeholderCat = document.getElementById('modal-placeholder-cat');
-    const posterSrc = (data.poster_url && data.poster && String(data.poster).trim() !== '')
+    const rawPosterSrc = (data.poster_url && data.poster && String(data.poster).trim() !== '')
         ? data.poster_url
         : ((data.poster && String(data.poster).trim() !== '') ? data.poster : '');
+    const posterSrc = sanitizeHttpUrl(rawPosterSrc, true);
 
     if (posterSrc !== '') {
         imgEl.src = posterSrc;
@@ -145,9 +164,10 @@ function openDetailModal(data) {
     }
 
     const linkResmi = document.getElementById('modal-link-resmi');
+    const safeLinkResmi = sanitizeHttpUrl(data.link_resmi, false);
     if (linkResmi) {
-        if (data.link_resmi && String(data.link_resmi).trim() !== '') {
-            linkResmi.href = data.link_resmi;
+        if (safeLinkResmi !== '') {
+            linkResmi.href = safeLinkResmi;
             linkResmi.style.display = 'inline-flex';
         } else {
             linkResmi.href = '#';
@@ -156,17 +176,19 @@ function openDetailModal(data) {
     }
 
     const linkGuidebook = document.getElementById('modal-link-guidebook');
+    const safeLinkGuidebook = sanitizeHttpUrl(data.link_guidebook, false);
     if (linkGuidebook) {
-        if (data.link_guidebook && String(data.link_guidebook).trim() !== '') {
-            linkGuidebook.href = data.link_guidebook;
+        if (safeLinkGuidebook !== '') {
+            linkGuidebook.href = safeLinkGuidebook;
             linkGuidebook.style.display = 'inline-flex';
         } else {
+            linkGuidebook.href = '#';
             linkGuidebook.style.display = 'none';
         }
     }
 
-    currentModalDetailUrl = data.detail_url
-        || (window.location.origin + window.location.pathname + '?page=lomba-detail&id=' + encodeURIComponent(idLomba));
+    const fallbackDetailUrl = window.location.origin + window.location.pathname + '?page=lomba-detail&id=' + encodeURIComponent(idLomba);
+    currentModalDetailUrl = sanitizeHttpUrl(data.detail_url, true) || fallbackDetailUrl;
     const linkFullpage = document.getElementById('modal-link-fullpage');
     if (linkFullpage) {
         linkFullpage.href = currentModalDetailUrl;

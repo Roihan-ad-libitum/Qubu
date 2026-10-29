@@ -203,9 +203,9 @@ require __DIR__ . '/../layouts/headers.php';
                 <a href="<?= url('?page=cari-partner') ?>" class="dash-nav-link">Cari Partner</a>
                 <a href="<?= url('?page=dosen-profile') ?>" class="dash-nav-link">Dosen Pembimbing</a>
                 <?php if (Session::has('id_user')): ?>
-                    <a href="<?= url('?page=mahasiswa-profile') ?>" class="dash-avatar-btn" title="<?= e($namaMahasiswa) ?>">
+                    <a href="<?= e(url('?page=mahasiswa-profile')) ?>" class="dash-avatar-btn" title="<?= e($namaMahasiswa) ?>">
                         <?php if (!empty($userFoto) && file_exists(__DIR__ . '/../../' . $userFoto)): ?>
-                            <img src="<?= url($userFoto) ?>" alt="Avatar" class="dash-avatar-img">
+                            <img src="<?= e(url($userFoto)) ?>" alt="Avatar" class="dash-avatar-img">
                         <?php else: ?>
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -254,7 +254,7 @@ require __DIR__ . '/../layouts/headers.php';
                     <!-- Kolom Kiri: Poster Identitas Lomba -->
                     <div class="detail-poster-box">
                         <?php if (!empty($lomba['poster']) && file_exists(__DIR__ . '/../../' . $lomba['poster'])): ?>
-                            <img src="<?= url($lomba['poster']) ?>" alt="<?= e($lomba['nama_lomba']) ?>" class="detail-poster-img">
+                            <img src="<?= e(url($lomba['poster'])) ?>" alt="<?= e($lomba['nama_lomba']) ?>" class="detail-poster-img">
                         <?php else: ?>
                             <div class="lomba-card-placeholder" style="width: 100%; height: 100%;">
                                 <div class="placeholder-glow"></div>
@@ -301,9 +301,13 @@ require __DIR__ . '/../layouts/headers.php';
                         </div>
 
                         <!-- Tombol Aksi (CTA) -->
+                        <?php
+                        $safeLinkResmi     = function_exists('safeExternalUrl') ? safeExternalUrl($lomba['link_resmi'] ?? null) : (string) ($lomba['link_resmi'] ?? '');
+                        $safeLinkGuidebook = function_exists('safeExternalUrl') ? safeExternalUrl($lomba['link_guidebook'] ?? null) : (string) ($lomba['link_guidebook'] ?? '');
+                        ?>
                         <div class="detail-cta-row">
-                            <?php if (!empty($lomba['link_resmi'])): ?>
-                                <a href="<?= e($lomba['link_resmi']) ?>" target="_blank" rel="noopener noreferrer" class="btn-modal-primary">
+                            <?php if ($safeLinkResmi !== ''): ?>
+                                <a href="<?= e($safeLinkResmi) ?>" target="_blank" rel="noopener noreferrer" class="btn-modal-primary">
                                     <span>Daftar Sekarang (Link Resmi)</span>
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
@@ -313,8 +317,8 @@ require __DIR__ . '/../layouts/headers.php';
                                 </a>
                             <?php endif; ?>
 
-                            <?php if (!empty($lomba['link_guidebook'])): ?>
-                                <a href="<?= e($lomba['link_guidebook']) ?>" target="_blank" rel="noopener noreferrer" class="btn-modal-secondary">
+                            <?php if ($safeLinkGuidebook !== ''): ?>
+                                <a href="<?= e($safeLinkGuidebook) ?>" target="_blank" rel="noopener noreferrer" class="btn-modal-secondary">
                                     <span>Unduh Guidebook</span>
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -324,7 +328,7 @@ require __DIR__ . '/../layouts/headers.php';
                                 </a>
                             <?php endif; ?>
 
-                            <button type="button" class="btn-share-link" id="btn-copy-detail-link" onclick="copyShareableLink('<?= e($lomba['detail_url']) ?>')">
+                            <button type="button" class="btn-share-link" id="btn-copy-detail-link" data-share-url="<?= e($lomba['detail_url'] ?? '') ?>" onclick="copyShareableLink(this.dataset.shareUrl)">
                                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>

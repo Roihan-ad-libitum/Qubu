@@ -53,6 +53,7 @@ if (!defined('BASE_URL')) {
         $scheme = $isHttps ? 'https' : 'http';
         $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
         $path   = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
+        $path   = (string) preg_replace('#/api$#i', '', $path);
 
         define('BASE_URL', $scheme . '://' . $host . $path);
     }
@@ -104,4 +105,20 @@ function getRoleDashboard(string $role): string
 function e(?string $value): string
 {
     return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+/**
+ * Validasi dan sanitasi URL eksternal (mis. link_resmi, link_guidebook)
+ * Hanya mengizinkan skema http:// dan https:// untuk mencegah XSS via javascript: atau data: URI.
+ */
+function safeExternalUrl(?string $rawUrl): string
+{
+    $cleaned = trim(str_replace(["\r", "\n", "\0"], '', (string) $rawUrl));
+    if ($cleaned === '') {
+        return '';
+    }
+    if (!preg_match('#^https?://#i', $cleaned)) {
+        return '';
+    }
+    return filter_var($cleaned, FILTER_VALIDATE_URL) !== false ? $cleaned : '';
 }

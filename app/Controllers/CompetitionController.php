@@ -169,6 +169,12 @@ class CompetitionController
         $item['detail_url']                    = function_exists('url')
             ? url('?page=lomba-detail&id=' . $idLomba)
             : '?page=lomba-detail&id=' . $idLomba;
+        $item['link_resmi']                    = function_exists('safeExternalUrl')
+            ? safeExternalUrl($item['link_resmi'] ?? null)
+            : (string) ($item['link_resmi'] ?? '');
+        $item['link_guidebook']                = function_exists('safeExternalUrl')
+            ? safeExternalUrl($item['link_guidebook'] ?? null)
+            : (string) ($item['link_guidebook'] ?? '');
 
         if (isset($item['related']) && is_array($item['related'])) {
             $item['related'] = array_map([$this, 'formatCompetitionItem'], $item['related']);

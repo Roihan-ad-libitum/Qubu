@@ -86,7 +86,7 @@ require_once __DIR__ . '/../layouts/headers.php';
                 <div class="dash-avatar-wrapper" id="dash-avatar-wrapper">
                     <button type="button" class="dash-avatar-btn" id="dash-avatar-btn" aria-label="Menu Pengguna" aria-expanded="false" title="<?= e($namaMahasiswa) ?>">
                         <?php if (!empty($userFoto) && file_exists(__DIR__ . '/../../' . $userFoto)): ?>
-                            <img src="<?= url($userFoto) ?>" alt="Avatar" class="dash-avatar-img">
+                            <img src="<?= e(url($userFoto)) ?>" alt="Avatar" class="dash-avatar-img">
                         <?php else: ?>
                             <!-- Ikon Siluet Bulat Outline Persis Mockup -->
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -243,10 +243,10 @@ require_once __DIR__ . '/../layouts/headers.php';
                                 <div class="rekan-card-top">
                                     <div class="rekan-avatar-circle">
                                         <?php if (!empty($rekan['foto']) && file_exists(__DIR__ . '/../../' . $rekan['foto'])): ?>
-                                            <img src="<?= url($rekan['foto']) ?>" alt="<?= e($rekan['nama_mahasiswa']) ?>" class="rekan-avatar-img">
+                                            <img src="<?= e(url($rekan['foto'])) ?>" alt="<?= e($rekan['nama_mahasiswa']) ?>" class="rekan-avatar-img">
                                         <?php else: ?>
                                             <span class="rekan-avatar-initials">
-                                                <?= strtoupper(substr($rekan['nama_mahasiswa'], 0, 2)) ?>
+                                                <?= e(strtoupper(substr((string) ($rekan['nama_mahasiswa'] ?? ''), 0, 2))) ?>
                                             </span>
                                         <?php endif; ?>
                                     </div>

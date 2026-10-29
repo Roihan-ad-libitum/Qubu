@@ -98,7 +98,7 @@ if (!function_exists('renderLombaCard')) {
             <!-- 1. Poster Lomba Inset (24px Rounded) -->
             <div class="lomba-card-media">
                 <?php if ($hasPosterFile): ?>
-                    <img src="<?= url($posterRel) ?>" alt="<?= e($namaLomba) ?>" class="lomba-card-img" loading="lazy">
+                    <img src="<?= e(url($posterRel)) ?>" alt="<?= e($namaLomba) ?>" class="lomba-card-img" loading="lazy">
                 <?php else: ?>
                     <div class="lomba-card-placeholder">
                         <div class="placeholder-glow"></div>
@@ -150,10 +150,21 @@ if (!function_exists('renderLombaCard')) {
                         Detail Perlombaan
                     </a>
                 <?php else: ?>
+                    <?php
+                    $safeModalPayload = $item;
+                    if (function_exists('safeExternalUrl')) {
+                        $safeModalPayload['link_resmi']     = safeExternalUrl($item['link_resmi'] ?? null);
+                        $safeModalPayload['link_guidebook'] = safeExternalUrl($item['link_guidebook'] ?? null);
+                    }
+                    $encodedModalJson = (string) json_encode(
+                        $safeModalPayload,
+                        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+                    );
+                    ?>
                     <button
                         type="button"
                         class="btn-card-detail"
-                        onclick="openDetailModal(<?= htmlspecialchars((string) json_encode($item, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8') ?>)"
+                        onclick="openDetailModal(<?= htmlspecialchars($encodedModalJson, ENT_QUOTES, 'UTF-8') ?>)"
                     >
                         Detail Perlombaan
                     </button>
