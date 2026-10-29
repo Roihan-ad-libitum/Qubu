@@ -553,6 +553,12 @@
         align-items: stretch;
     }
 
+    .partner-search-wrap {
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
     .partner-prodi-wrap {
         width: 100%;
         justify-content: space-between;
@@ -560,6 +566,11 @@
 
     .partner-prodi-select {
         flex: 1;
+    }
+
+    .partner-lomba-context {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .partner-grid-3 {
@@ -570,6 +581,12 @@
     .partner-card {
         width: 100%;
         max-width: 100%;
+    }
+
+    .partner-toast {
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
     }
 }
 

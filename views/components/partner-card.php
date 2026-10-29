@@ -30,6 +30,7 @@ if (!function_exists('renderPartnerCard')) {
         $idMahasiswa = (int) ($mhs['id_mahasiswa'] ?? 0);
         $idUser      = (int) ($mhs['id_user'] ?? 0);
         $nama        = (string) ($mhs['nama_mahasiswa'] ?? 'Mahasiswa Qubu');
+        $npm         = (string) ($mhs['npm'] ?? '');
         $prodi       = (string) ($mhs['program_studi'] ?? 'Informatika');
         $angkatan    = (string) ($mhs['angkatan'] ?? '2025');
         $bidangMinat = (string) ($mhs['bidang_minat'] ?? 'Frontend');
@@ -63,6 +64,7 @@ if (!function_exists('renderPartnerCard')) {
             data-id="<?= $idMahasiswa ?>"
             data-user-id="<?= $idUser ?>"
             data-name="<?= e(strtolower($nama)) ?>"
+            data-npm="<?= e(strtolower($npm)) ?>"
             data-prodi="<?= e(strtolower($prodi)) ?>"
             data-bidang="<?= e(strtolower($bidangMinat)) ?>"
             data-bio="<?= e(strtolower($bio)) ?>"
@@ -104,6 +106,7 @@ if (!function_exists('renderPartnerCard')) {
                 <button
                     type="button"
                     class="btn-pcard-outline"
+                    data-profile="<?= e($encodedProfileJson) ?>"
                     onclick="openPartnerProfileModal(<?= htmlspecialchars($encodedProfileJson, ENT_QUOTES, 'UTF-8') ?>)"
                 >
                     Lihat Profil

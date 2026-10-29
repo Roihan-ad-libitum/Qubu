@@ -38,6 +38,24 @@
     window.debouncePartnerSearch = debounce;
 
     /**
+     * Sanitasi URL internal/eksternal agar bebas dari protokol berbahaya (javascript:, data:, vbscript:)
+     * @param {string} rawUrl
+     * @returns {string}
+     */
+    function sanitizePartnerUrl(rawUrl) {
+        if (!rawUrl || typeof rawUrl !== 'string') return '';
+        const trimmed = rawUrl.trim();
+        if (trimmed === '') return '';
+        const lower = trimmed.toLowerCase();
+        if (lower.indexOf('javascript:') === 0 || lower.indexOf('data:') === 0 || lower.indexOf('vbscript:') === 0) {
+            return '';
+        }
+        return trimmed;
+    }
+
+    window.sanitizePartnerUrl = sanitizePartnerUrl;
+
+    /**
      * Tampilkan toast pemberitahuan untuk tombol placeholder ("Ajak ke Tim" / "+ Posting Cari Tim")
      */
     window.showPartnerPlaceholderNotice = function (message) {
@@ -61,9 +79,25 @@
     /**
      * Buka Modal Profil Lengkap Read-Only untuk Kandidat Partner
      */
-    window.openPartnerProfileModal = function (mhsData) {
+    window.openPartnerProfileModal = function (mhsInput) {
         const modal = document.getElementById('partner-profile-modal');
-        if (!modal || !mhsData) return;
+        if (!modal || !mhsInput) return;
+
+        let mhsData = mhsInput;
+        if (typeof mhsInput === 'string') {
+            try {
+                mhsData = JSON.parse(mhsInput);
+            } catch (_) {
+                return;
+            }
+        } else if (mhsInput && mhsInput.dataset && mhsInput.dataset.profile) {
+            try {
+                mhsData = JSON.parse(mhsInput.dataset.profile);
+            } catch (_) {
+                return;
+            }
+        }
+        if (!mhsData || typeof mhsData !== 'object') return;
 
         const initialsEl = document.getElementById('pmodal-avatar-initials');
         const imgEl      = document.getElementById('pmodal-avatar-img');
@@ -76,12 +110,12 @@
         const bioEl      = document.getElementById('pmodal-bio');
         const fullLinkEl = document.getElementById('pmodal-full-link');
 
-        const nama     = mhsData.nama_mahasiswa || 'Mahasiswa Qubu';
-        const prodi    = mhsData.program_studi || 'Informatika';
-        const angkatan = mhsData.angkatan || '2025';
-        const npm      = mhsData.npm || '-';
-        const inisial  = mhsData.inisial || nama.substring(0, 2).toUpperCase();
-        const fotoUrl  = mhsData.foto_url || '';
+        const nama     = String(mhsData.nama_mahasiswa || 'Mahasiswa Qubu');
+        const prodi    = String(mhsData.program_studi || 'Informatika');
+        const angkatan = String(mhsData.angkatan || '2025');
+        const npm      = String(mhsData.npm || '-');
+        const inisial  = String(mhsData.inisial || nama.substring(0, 2).toUpperCase());
+        const fotoUrl  = sanitizePartnerUrl(mhsData.foto_url || '');
 
         if (nameEl) nameEl.textContent = nama;
         if (subEl) subEl.textContent = prodi + ' \u2022 Angkatan ' + angkatan;
@@ -124,7 +158,10 @@
         }
 
         if (fullLinkEl) {
-            fullLinkEl.href = mhsData.profil_url || ('?page=lihat-profil&id=' + encodeURIComponent(mhsData.id_mahasiswa || 0));
+            const safeProfilUrl = sanitizePartnerUrl(mhsData.profil_url || '');
+            fullLinkEl.href = safeProfilUrl !== ''
+                ? safeProfilUrl
+                : ('?page=lihat-profil&id=' + encodeURIComponent(mhsData.id_mahasiswa || 0));
         }
 
         modal.classList.add('is-open');
