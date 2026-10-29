@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../config/database.php';
 class MahasiswaModel
 {
     private ?PDO $pdo = null;
+    private static bool $columnsEnsured = false;
 
     public function __construct(?PDO $pdo = null)
     {
@@ -16,7 +17,41 @@ class MahasiswaModel
 
     private function pdo(): PDO
     {
-        return $this->pdo ??= db();
+        $db = $this->pdo ??= db();
+        if (!self::$columnsEnsured) {
+            $this->ensurePartnerColumns($db);
+        }
+        return $db;
+    }
+
+    /**
+     * Self-healing: Pastikan kolom `bidang_minat` memiliki panjang VARCHAR(150) untuk mendukung multi-tag
+     * dan kolom `foto` tersedia pada tabel `mahasiswa`.
+     */
+    public function ensurePartnerColumns(?PDO $db = null): void
+    {
+        self::$columnsEnsured = true;
+        $conn = $db ?? ($this->pdo ??= db());
+
+        try {
+            $colsRaw = $conn->query("SHOW COLUMNS FROM mahasiswa")->fetchAll(PDO::FETCH_ASSOC);
+            $colMap = [];
+            foreach ($colsRaw as $col) {
+                $colMap[$col['Field']] = strtolower((string) ($col['Type'] ?? ''));
+            }
+
+            // 1. Perlebar bidang_minat dari varchar(30) ke varchar(150) agar multi-bidang tidak terpotong
+            if (isset($colMap['bidang_minat']) && $colMap['bidang_minat'] === 'varchar(30)') {
+                $conn->exec("ALTER TABLE mahasiswa MODIFY COLUMN bidang_minat VARCHAR(150) NOT NULL");
+            }
+
+            // 2. Pastikan kolom foto tersedia
+            if (!isset($colMap['foto'])) {
+                $conn->exec("ALTER TABLE mahasiswa ADD COLUMN foto VARCHAR(255) DEFAULT NULL");
+            }
+        } catch (Throwable $e) {
+            // Abaikan secara aman jika database read-only
+        }
     }
 
     /**

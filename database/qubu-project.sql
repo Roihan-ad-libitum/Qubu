@@ -92,7 +92,7 @@ CREATE TABLE `mahasiswa` (
   `nama_mahasiswa` varchar(100) NOT NULL,
   `program_studi` varchar(30) NOT NULL,
   `angkatan` varchar(4) NOT NULL,
-  `bidang_minat` varchar(30) NOT NULL,
+  `bidang_minat` varchar(150) NOT NULL,
   `bio` text NOT NULL,
   `foto` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -102,10 +102,10 @@ CREATE TABLE `mahasiswa` (
 --
 
 INSERT INTO `mahasiswa` (`id_mahasiswa`, `id_user`, `npm`, `nama_mahasiswa`, `program_studi`, `angkatan`, `bidang_minat`, `bio`, `foto`) VALUES
-(1, 2, '251000000000', 'Roihan Fakhri', 'Informatika', '2025', 'Frontend', 'Selamat berjuang, sukses!', NULL),
+(1, 2, '251000000000', 'Roihan Fakhri', 'Informatika', '2025', 'Frontend, UI/UX Design', 'Selamat berjuang, sukses!', NULL),
 (2, 4, '251000000001', 'Rangga Candra', 'Informatika', '2025', 'Frontend', 'Frontend jaya jaya jaya', NULL),
 (5, 7, '2510631170041', 'Marssello Hotasi', 'Informatika', '2025', 'UI/UX Design', '', NULL),
-(6, 8, '251000000010', 'Fitria Ramadhani', 'Informatika', '2025', 'UI/UX Design', 'Passionate in Human-Computer Interaction & Product Design', NULL),
+(6, 8, '251000000010', 'Fitria Ramadhani', 'Informatika', '2025', 'UI/UX Design, Frontend', 'Passionate in Human-Computer Interaction & Product Design', NULL),
 (7, 9, '251000000011', 'Dimas Prasetyo', 'Informatika', '2025', 'Backend', 'Fullstack developer focusing on web architectures.', NULL),
 (8, 10, '251000000012', 'Siti Aisyah', 'Sistem Informasi', '2025', 'Data Science', 'Exploring machine learning and big data analytics.', NULL);
 
