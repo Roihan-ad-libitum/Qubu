@@ -393,6 +393,7 @@
                     if (countBadge) {
                         countBadge.textContent = 'Menampilkan ' + count + ' Rekan';
                     }
+                    updateContextualEmptyMessage(bidang, prodi, keyword);
                     if (emptyState) {
                         emptyState.style.display = count === 0 ? 'flex' : 'none';
                     }

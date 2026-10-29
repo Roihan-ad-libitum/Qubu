@@ -37,6 +37,20 @@ foreach ($partnerList as $matchedItem) {
 
 $hasActiveFilter = ($activeBidang !== 'Semua Bidang') || ($activeProdi !== 'Semua Prodi') || ($searchKeyword !== '');
 
+$emptyFilterParts = [];
+if ($activeBidang !== 'Semua Bidang') {
+    $emptyFilterParts[] = 'bidang "' . $activeBidang . '"';
+}
+if ($activeProdi !== 'Semua Prodi') {
+    $emptyFilterParts[] = 'Program Studi "' . $activeProdi . '"';
+}
+if ($searchKeyword !== '') {
+    $emptyFilterParts[] = 'kata kunci "' . $searchKeyword . '"';
+}
+$initialEmptyMessage = !empty($emptyFilterParts)
+    ? ('Tidak ditemukan kandidat mahasiswa untuk kombinasi ' . implode(', ', $emptyFilterParts) . '. Coba sesuaikan atau reset filter Anda.')
+    : 'Coba gunakan kata kunci lain, pilih bidang minat berbeda, atau ubah filter Program Studi.';
+
 require_once __DIR__ . '/../components/partner-card.php';
 require_once __DIR__ . '/../layouts/headers.php';
 ?>
@@ -285,16 +299,31 @@ require_once __DIR__ . '/../layouts/headers.php';
                 <?php endforeach; ?>
             </div>
 
-            <!-- Empty State jika tidak ada partner yang cocok -->
-            <div class="dash-empty-state" id="partner-empty-state" style="<?= empty($partnerList) ? 'display: flex;' : 'display: none;' ?>">
-                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <line x1="17" y1="11" x2="23" y2="11"></line>
-                </svg>
-                <h3>Tidak Ada Kandidat Partner yang Cocok</h3>
-                <p id="empty-partner-msg">Coba gunakan kata kunci lain, pilih bidang minat berbeda, atau ubah filter Program Studi.</p>
-                <button type="button" class="btn-reset-filter" id="btn-reset-empty-partner">Reset Filter Partner</button>
+            <!-- Empty State jika tidak ada partner yang cocok (CP-4.2) -->
+            <div
+                class="dash-empty-state partner-empty-state"
+                id="partner-empty-state"
+                role="status"
+                aria-live="polite"
+                style="<?= empty($partnerList) ? 'display: flex;' : 'display: none;' ?>"
+            >
+                <div class="partner-empty-icon" aria-hidden="true">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <line x1="17" y1="11" x2="23" y2="11"></line>
+                    </svg>
+                </div>
+                <h3 id="empty-partner-title">Belum Ada Kandidat Partner yang Sesuai</h3>
+                <p id="empty-partner-msg"><?= e($initialEmptyMessage) ?></p>
+                <button
+                    type="button"
+                    class="btn-reset-filter"
+                    id="btn-reset-empty-partner"
+                    onclick="if (typeof window.resetPartnerFilters === 'function') window.resetPartnerFilters();"
+                >
+                    Tampilkan Semua Partner / Reset Filter
+                </button>
             </div>
         </section>
     </main>
