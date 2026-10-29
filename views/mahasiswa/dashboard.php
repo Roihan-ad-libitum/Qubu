@@ -35,6 +35,7 @@ $formatPartisipasi = function (?string $partisipasi): string {
     return (string)$partisipasi;
 };
 
+require_once __DIR__ . '/../components/lomba-card.php';
 require_once __DIR__ . '/../layouts/headers.php';
 ?>
 
@@ -206,71 +207,7 @@ require_once __DIR__ . '/../layouts/headers.php';
                 <div class="dash-slider-track" id="rekan-slider">
                     <?php if (!empty($rekomendasiLomba)): ?>
                         <?php foreach ($rekomendasiLomba as $item): ?>
-                            <article class="lomba-card" data-bidang="<?= e($item['bidang']) ?>" data-title="<?= e($item['nama_lomba']) ?>">
-                                <!-- Poster Lomba -->
-                                <div class="lomba-card-media">
-                                    <?php if (!empty($item['poster']) && file_exists(__DIR__ . '/../../' . $item['poster'])): ?>
-                                        <img src="<?= url($item['poster']) ?>" alt="<?= e($item['nama_lomba']) ?>" class="lomba-card-img" loading="lazy">
-                                    <?php else: ?>
-                                        <!-- Placeholder Gambar Futuristik Sesuai Bidang Mockup -->
-                                        <div class="lomba-card-placeholder">
-                                            <div class="placeholder-glow"></div>
-                                            <span class="placeholder-cat"><?= e($item['bidang']) ?></span>
-                                            <h4 class="placeholder-title"><?= e($item['nama_lomba']) ?></h4>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-
-                                <!-- Konten Rincian Lomba Persis Mockup -->
-                                <div class="lomba-card-body">
-                                    <h3 class="lomba-card-title"><?= e($item['nama_lomba']) ?></h3>
-
-                                    <div class="lomba-meta-table">
-                                        <!-- Row 1: Deadline -->
-                                        <div class="lomba-meta-row">
-                                            <span class="meta-label">Deadline</span>
-                                            <span class="badge-pill badge-red"><?= $formatTanggalIndo($item['deadline_daftar']) ?></span>
-                                        </div>
-
-                                        <!-- Row 2: Biaya Pendaftaran -->
-                                        <div class="lomba-meta-row">
-                                            <span class="meta-label">Biaya Pendaftaran</span>
-                                            <?php if ((float)$item['biaya'] == 0): ?>
-                                                <span class="badge-pill badge-green">Gratis</span>
-                                            <?php else: ?>
-                                                <span class="badge-pill badge-green">Rp <?= number_format((float)$item['biaya'], 0, ',', '.') ?></span>
-                                            <?php endif; ?>
-                                        </div>
-
-                                        <!-- Row 3: Partisipasi -->
-                                        <div class="lomba-meta-row">
-                                            <span class="meta-label">Partisipasi</span>
-                                            <span class="badge-pill badge-blue"><?= e($formatPartisipasi($item['partisipasi'])) ?></span>
-                                        </div>
-
-                                        <!-- Row 4: Bidang Lomba -->
-                                        <div class="lomba-meta-row">
-                                            <span class="meta-label">Bidang Lomba</span>
-                                            <span class="badge-pill badge-orange"><?= e($item['bidang']) ?></span>
-                                        </div>
-
-                                        <!-- Row 5: Tingkat -->
-                                        <div class="lomba-meta-row">
-                                            <span class="meta-label">Tingkat</span>
-                                            <span class="badge-pill badge-purple"><?= e($item['tingkat']) ?></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Tombol Detail Perlombaan Persis Mockup -->
-                                    <button 
-                                        type="button" 
-                                        class="btn-card-detail" 
-                                        onclick="openDetailModal(<?= htmlspecialchars(json_encode($item), ENT_QUOTES, 'UTF-8') ?>)"
-                                    >
-                                        Detail Perlombaan
-                                    </button>
-                                </div>
-                            </article>
+                            <?php renderLombaCard($item, ['mode' => 'modal']); ?>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <div class="dash-empty-state">
@@ -353,70 +290,7 @@ require_once __DIR__ . '/../layouts/headers.php';
             <!-- Grid 2-3 Kolom Semua Lomba -->
             <div class="semua-lomba-grid" id="semua-lomba-grid">
                 <?php foreach ($semuaLomba as $item): ?>
-                    <article 
-                        class="lomba-card grid-card-item" 
-                        data-bidang="<?= e(strtolower($item['bidang'])) ?>" 
-                        data-title="<?= e(strtolower($item['nama_lomba'])) ?>"
-                        data-penyelenggara="<?= e(strtolower($item['penyelenggara'])) ?>"
-                        data-desc="<?= e(strtolower($item['deskripsi'])) ?>"
-                    >
-                        <!-- Poster Lomba -->
-                        <div class="lomba-card-media">
-                            <?php if (!empty($item['poster']) && file_exists(__DIR__ . '/../../' . $item['poster'])): ?>
-                                <img src="<?= url($item['poster']) ?>" alt="<?= e($item['nama_lomba']) ?>" class="lomba-card-img" loading="lazy">
-                            <?php else: ?>
-                                <div class="lomba-card-placeholder">
-                                    <div class="placeholder-glow"></div>
-                                    <span class="placeholder-cat"><?= e($item['bidang']) ?></span>
-                                    <h4 class="placeholder-title"><?= e($item['nama_lomba']) ?></h4>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-
-                        <!-- Konten Rincian Lomba -->
-                        <div class="lomba-card-body">
-                            <h3 class="lomba-card-title"><?= e($item['nama_lomba']) ?></h3>
-
-                            <div class="lomba-meta-table">
-                                <div class="lomba-meta-row">
-                                    <span class="meta-label">Deadline</span>
-                                    <span class="badge-pill badge-red"><?= $formatTanggalIndo($item['deadline_daftar']) ?></span>
-                                </div>
-
-                                <div class="lomba-meta-row">
-                                    <span class="meta-label">Biaya Pendaftaran</span>
-                                    <?php if ((float)$item['biaya'] == 0): ?>
-                                        <span class="badge-pill badge-green">Gratis</span>
-                                    <?php else: ?>
-                                        <span class="badge-pill badge-green">Rp <?= number_format((float)$item['biaya'], 0, ',', '.') ?></span>
-                                    <?php endif; ?>
-                                </div>
-
-                                <div class="lomba-meta-row">
-                                    <span class="meta-label">Partisipasi</span>
-                                    <span class="badge-pill badge-blue"><?= e($formatPartisipasi($item['partisipasi'])) ?></span>
-                                </div>
-
-                                <div class="lomba-meta-row">
-                                    <span class="meta-label">Bidang Lomba</span>
-                                    <span class="badge-pill badge-orange"><?= e($item['bidang']) ?></span>
-                                </div>
-
-                                <div class="lomba-meta-row">
-                                    <span class="meta-label">Tingkat</span>
-                                    <span class="badge-pill badge-purple"><?= e($item['tingkat']) ?></span>
-                                </div>
-                            </div>
-
-                            <button 
-                                type="button" 
-                                class="btn-card-detail" 
-                                onclick="openDetailModal(<?= htmlspecialchars(json_encode($item), ENT_QUOTES, 'UTF-8') ?>)"
-                            >
-                                Detail Perlombaan
-                            </button>
-                        </div>
-                    </article>
+                    <?php renderLombaCard($item, ['extraClass' => 'grid-card-item', 'mode' => 'modal']); ?>
                 <?php endforeach; ?>
             </div>
 

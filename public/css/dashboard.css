@@ -633,27 +633,26 @@
 }
 
 .lomba-card-title {
-    font-size: 1.45rem;
+    font-size: 1.42rem;
     font-weight: 800;
-    color: #0d1527;
-    line-height: 1.22;
-    margin: 18px 4px 14px 4px;
-    letter-spacing: -0.015em;
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.14);
+    color: #182230;
+    line-height: 1.24;
+    margin: 18px 4px 16px 4px;
+    letter-spacing: 0.015em;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
-/* Kotak Abu-abu Pembungkus Metadata Persis Mockup */
+/* Kotak Abu-abu Pembungkus Metadata Persis Mockup Figma */
 .lomba-meta-table {
-    background-color: #dfe6ee;
-    border-radius: 20px;
-    padding: 9px;
+    background-color: #dfe4ec;
+    border-radius: 22px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 8px;
     margin-bottom: 0;
 }
 
@@ -661,25 +660,25 @@
 .lomba-meta-row {
     background-color: #ffffff;
     border-radius: 14px;
-    padding: 9px 14px;
+    padding: 8px 12px 8px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    min-height: 42px;
+    min-height: 44px;
     box-sizing: border-box;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
 .meta-label {
     color: #1e293b;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 0.88rem;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.005em;
 }
 
 /* Badges Pill di Kanan Baris */
 .badge-pill {
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-weight: 700;
     padding: 4px 14px;
     border-radius: 9999px;
@@ -692,58 +691,59 @@
 
 /* 1. Deadline Pill (Pink / Soft Rose) */
 .badge-red {
-    background-color: #fef2f2;
-    color: #e11d48;
-    border: 1.5px solid #fecdd3;
+    background-color: #fff1f2;
+    color: #b91c1c;
+    border: 1px solid #fecdd3;
 }
 
 /* 2. Biaya Pendaftaran Pill (Soft Mint Green) */
 .badge-green {
     background-color: #ecfdf5;
-    color: #059669;
-    border: 1.5px solid #a7f3d0;
+    color: #047857;
+    border: 1px solid #a7f3d0;
 }
 
 /* 3. Partisipasi Pill (Soft Ice Blue / Slate) */
 .badge-blue {
-    background-color: #f0f6fc;
-    color: #334155;
-    border: 1.5px solid #cbd5e1;
+    background-color: #eef2f6;
+    color: #1e293b;
+    border: 1px solid #cbd5e1;
 }
 
 /* 4. Bidang Lomba Pill (Soft Cream Amber) */
 .badge-orange {
-    background-color: #fefce8;
-    color: #a16207;
-    border: 1.5px solid #fef08a;
+    background-color: #fef9c3;
+    color: #713f12;
+    border: 1px solid #fde68a;
 }
 
 /* 5. Tingkat Pill (Soft Periwinkle / Lavender) */
 .badge-purple {
     background-color: #eef2ff;
-    color: #4f46e5;
-    border: 1.5px solid #c7d2fe;
+    color: #3730a3;
+    border: 1px solid #c7d2fe;
 }
 
 /* Tombol Detail Perlombaan Hitam / Dark Navy */
 .btn-card-detail {
     width: 100%;
     height: 48px;
-    background-color: #111827;
+    background-color: #0f172a;
     color: #ffffff;
     border: none;
     border-radius: 14px;
     font-family: inherit;
-    font-size: 0.94rem;
-    font-weight: 700;
+    font-size: 0.92rem;
+    font-weight: 600;
     cursor: pointer;
-    margin-top: 14px;
+    margin-top: 18px;
     transition: all 0.22s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 14px rgba(17, 24, 39, 0.25);
-    letter-spacing: -0.01em;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.22);
+    letter-spacing: 0.005em;
+    text-decoration: none;
 }
 
 .btn-card-detail:hover {
