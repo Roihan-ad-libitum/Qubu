@@ -81,8 +81,13 @@ switch ($page) {
         (new MahasiswaController())->lihatProfil($_GET['id'] ?? null);
         break;
 
+    case 'cari-dosen':
     case 'dosen-pembimbing':
-        redirect('?page=mahasiswa-dashboard#section-semua-lomba');
+        if (Session::get('role') === ROLE_DOSEN) {
+            redirect('?page=dosen-dashboard');
+        } else {
+            (new MahasiswaController())->cariDosen();
+        }
         break;
 
 

@@ -119,7 +119,7 @@ require_once __DIR__ . '/../layouts/headers.php';
             <nav class="dash-nav-menu" aria-label="Menu Utama">
                 <a href="<?= url('?page=mahasiswa-dashboard') ?>" class="dash-nav-link">Info Lomba</a>
                 <a href="<?= url('?page=cari-partner') ?>" class="dash-nav-link is-active">Cari Partner</a>
-                <a href="<?= url('?page=dosen-profile') ?>" class="dash-nav-link">Dosen Pembimbing</a>
+                <a href="<?= url('?page=cari-dosen') ?>" class="dash-nav-link" id="link-dosen-pembimbing">Dosen Pembimbing</a>
                 <a href="<?= e(url('?page=mahasiswa-profile')) ?>" class="dash-avatar-btn" title="<?= e($namaMahasiswa ?? 'Mahasiswa') ?>">
                     <?php if (!empty($userFoto) && file_exists(__DIR__ . '/../../' . $userFoto)): ?>
                         <img src="<?= e(url($userFoto)) ?>" alt="Avatar" class="dash-avatar-img">

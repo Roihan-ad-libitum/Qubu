@@ -80,7 +80,7 @@ require_once __DIR__ . '/../layouts/headers.php';
             <nav class="dash-nav-menu" aria-label="Menu Utama">
                 <a href="<?= url('?page=mahasiswa-dashboard') ?>" class="dash-nav-link is-active">Info Lomba</a>
                 <a href="<?= url('?page=cari-partner') ?>" class="dash-nav-link" id="link-cari-partner">Cari Partner</a>
-                <a href="<?= url('?page=dosen-profile') ?>" class="dash-nav-link">Dosen Pembimbing</a>
+                <a href="<?= url('?page=cari-dosen') ?>" class="dash-nav-link" id="link-dosen-pembimbing">Dosen Pembimbing</a>
 
                 <!-- Profil Avatar User -->
                 <div class="dash-avatar-wrapper" id="dash-avatar-wrapper">
