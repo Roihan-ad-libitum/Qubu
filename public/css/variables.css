@@ -1,0 +1,43 @@
+:root {
+
+    --color-primary: #3045f5;          
+    --color-primary-hover: #2135e2;    
+    --color-primary-border: #0f172a;   
+    --color-link: #2563eb;             
+
+    --color-text-main: #181c32;        
+    --color-text-muted: #64748b;       
+    --color-text-placeholder: #94a3b8; 
+
+    --color-bg-page: #f8fafc;          
+    --color-card-bg: #ffffff;          
+    --color-input-bg: #ffffff;         
+    --color-input-border: #e2e8f0;     
+    --color-input-focus: #3045f5;      
+
+    --color-error-bg: #fef2f2;
+    --color-error-border: #fecaca;
+    --color-error-text: #b91c1c;
+
+    --color-success-bg: #f0fdf4;
+    --color-success-border: #bbf7d0;
+    --color-success-text: #15803d;
+
+    --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    --radius-modal: 28px;              
+    --radius-input: 12px;              
+    --radius-button: 9999px;           
+
+    --shadow-card: 0 20px 45px -10px rgba(0, 0, 0, 0.08), 0 0 1px 1px rgba(0, 0, 0, 0.04);
+    --shadow-input-focus: 0 0 0 3px rgba(48, 69, 245, 0.15);
+
+    --qubu-brand: var(--color-primary);
+    --qubu-brand-strong: #1d2fbf;
+    --qubu-ink: var(--color-text-main);
+    --qubu-muted: var(--color-text-muted);
+    --qubu-border: var(--color-input-border);
+    --qubu-surface: var(--color-card-bg);
+    --qubu-radius-card: 24px;
+    --qubu-shadow-card: 0 14px 34px rgba(15, 23, 42, 0.08);
+}
