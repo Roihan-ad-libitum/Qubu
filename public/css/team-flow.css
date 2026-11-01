@@ -492,13 +492,23 @@
     }
 }
 
-@media (max-width: 640px) {
-.team-flow-hero.dash-hero-section {
-        padding: 7.5rem 1rem 2.35rem;
+@media (max-width: 768px) {
+    .team-flow-hero.dash-hero-section {
+        padding: 5.5rem 1.25rem 2.35rem;
     }
 
     .dash-hero-section.dash-hero-compact {
-        padding: 7.25rem 1rem 2rem;
+        padding: 5.25rem 1.25rem 2rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .team-flow-hero.dash-hero-section {
+        padding: 5.25rem 1rem 2.25rem;
+    }
+
+    .dash-hero-section.dash-hero-compact {
+        padding: 5rem 1rem 1.85rem;
     }
 
     .team-flow-main {

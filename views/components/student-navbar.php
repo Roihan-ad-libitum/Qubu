@@ -43,7 +43,7 @@ if (!function_exists('renderQubuTopNavbar')) {
                     </svg>
                 </a>
 
-                <nav class="dash-nav-menu" aria-label="<?= e($navAriaLabel) ?>">
+                <nav class="dash-nav-menu" id="dash-nav-menu" aria-label="<?= e($navAriaLabel) ?>">
                     <?php foreach ($navLinks as $item):
                         $isActive = !empty($item['active']);
                         $linkId   = (string) ($item['id'] ?? '');
@@ -56,6 +56,12 @@ if (!function_exists('renderQubuTopNavbar')) {
                         ><?= e((string) $item['label']) ?></a>
                     <?php endforeach; ?>
 
+                    <?php if (!$showAvatar): ?>
+                        <a href="<?= e(url('?page=login')) ?>" class="dash-nav-link">Masuk</a>
+                    <?php endif; ?>
+                </nav>
+
+                <div class="dash-nav-actions">
                     <?php if ($showAvatar): ?>
                         <div class="dash-avatar-wrapper" id="dash-avatar-wrapper">
                             <button type="button" class="dash-avatar-btn" id="dash-avatar-btn" aria-label="Menu Pengguna" aria-expanded="false" aria-controls="dash-dropdown-menu" title="<?= e($userName) ?>">
@@ -91,10 +97,29 @@ if (!function_exists('renderQubuTopNavbar')) {
                                 <?php endforeach; ?>
                             </div>
                         </div>
-                    <?php else: ?>
-                        <a href="<?= e(url('?page=login')) ?>" class="dash-nav-link">Masuk</a>
                     <?php endif; ?>
-                </nav>
+
+                    <?php if (!empty($navLinks)): ?>
+                        <button
+                            type="button"
+                            class="dash-mobile-toggle"
+                            id="dash-mobile-toggle"
+                            aria-label="Buka Menu Navigasi"
+                            aria-expanded="false"
+                            aria-controls="dash-nav-menu"
+                        >
+                            <svg class="dash-mobile-icon-open" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="4" y1="7" x2="20" y2="7"></line>
+                                <line x1="4" y1="12" x2="20" y2="12"></line>
+                                <line x1="4" y1="17" x2="20" y2="17"></line>
+                            </svg>
+                            <svg class="dash-mobile-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    <?php endif; ?>
+                </div>
             </div>
         </header>
         <?php
