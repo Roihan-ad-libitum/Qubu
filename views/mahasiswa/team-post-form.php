@@ -1,8 +1,8 @@
 <?php
-$studentNavName = $profile['nama_mahasiswa'] ?? Session::get('nama_lengkap', 'Mahasiswa');
-$studentNavPhoto = $profile['foto'] ?? (Session::get('demo_profile_data')['foto'] ?? null);
-$studentNavProgram = $profile['program_studi'] ?? 'Informatika';
-$studentNavInterest = $profile['bidang_minat'] ?? '';
+$studentNavName      = $profile['nama_mahasiswa'] ?? Session::get('nama_lengkap', 'Mahasiswa');
+$studentNavPhoto     = $profile['foto'] ?? (Session::get('demo_profile_data')['foto'] ?? null);
+$studentNavProgram   = $profile['program_studi'] ?? 'Informatika';
+$studentNavInterest  = $profile['bidang_minat'] ?? '';
 $activeStudentNavKey = 'teams';
 $extraCss = ['public/css/components.css', 'public/css/dashboard.css', 'public/css/team-flow.css'];
 require_once __DIR__ . '/../layouts/headers.php';
@@ -36,11 +36,9 @@ $fieldOptions = defined('BIDANG_QUBU') ? BIDANG_QUBU : [];
                 <select id="id_lomba" name="id_lomba" required>
                     <option value="">Pilih perlombaan...</option>
                     <?php foreach ($competitions as $competition): ?>
-                        <?php if (in_array($competition['partisipasi'] ?? '', ['Tim', 'Individu/Tim'], true)): ?>
-                            <option value="<?= (int) $competition['id_lomba'] ?>" <?= (int) ($selectedId ?? ($old['id_lomba'] ?? 0)) === (int) $competition['id_lomba'] ? 'selected' : '' ?>>
-                                <?= e($competition['nama_lomba']) ?> (<?= e($competition['bidang']) ?>)
-                            </option>
-                        <?php endif; ?>
+                        <option value="<?= (int) $competition['id_lomba'] ?>" <?= (int) ($selectedId ?? ($old['id_lomba'] ?? 0)) === (int) $competition['id_lomba'] ? 'selected' : '' ?>>
+                            <?= e($competition['nama_lomba']) ?> (<?= e($competition['bidang']) ?>)
+                        </option>
                     <?php endforeach; ?>
                 </select>
 

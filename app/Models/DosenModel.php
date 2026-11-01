@@ -6,8 +6,6 @@ require_once __DIR__ . '/../../config/app.php';
 class DosenModel
 {
     private ?PDO $pdo = null;
-    private static bool $contactVisibilityEnsured = false;
-    private static bool $fotoColumnEnsured = false;
 
     public function __construct(?PDO $pdo = null)
     {
@@ -16,33 +14,7 @@ class DosenModel
 
     private function pdo(): PDO
     {
-        $db = $this->pdo ??= db();
-
-        if (!self::$contactVisibilityEnsured) {
-            self::$contactVisibilityEnsured = true;
-            try {
-                $columns = $db->query("SHOW COLUMNS FROM dosen LIKE 'contact_visible'")->fetch();
-                if ($columns === false) {
-                    $db->exec("ALTER TABLE dosen ADD COLUMN contact_visible TINYINT(1) NOT NULL DEFAULT 0");
-                }
-            } catch (Throwable $e) {
-
-            }
-        }
-
-        if (!self::$fotoColumnEnsured) {
-            self::$fotoColumnEnsured = true;
-            try {
-                $col = $db->query("SHOW COLUMNS FROM dosen LIKE 'foto'")->fetch();
-                if ($col === false) {
-                    $db->exec("ALTER TABLE dosen ADD COLUMN foto VARCHAR(255) DEFAULT NULL");
-                }
-            } catch (Throwable $e) {
-
-            }
-        }
-
-        return $db;
+        return $this->pdo ??= db();
     }
 
     public function isNidnExists(string $nidn): bool
@@ -80,8 +52,8 @@ class DosenModel
 
             $idUser = (int) $db->lastInsertId();
 
-            $sqlDosen = "INSERT INTO dosen (id_user, nama_dosen, bidang_keahlian, nidn, status, foto)
-                         VALUES (:id_user, :nama_dosen, :bidang_keahlian, :nidn, :status, :foto)";
+            $sqlDosen = "INSERT INTO dosen (id_user, nama_dosen, bidang_keahlian, nidn, status, foto, contact_visible)
+                         VALUES (:id_user, :nama_dosen, :bidang_keahlian, :nidn, :status, :foto, :contact_visible)";
             $stmtDosen = $db->prepare($sqlDosen);
             $stmtDosen->execute([
                 ':id_user'         => $idUser,
@@ -90,6 +62,7 @@ class DosenModel
                 ':nidn'            => trim($dosenData['nidn']),
                 ':status'          => $dosenData['status'] ?? 'bersedia',
                 ':foto'            => $dosenData['foto'] ?? null,
+                ':contact_visible' => isset($dosenData['contact_visible']) ? ((int) (bool) $dosenData['contact_visible']) : 1,
             ]);
 
             $db->commit();
@@ -115,23 +88,10 @@ class DosenModel
         return $data === false ? null : $data;
     }
 
-    public function findByNidn(string $nidn): ?array
-    {
-        $sql = "SELECT d.*, u.username, u.email, u.no_hp
-                FROM dosen d
-                JOIN users u ON u.id_user = d.id_user
-                WHERE d.nidn = :nidn
-                LIMIT 1";
-        $stmt = $this->pdo()->prepare($sql);
-        $stmt->execute([':nidn' => trim($nidn)]);
-        $data = $stmt->fetch();
-        return $data === false ? null : $data;
-    }
-
     public function getDirectory(): array
     {
-        $sql = "SELECT d.id_dosen, d.nama_dosen, d.bidang_keahlian, d.status, d.foto,
-                       d.contact_visible, u.email, u.no_hp, u.username
+        $sql = "SELECT d.id_dosen, d.id_user, d.nama_dosen, d.nidn, d.bidang_keahlian,
+                       d.status, d.foto, d.contact_visible, u.email, u.no_hp, u.username
                 FROM dosen d
                 JOIN users u ON u.id_user = d.id_user
                 ORDER BY CASE WHEN d.status = 'bersedia' THEN 0 ELSE 1 END,
@@ -158,7 +118,6 @@ class DosenModel
         }
         if (isset($data['status'])) {
             $statusVal = strtolower(trim($data['status']));
-
             if ($statusVal === 'bersedia' || $statusVal === 'tidak_bersedia') {
                 $fields[] = 'status = :status';
                 $params[':status'] = $statusVal;

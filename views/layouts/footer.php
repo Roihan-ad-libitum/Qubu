@@ -4,8 +4,8 @@ $footerWaNumber  = defined('QUBU_FOOTER_WHATSAPP') ? QUBU_FOOTER_WHATSAPP : '081
 $footerEmailAddr = defined('QUBU_FOOTER_EMAIL') ? QUBU_FOOTER_EMAIL : 'roihan@gmail.com';
 $footerGithubUrl = defined('QUBU_FOOTER_GITHUB') ? QUBU_FOOTER_GITHUB : 'https://github.com/roihan-ad-libitum';
 
-$footerWaHref   = function_exists('buildWhatsAppUrl') ? buildWhatsAppUrl($footerWaNumber) : ('https://wa.me/62' . ltrim($footerWaNumber, '0'));
-$footerMailHref = function_exists('buildMailtoUrl') ? buildMailtoUrl($footerEmailAddr) : ('mailto:' . $footerEmailAddr);
+$footerWaHref   = buildWhatsAppUrl($footerWaNumber);
+$footerMailHref = buildMailtoUrl($footerEmailAddr);
 ?>
     <footer class="qubu-global-footer" role="contentinfo">
         <div class="qubu-footer-inner">
@@ -57,8 +57,14 @@ $footerMailHref = function_exists('buildMailtoUrl') ? buildMailtoUrl($footerEmai
         </div>
     </footer>
 
-    <?php if (isset($extraScript)): ?>
-        <script src="<?= url($extraScript) ?>"></script>
+    <script src="<?= e(url('public/js/student-navbar.js')) ?>?v=<?= (int) @filemtime(__DIR__ . '/../../public/js/student-navbar.js') ?>" defer></script>
+    <?php if (isset($extraScript)):
+        $cleanScriptPath = explode('?', (string) $extraScript)[0];
+        $scriptVersion   = strpos((string) $extraScript, '?') === false
+            ? ('?v=' . (int) @filemtime(__DIR__ . '/../../' . ltrim($cleanScriptPath, '/')))
+            : '';
+    ?>
+        <script src="<?= e(url($extraScript) . $scriptVersion) ?>"></script>
     <?php endif; ?>
 </body>
 </html>

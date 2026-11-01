@@ -17,10 +17,10 @@ class Session
         ini_set('session.use_only_cookies', '1');
 
         session_set_cookie_params([
-            'lifetime' => 0,          
+            'lifetime' => 0,
             'path'     => '/',
-            'secure'   => $isHttps,   
-            'httponly' => true,       
+            'secure'   => $isHttps,
+            'httponly' => true,
             'samesite' => 'Lax',
         ]);
 
@@ -67,12 +67,6 @@ class Session
         unset($_SESSION[self::FLASH_KEY][$type]);
 
         return $message;
-    }
-
-    public static function hasFlash(string $type): bool
-    {
-        self::start();
-        return isset($_SESSION[self::FLASH_KEY][$type]);
     }
 
     public static function regenerate(): void

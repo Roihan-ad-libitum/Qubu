@@ -24,9 +24,9 @@ class CompetitionController
         $validatedBidang = Validator::validateBidang($rawBidang);
         $isValidBidang = ($validatedBidang !== null);
 
-        $rawLimit = $query['limit'] ?? 50;
-        $validLimit = Validator::validatePositiveInt($rawLimit) ?? 50;
-        $safeLimit = max(1, min($validLimit, 100));
+        $rawLimit = $query['limit'] ?? 200;
+        $validLimit = Validator::validatePositiveInt($rawLimit) ?? 200;
+        $safeLimit = max(1, min($validLimit, 200));
 
         $rawPage = $query['p'] ?? ($query['page'] ?? 1);
         $validPage = Validator::validatePositiveInt($rawPage) ?? 1;
@@ -89,36 +89,25 @@ class CompetitionController
         return $this->competitionModel->getDetailWithRelated($validId, max(1, $relatedLimit));
     }
 
-    private function formatTanggalIndo(?string $datetime): string
-    {
-        return formatLombaTanggalIndo($datetime);
-    }
-
     public function formatCompetitionItem(array $item): array
     {
         $idLomba     = (int) ($item['id_lomba'] ?? 0);
         $biaya       = (float) ($item['biaya'] ?? 0);
         $partisipasi = (string) ($item['partisipasi'] ?? 'Individu/Tim');
         $rawPoster   = trim((string) ($item['poster'] ?? ''));
-        $posterPath  = $rawPoster !== '' ? $rawPoster : 'public/images/semantik-poster.jpg';
+        $hasPoster   = hasPublicFile($rawPoster);
 
         $item['id_lomba']                      = $idLomba;
         $item['biaya']                         = $biaya;
         $item['biaya_formatted']               = formatLombaBiaya($biaya);
-        $item['deadline_formatted']            = $this->formatTanggalIndo($item['deadline_daftar'] ?? null);
+        $item['deadline_formatted']            = formatLombaTanggalIndo($item['deadline_daftar'] ?? null);
         $item['is_closed']                     = isLombaRegistrationClosed($item['deadline_daftar'] ?? null);
-        $item['tanggal_pelaksanaan_formatted'] = $this->formatTanggalIndo($item['tanggal_pelaksanaan'] ?? null);
+        $item['tanggal_pelaksanaan_formatted'] = formatLombaTanggalIndo($item['tanggal_pelaksanaan'] ?? null);
         $item['partisipasi_formatted']         = formatLombaPartisipasi($partisipasi);
-        $item['poster_url']                    = function_exists('url') ? url($posterPath) : $posterPath;
-        $item['detail_url']                    = function_exists('url')
-            ? url('?page=lomba-detail&id=' . $idLomba)
-            : '?page=lomba-detail&id=' . $idLomba;
-        $item['link_resmi']                    = function_exists('safeExternalUrl')
-            ? safeExternalUrl($item['link_resmi'] ?? null)
-            : (string) ($item['link_resmi'] ?? '');
-        $item['link_guidebook']                = function_exists('safeExternalUrl')
-            ? safeExternalUrl($item['link_guidebook'] ?? null)
-            : (string) ($item['link_guidebook'] ?? '');
+        $item['poster']                        = $hasPoster ? $rawPoster : null;
+        $item['poster_url']                    = $hasPoster ? url($rawPoster) : '';
+        $item['detail_url']                    = url('?page=lomba-detail&id=' . $idLomba);
+        $item['link_resmi']                    = safeExternalUrl($item['link_resmi'] ?? null);
 
         if (isset($item['related']) && is_array($item['related'])) {
             $item['related'] = array_map([$this, 'formatCompetitionItem'], $item['related']);
@@ -129,7 +118,6 @@ class CompetitionController
 
     public function buildApiPayload(array $query = []): array
     {
-
         if (array_key_exists('id', $query) && $query['id'] !== '' && $query['id'] !== null) {
             $validId = $this->validateIdRequest($query['id']);
             if ($validId === null) {

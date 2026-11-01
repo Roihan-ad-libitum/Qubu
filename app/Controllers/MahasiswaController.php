@@ -41,26 +41,32 @@ class MahasiswaController
         $nameParts     = explode(' ', trim($namaMahasiswa));
         $userFirstName = $nameParts[0] ?? 'User';
 
-        $filterResult  = $this->competitionController->filterCompetitions($_GET);
-        $searchKeyword = $filterResult['keyword'];
-        $activeBidang  = $filterResult['bidang'];
-        $semuaLomba    = $filterResult['data'];
+        $katalogLengkap = $this->competitionModel->getActive();
+        $validated      = $this->competitionController->validateSearchRequest($_GET);
+        $searchKeyword  = $validated['keyword'];
+        $activeBidang   = $validated['bidang'];
 
-        $katalogLengkap = array_values(array_filter(
-            $this->competitionModel->getAll(),
-            static fn(array $lomba): bool => !isLombaRegistrationClosed($lomba['deadline_daftar'] ?? null)
-        ));
-        if ($searchKeyword === '' && $activeBidang === 'Semua Bidang' && $filterResult['is_valid_bidang']) {
+        if (!$validated['is_valid_bidang']) {
+            $semuaLomba = [];
+        } elseif ($searchKeyword === '' && $activeBidang === 'Semua Bidang') {
             $semuaLomba = $katalogLengkap;
+        } else {
+            $semuaLomba = $this->competitionModel->searchAndFilter(
+                $searchKeyword,
+                $activeBidang,
+                $validated['limit']
+            );
         }
 
         $now               = time();
         $deadlineWindowEnd = $now + (30 * 24 * 60 * 60);
-        $upcomingLomba = [];
+        $upcomingLomba     = [];
         foreach ($katalogLengkap as $lomba) {
-            $deadlineTimestamp = !empty($lomba['deadline_daftar'])
-                ? strtotime((string) $lomba['deadline_daftar'])
-                : false;
+            $rawDeadline       = trim((string) ($lomba['deadline_daftar'] ?? ''));
+            $datePart          = substr($rawDeadline, 0, 10);
+            $deadlineTimestamp = preg_match('/^\d{4}-\d{2}-\d{2}$/', $datePart)
+                ? strtotime($datePart . ' 23:59:59')
+                : strtotime($rawDeadline);
             if ($deadlineTimestamp !== false && $deadlineTimestamp >= $now && $deadlineTimestamp < $deadlineWindowEnd) {
                 $lomba['_upcoming_at'] = $deadlineTimestamp;
                 $upcomingLomba[] = $lomba;
@@ -69,16 +75,13 @@ class MahasiswaController
         usort($upcomingLomba, static fn(array $left, array $right): int => $left['_upcoming_at'] <=> $right['_upcoming_at']);
         $upcomingLomba = array_slice($upcomingLomba, 0, 8);
 
-        $minatItems = array_filter(array_map('trim', explode(',', strtolower($userBidangMinat))));
-        if (empty($minatItems)) {
-            $minatItems = ['ui/ux design'];
-        }
-
+        $minatItems = array_map('strtolower', parseSkillTags($userBidangMinat, false, ['UI/UX Design']));
         $rekomendasiLomba = [];
         foreach ($katalogLengkap as $lomba) {
-            $lombaBidang = strtolower(trim($lomba['bidang'] ?? ''));
+            $lombaTags = array_map('strtolower', parseSkillTags((string) ($lomba['bidang'] ?? ''), false, []));
+            $lombaBidangRaw = strtolower(trim((string) ($lomba['bidang'] ?? '')));
             foreach ($minatItems as $minat) {
-                if ($minat !== '' && (strpos($lombaBidang, $minat) !== false || strpos($minat, $lombaBidang) !== false)) {
+                if (in_array($minat, $lombaTags, true) || ($minat !== '' && str_contains($lombaBidangRaw, $minat))) {
                     $rekomendasiLomba[] = $lomba;
                     break;
                 }
@@ -113,7 +116,7 @@ class MahasiswaController
             'username'       => ltrim((string) ($profile['username'] ?? ($demoSession['username'] ?? (Session::get('username') ?? 'roihanfakh_'))), '@'),
             'program_studi'  => $profile['program_studi'] ?? ($demoSession['program_studi'] ?? 'Informatika'),
             'angkatan'       => $profile['angkatan'] ?? ($demoSession['angkatan'] ?? '2025'),
-            'bidang_minat'   => $profile['bidang_minat'] ?? ($demoSession['bidang_minat'] ?? 'Software Development, UI/UX Design'),
+            'bidang_minat'   => $profile['bidang_minat'] ?? ($demoSession['bidang_minat'] ?? 'Frontend, UI/UX Design'),
             'email'          => $profile['email'] ?? ($demoSession['email'] ?? (Session::get('email') ?? '')),
             'github'         => $profile['github'] ?? ($demoSession['github'] ?? ''),
             'no_hp'          => $profile['no_hp'] ?? ($demoSession['no_hp'] ?? ''),
@@ -172,7 +175,8 @@ class MahasiswaController
         $namaLengkap  = trim($_POST['nama_mahasiswa'] ?? '');
         $programStudi = trim($_POST['program_studi'] ?? '');
         $angkatan     = trim($_POST['angkatan'] ?? '');
-        $bidangMinat  = trim($_POST['bidang_minat'] ?? '');
+        $validTags    = parseSkillTags((string) ($_POST['bidang_minat'] ?? ''), true, []);
+        $bidangMinat  = implode(', ', $validTags ?: ['Frontend']);
         $bio          = trim($_POST['bio'] ?? '');
         $email        = trim((string) ($_POST['email'] ?? ($profile['email'] ?? '')));
         $rawGithub    = trim((string) ($_POST['github'] ?? ''));
@@ -284,11 +288,6 @@ class MahasiswaController
         }
 
         redirect('?page=mahasiswa-profile');
-    }
-
-    public function buildPartnerInitials(string $nama): string
-    {
-        return buildInitials($nama, 'QB');
     }
 
     public function formatPartnerItem(array $row, ?array $targetLomba = null): array
@@ -417,16 +416,12 @@ class MahasiswaController
             $semuaKandidatPartner = $partnerList;
         }
 
-        $rekomendasiPartner = array_slice($semuaKandidatPartner, 0, 3);
-        $categoryPills      = getCategoryPills();
-        $prodiOptions       = getProdiOptions();
-        $title              = 'Cari Partner Lomba - ' . APP_NAME;
-        $extraCss           = ['public/css/components.css', 'public/css/dashboard.css', 'public/css/cari-partner.css'];
+        $categoryPills = getCategoryPills();
+        $prodiOptions  = getProdiOptions();
+        $title         = 'Cari Partner Lomba - ' . APP_NAME;
+        $extraCss      = ['public/css/components.css', 'public/css/dashboard.css', 'public/css/cari-partner.css'];
 
-        $viewPath = __DIR__ . '/../../views/mahasiswa/cari-partner.php';
-        if (file_exists($viewPath)) {
-            require $viewPath;
-        }
+        require __DIR__ . '/../../views/mahasiswa/cari-partner.php';
     }
 
     public function buildPartnerApiPayload(?int $currentUserId, array $query = []): array

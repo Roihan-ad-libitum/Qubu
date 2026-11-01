@@ -6,7 +6,7 @@
     font-family: var(--font-family, 'Plus Jakarta Sans', system-ui, sans-serif);
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
+    overflow-x: clip;
     position: relative;
 }
 
@@ -442,15 +442,6 @@
     margin: 0;
 }
 
-.dash-badge-user-minat {
-    background-color: #eff6ff;
-    color: #2563eb;
-    padding: 2px 10px;
-    border-radius: 9999px;
-    border: 1px solid #bfdbfe;
-    font-weight: 700;
-}
-
 .dash-tab-switch {
     display: inline-flex;
     background: #e2e8f0;
@@ -786,125 +777,6 @@
     transform: translateY(0);
 }
 
-.rekan-student-card {
-    width: 300px;
-    flex-shrink: 0;
-    background: #ffffff;
-    border-radius: 20px;
-    border: 1px solid #f1f5f9;
-    box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.08);
-    padding: 1.5rem;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    scroll-snap-align: start;
-    transition: all 0.25s ease;
-}
-
-.rekan-student-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
-    border-color: #cbd5e1;
-}
-
-.rekan-card-top {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.rekan-avatar-circle {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: #e0e7ff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    flex-shrink: 0;
-    border: 2px solid #818cf8;
-}
-
-.rekan-avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.rekan-avatar-initials {
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: #4338ca;
-}
-
-.rekan-name {
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: #181c32;
-    margin: 0 0 2px 0;
-}
-
-.rekan-study {
-    font-size: 0.82rem;
-    color: #64748b;
-    font-weight: 500;
-}
-
-.rekan-skill-box {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.85rem;
-    padding: 0.45rem 0.65rem;
-    background: #f8fafc;
-    border-radius: 10px;
-}
-
-.rekan-skill-label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #475569;
-}
-
-.rekan-bio {
-    font-size: 0.85rem;
-    color: #64748b;
-    line-height: 1.45;
-    margin: 0 0 1.25rem 0;
-    flex: 1;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.btn-card-collab {
-    width: 100%;
-    height: 42px;
-    background-color: #2563eb;
-    color: #ffffff;
-    border: none;
-    border-radius: 12px;
-    font-family: inherit;
-    font-size: 0.88rem;
-    font-weight: 700;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-}
-
-.btn-card-collab:hover {
-    background-color: #1d4ed8;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
-}
-
 .dash-active-filter-bar {
     display: flex;
     align-items: center;
@@ -980,7 +852,7 @@
 }
 
 @media (min-width: 1520px) {
-    .dash-main-container {
+.dash-main-container {
         max-width: 1540px;
     }
 
@@ -1226,8 +1098,7 @@
     justify-content: center;
 }
 
-.modal-poster-img,
-.detail-poster-img {
+.modal-poster-img, .detail-poster-img {
     width: 100%;
     height: auto;
     object-fit: contain;
@@ -1361,44 +1232,8 @@
     transform: translateY(-2px);
 }
 
-.dash-modal-subactions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 0.9rem;
-    padding-top: 0.9rem;
-    border-top: 1px solid #e2e8f0;
-}
-
-.btn-modal-share,
-.btn-modal-fullpage {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.55rem 1rem;
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: 0.86rem;
-    font-weight: 700;
-    color: #334155;
-    background: #f1f5f9;
-    border: 1px solid #cbd5e1;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-
-.btn-modal-share:hover,
-.btn-modal-fullpage:hover {
-    background: #e2e8f0;
-    color: #0f172a;
-}
-
 @media (max-width: 1199px) and (min-width: 641px) {
-
-    .semua-lomba-grid {
+.semua-lomba-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 1.35rem;
     }
@@ -1419,7 +1254,7 @@
 }
 
 @media (max-width: 900px) {
-    .dash-navbar {
+.dash-navbar {
         padding: 1rem 1.5rem;
     }
 
@@ -1445,9 +1280,7 @@
 }
 
 @media (max-width: 640px) {
-
-    .dash-navbar,
-    .dash-navbar.is-scrolled {
+.dash-navbar, .dash-navbar.is-scrolled {
         padding: 0.75rem 1rem;
     }
 
@@ -1595,28 +1428,14 @@
         font-size: 1.25rem;
     }
 
-    .dash-modal-actions .btn-modal-primary,
-    .dash-modal-actions .btn-modal-secondary {
+    .dash-modal-actions .btn-modal-primary, .dash-modal-actions .btn-modal-secondary {
         min-width: 100%;
         width: 100%;
-    }
-
-    .dash-modal-subactions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .btn-modal-share,
-    .btn-modal-fullpage {
-        width: 100%;
-        justify-content: center;
-        box-sizing: border-box;
     }
 }
 
 @media (max-width: 540px) {
-    .dash-navbar,
-    .dash-navbar.is-scrolled {
+.dash-navbar, .dash-navbar.is-scrolled {
         padding: 0.65rem 0.85rem;
     }
 
@@ -1691,5 +1510,44 @@
         font-size: 0.78rem;
         padding: 0.42rem 0.9rem;
         min-height: 36px;
+    }
+}
+
+.detail-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+.detail-breadcrumb a {
+    color: #2563eb;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.detail-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.detail-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.25;
+    margin: 0 0 0.5rem;
+}
+.detail-organizer {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 560px) {
+.detail-title {
+        font-size: 1.35rem;
     }
 }

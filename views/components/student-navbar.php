@@ -97,7 +97,6 @@ if (!function_exists('renderQubuTopNavbar')) {
                 </nav>
             </div>
         </header>
-        <script src="<?= e(url('public/js/student-navbar.js')) ?>?v=<?= (int) @filemtime(__DIR__ . '/../../public/js/student-navbar.js') ?>" defer></script>
         <?php
     }
 }

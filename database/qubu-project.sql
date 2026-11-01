@@ -12,7 +12,8 @@ CREATE TABLE `users` (
   `email` varchar(100) NOT NULL,
   PRIMARY KEY (`id_user`),
   UNIQUE KEY `idx_users_username` (`username`),
-  UNIQUE KEY `idx_users_email` (`email`)
+  UNIQUE KEY `idx_users_email` (`email`),
+  KEY `idx_users_role` (`role`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `users` (`id_user`, `username`, `password`, `role`, `no_hp`, `email`) VALUES
@@ -36,8 +37,8 @@ CREATE TABLE `dosen` (
   `contact_visible` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_dosen`),
   UNIQUE KEY `idx_dosen_nidn` (`nidn`),
-  KEY `id_user` (`id_user`),
-  CONSTRAINT `dosen_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE
+  UNIQUE KEY `idx_dosen_user` (`id_user`),
+  CONSTRAINT `dosen_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `dosen` (`id_dosen`, `id_user`, `nama_dosen`, `bidang_keahlian`, `nidn`, `status`, `contact_visible`) VALUES
@@ -55,8 +56,8 @@ CREATE TABLE `mahasiswa` (
   `foto` varchar(255) DEFAULT NULL,
   `github` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_mahasiswa`),
-  UNIQUE KEY `npm` (`npm`),
-  KEY `id_user` (`id_user`),
+  UNIQUE KEY `idx_mahasiswa_npm` (`npm`),
+  UNIQUE KEY `idx_mahasiswa_user` (`id_user`),
   CONSTRAINT `mahasiswa_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -81,18 +82,19 @@ CREATE TABLE `lomba` (
   `bidang` varchar(150) NOT NULL,
   `link_resmi` varchar(255) NOT NULL,
   `poster` varchar(255) DEFAULT NULL,
-  `link_guidebook` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id_lomba`)
+  PRIMARY KEY (`id_lomba`),
+  KEY `idx_lomba_bidang` (`bidang`),
+  KEY `idx_lomba_deadline` (`deadline_daftar`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `lomba` (`id_lomba`, `nama_lomba`, `penyelenggara`, `deskripsi`, `deadline_daftar`, `tanggal_pelaksanaan`, `tingkat`, `biaya`, `partisipasi`, `bidang`, `link_resmi`, `poster`, `link_guidebook`) VALUES
-(1, 'Hackathon Web Nasional', 'Institut Teknologi Bandung', 'Kompetisi hackathon tingkat nasional untuk mengembangkan solusi digital inovatif yang menjawab tantangan sosial di Indonesia. Peserta akan berkompetisi selama 48 jam untuk menghasilkan prototipe aplikasi yang fungsional.', '2026-12-12 12:00:00', '2027-02-05', 'Nasional', 120000, 'Tim', 'Frontend', 'https://example.com/uiux', NULL, 'https://example.com/guidebook-hackathon'),
-(2, 'Semantik Informatics Competition', 'Himpunan Mahasiswa Informatika', 'Kompetisi desain antarmuka dan inovasi produk teknologi tahunan tingkat nasional.', '2026-11-15 23:59:00', '2026-11-30', 'Nasional', 0, 'Individu/Tim', 'UI/UX Design', 'https://bit.ly/daftar-lomba', 'public/images/semantik-poster.jpg', 'https://drive.google.com/semantik'),
-(3, 'National UI/UX Design Challenge', 'Universitas Indonesia', 'Kompetisi perancangan antarmuka dan pengalaman pengguna tingkat nasional untuk menciptakan solusi digital inklusif dan human-centered.', '2026-11-30 23:59:00', '2026-12-10', 'Nasional', 50000, 'Individu/Tim', 'UI/UX Design', 'https://uiuxchallenge.id', 'public/images/semantik-poster.jpg', 'https://drive.google.com/uiux-guide'),
-(4, 'GEMASTIK Software Development', 'Puspresnas Kemdikbudristek', 'Kompetisi pengembangan perangkat lunak berskala nasional bagi mahasiswa seluruh Indonesia.', '2026-12-05 23:59:00', '2027-01-15', 'Nasional', 0, 'Tim', 'Backend', 'https://gemastik.kemdikbud.go.id', NULL, 'https://gemastik.kemdikbud.go.id/guide'),
-(5, 'Compfest Competitive Programming', 'Fasilkom UI', 'Ajang adu kemampuan algoritma dan pemrograman kompetitif tingkat mahasiswa se-Asia Tenggara.', '2026-11-25 23:59:00', '2026-12-15', 'Nasional', 75000, 'Individu', 'Backend', 'https://compfest.id', NULL, 'https://compfest.id/guide'),
-(6, 'National Data Science Championship', 'Institut Teknologi Bandung', 'Kompetisi analisis data, permodelan machine learning, dan pemecahan masalah berbasis AI tingkat nasional.', '2026-12-01 23:59:00', '2027-01-20', 'Nasional', 100000, 'Tim', 'Data Science', 'https://datascience.itb.ac.id', NULL, 'https://datascience.itb.ac.id/guide'),
-(7, 'Kontes Robotika Indonesia (KRI)', 'BPTI Kemdikbudristek', 'Kompetisi perancangan, otomatisasi, dan pemrograman robotika mahasiswa tingkat nasional.', '2026-12-20 23:59:00', '2027-02-10', 'Nasional', 150000, 'Tim', 'Robotic', 'https://kri.kemdikbud.go.id', NULL, 'https://kri.kemdikbud.go.id/guide');
+INSERT INTO `lomba` (`id_lomba`, `nama_lomba`, `penyelenggara`, `deskripsi`, `deadline_daftar`, `tanggal_pelaksanaan`, `tingkat`, `biaya`, `partisipasi`, `bidang`, `link_resmi`, `poster`) VALUES
+(1, 'Hackathon Web Nasional', 'Institut Teknologi Bandung', 'Kompetisi hackathon tingkat nasional untuk mengembangkan solusi digital inovatif yang menjawab tantangan sosial di Indonesia. Peserta akan berkompetisi selama 48 jam untuk menghasilkan prototipe aplikasi yang fungsional.', '2026-12-12 23:59:59', '2027-02-05', 'Nasional', 120000, 'Tim', 'Frontend', 'https://example.com/uiux', NULL),
+(2, 'Semantik Informatics Competition', 'Himpunan Mahasiswa Informatika', 'Kompetisi desain antarmuka dan inovasi produk teknologi tahunan tingkat nasional.', '2026-11-15 23:59:59', '2026-11-30', 'Nasional', 0, 'Individu/Tim', 'UI/UX Design', 'https://bit.ly/daftar-lomba', NULL),
+(3, 'National UI/UX Design Challenge', 'Universitas Indonesia', 'Kompetisi perancangan antarmuka dan pengalaman pengguna tingkat nasional untuk menciptakan solusi digital inklusif dan human-centered.', '2026-11-30 23:59:59', '2026-12-10', 'Nasional', 50000, 'Individu/Tim', 'UI/UX Design', 'https://uiuxchallenge.id', NULL),
+(4, 'GEMASTIK Software Development', 'Puspresnas Kemdikbudristek', 'Kompetisi pengembangan perangkat lunak berskala nasional bagi mahasiswa seluruh Indonesia.', '2026-12-05 23:59:59', '2027-01-15', 'Nasional', 0, 'Tim', 'Backend', 'https://gemastik.kemdikbud.go.id', NULL),
+(5, 'Compfest Competitive Programming', 'Fasilkom UI', 'Ajang adu kemampuan algoritma dan pemrograman kompetitif tingkat mahasiswa se-Asia Tenggara.', '2026-11-25 23:59:59', '2026-12-15', 'Nasional', 75000, 'Individu', 'Backend', 'https://compfest.id', NULL),
+(6, 'National Data Science Championship', 'Institut Teknologi Bandung', 'Kompetisi analisis data, permodelan machine learning, dan pemecahan masalah berbasis AI tingkat nasional.', '2026-12-01 23:59:59', '2027-01-20', 'Nasional', 100000, 'Tim', 'Data Science', 'https://datascience.itb.ac.id', NULL),
+(7, 'Kontes Robotika Indonesia (KRI)', 'BPTI Kemdikbudristek', 'Kompetisi perancangan, otomatisasi, dan pemrograman robotika mahasiswa tingkat nasional.', '2026-12-20 23:59:59', '2027-02-10', 'Nasional', 150000, 'Tim', 'Robotic', 'https://kri.kemdikbud.go.id', NULL);
 
 CREATE TABLE `team_posts` (
   `id_post` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -110,8 +112,8 @@ CREATE TABLE `team_posts` (
   PRIMARY KEY (`id_post`),
   KEY `idx_team_posts_competition_status` (`id_lomba`,`status`,`created_at`),
   KEY `idx_team_posts_owner` (`id_user`,`status`),
-  CONSTRAINT `fk_team_posts_user` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE,
-  CONSTRAINT `fk_team_posts_lomba` FOREIGN KEY (`id_lomba`) REFERENCES `lomba` (`id_lomba`) ON DELETE CASCADE
+  CONSTRAINT `fk_team_posts_user` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_team_posts_lomba` FOREIGN KEY (`id_lomba`) REFERENCES `lomba` (`id_lomba`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `team_posts` (`id_post`, `id_user`, `id_lomba`, `bidang_dibutuhkan`, `jumlah_anggota`, `deskripsi`, `contact_opt_in`, `contact_email`, `contact_whatsapp`, `status`) VALUES

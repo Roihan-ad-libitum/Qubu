@@ -1,196 +1,12 @@
 <?php
 
-$title = $title ?? 'Detail Perlombaan - ' . APP_NAME;
-$extraCss = $extraCss ?? ['public/css/components.css', 'public/css/dashboard.css'];
+$title               = $title ?? 'Detail Perlombaan - ' . APP_NAME;
+$extraCss            = $extraCss ?? ['public/css/components.css', 'public/css/dashboard.css'];
 $activeStudentNavKey = 'dashboard';
 
 require_once __DIR__ . '/../components/lomba-card.php';
 require __DIR__ . '/../layouts/headers.php';
 ?>
-
-<style>
-.detail-page-wrapper {
-    max-width: 1240px;
-    margin: 2rem auto 4rem;
-    padding: 0 1.5rem;
-}
-.detail-breadcrumb {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-.btn-back-catalog {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    padding: 0.65rem 1.25rem;
-    border-radius: 999px;
-    background: #ffffff;
-    color: #0f172a;
-    font-weight: 700;
-    font-size: 0.92rem;
-    text-decoration: none;
-    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.07);
-    border: 1px solid #e2e8f0;
-    transition: all 0.2s ease;
-}
-.btn-back-catalog:hover {
-    background: #0f172a;
-    color: #ffffff;
-    transform: translateY(-1px);
-}
-.detail-main-card {
-    background: #ffffff;
-    border-radius: 36px;
-    padding: 2rem;
-    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
-    border: 1px solid #eef2f6;
-    margin-bottom: 2rem;
-}
-.detail-hero-grid {
-    display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 2.25rem;
-    align-items: start;
-}
-.detail-poster-box {
-    border-radius: 24px;
-    overflow: hidden;
-    background: linear-gradient(135deg, #0b192c 0%, #1e3e62 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
-}
-.detail-poster-box .lomba-card-placeholder {
-    aspect-ratio: 3 / 4;
-}
-.detail-info-col {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-}
-.detail-badges-top {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    align-items: center;
-}
-.detail-title {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #0f172a;
-    line-height: 1.22;
-    margin: 0;
-}
-.detail-organizer {
-    font-size: 1rem;
-    color: #475569;
-    font-weight: 600;
-    margin: 0;
-}
-.detail-cta-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.85rem;
-    margin-top: 0.5rem;
-}
-.btn-share-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.85rem 1.35rem;
-    border-radius: 14px;
-    border: 1.5px solid #cbd5e1;
-    background: #f8fafc;
-    color: #1e293b;
-    font-weight: 700;
-    font-size: 0.92rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.btn-share-link:hover {
-    background: #e2e8f0;
-}
-.detail-desc-section {
-    margin-top: 2rem;
-    padding-top: 1.75rem;
-    border-top: 1.5px solid #e2e8f0;
-}
-.detail-desc-heading {
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: #0f172a;
-    margin: 0 0 0.85rem;
-}
-.detail-desc-body {
-    font-size: 1rem;
-    line-height: 1.75;
-    color: #334155;
-    white-space: pre-line;
-}
-.detail-404-card {
-    background: #ffffff;
-    border-radius: 36px;
-    padding: 3.5rem 2rem;
-    text-align: center;
-    max-width: 640px;
-    margin: 3rem auto;
-    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
-    border: 1px solid #e2e8f0;
-}
-.detail-404-title {
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: #0f172a;
-    margin: 1rem 0 0.5rem;
-}
-.detail-404-desc {
-    color: #64748b;
-    font-size: 1rem;
-    margin-bottom: 1.75rem;
-}
-@media (max-width: 900px) {
-    .detail-hero-grid {
-        grid-template-columns: 1fr;
-    }
-    .detail-poster-box {
-        max-width: 360px;
-        margin: 0 auto;
-        width: 100%;
-    }
-    .detail-title {
-        font-size: 1.55rem;
-    }
-}
-@media (max-width: 640px) {
-    .detail-page-wrapper {
-        padding: 0 1rem;
-        margin: 1.25rem auto 3rem;
-    }
-    .detail-main-card {
-        padding: 1.25rem;
-        border-radius: 28px;
-    }
-    .detail-title {
-        font-size: 1.32rem;
-    }
-    .detail-cta-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .detail-cta-row .btn-modal-primary,
-    .detail-cta-row .btn-modal-secondary,
-    .detail-cta-row .btn-share-link {
-        width: 100%;
-        justify-content: center;
-        box-sizing: border-box;
-    }
-}
-</style>
 
 <div class="dash-page team-flow-page">
     <?php require __DIR__ . '/../components/student-navbar.php'; ?>
@@ -236,7 +52,7 @@ require __DIR__ . '/../layouts/headers.php';
                 <div class="detail-hero-grid">
 
                     <div class="detail-poster-box">
-                        <?php if (!empty($lomba['poster']) && file_exists(__DIR__ . '/../../' . $lomba['poster'])): ?>
+                        <?php if (!empty($lomba['poster']) && hasPublicFile($lomba['poster'])): ?>
                             <img src="<?= e(url($lomba['poster'])) ?>" alt="<?= e($lomba['nama_lomba']) ?>" class="detail-poster-img">
                         <?php else: ?>
                             <div class="lomba-card-placeholder" style="width: 100%; height: 100%;">
@@ -288,10 +104,11 @@ require __DIR__ . '/../layouts/headers.php';
                         </div>
 
                         <?php
-                        $safeLinkResmi = function_exists('safeExternalUrl') ? safeExternalUrl($lomba['link_resmi'] ?? null) : (string) ($lomba['link_resmi'] ?? '');
+                        $safeLinkResmi = safeExternalUrl($lomba['link_resmi'] ?? null);
+                        $isLombaClosed = isLombaRegistrationClosed($lomba['deadline_daftar'] ?? null);
                         ?>
                         <div class="detail-cta-row">
-                            <?php if ($safeLinkResmi !== '' && !isLombaRegistrationClosed($lomba['deadline_daftar'] ?? null)): ?>
+                            <?php if ($safeLinkResmi !== '' && !$isLombaClosed): ?>
                                 <a href="<?= e($safeLinkResmi) ?>" target="_blank" rel="noopener noreferrer" class="btn-modal-primary">
                                     <span>Daftar Sekarang (Link Resmi)</span>
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -302,7 +119,7 @@ require __DIR__ . '/../layouts/headers.php';
                                 </a>
                             <?php endif; ?>
 
-                            <?php if (!isLombaRegistrationClosed($lomba['deadline_daftar'] ?? null) && in_array($lomba['partisipasi'] ?? '', ['Tim', 'Individu/Tim'], true)): ?>
+                            <?php if (!$isLombaClosed): ?>
                                 <a href="<?= e(url('?page=team-posts&id_lomba=' . (int) ($lomba['id_lomba'] ?? 0))) ?>" class="btn-modal-secondary" id="btn-detail-cari-tim">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -314,7 +131,7 @@ require __DIR__ . '/../layouts/headers.php';
                                 </a>
                             <?php endif; ?>
 
-                            <?php if ($safeLinkResmi === '' && !isLombaRegistrationClosed($lomba['deadline_daftar'] ?? null)): ?>
+                            <?php if ($safeLinkResmi === '' && !$isLombaClosed): ?>
                                 <div class="modal-no-links-notice" id="detail-no-links-notice">
                                     Tautan pendaftaran resmi belum tersedia dari penyelenggara.
                                 </div>

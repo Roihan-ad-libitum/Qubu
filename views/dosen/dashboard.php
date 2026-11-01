@@ -1,8 +1,8 @@
 <?php
 $extraCss = [
     'public/css/components.css',
-    'public/css/dashboard.css?v=' . (int) filemtime(__DIR__ . '/../../public/css/dashboard.css'),
-    'public/css/team-flow.css?v=' . (int) filemtime(__DIR__ . '/../../public/css/team-flow.css'),
+    'public/css/dashboard.css',
+    'public/css/team-flow.css',
 ];
 require_once __DIR__ . '/../layouts/headers.php';
 $name = (string) ($profile['nama_dosen'] ?? Session::get('nama_lengkap', 'Dosen'));

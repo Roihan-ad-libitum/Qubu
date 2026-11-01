@@ -27,7 +27,7 @@ if (!function_exists('renderLombaCard')) {
 
         $hasPosterFile = hasPublicFile($posterRel);
         $detailUrl = $item['detail_url']
-            ?? (function_exists('url') ? url('?page=lomba-detail&id=' . $idLomba) : '?page=lomba-detail&id=' . $idLomba);
+            ?? url('?page=lomba-detail&id=' . $idLomba);
 
         $cardClass = 'lomba-card' . ($extraClass !== '' ? ' ' . $extraClass : '');
         ?>
@@ -99,14 +99,13 @@ if (!function_exists('renderLombaCard')) {
                     </a>
                 <?php else: ?>
                     <?php
-                    $safeModalPayload = $item;
+                    $safeModalPayload                = $item;
                     $safeModalPayload['bidang']      = implode(', ', $bidangTags);
                     $safeModalPayload['bidang_tags'] = $bidangTags;
                     $safeModalPayload['is_closed']   = $isClosed;
-                    if (function_exists('safeExternalUrl')) {
-                        $safeModalPayload['link_resmi'] = safeExternalUrl($item['link_resmi'] ?? null);
-                    }
-                    unset($safeModalPayload['link_guidebook']);
+                    $safeModalPayload['poster']      = $hasPosterFile ? $posterRel : '';
+                    $safeModalPayload['poster_url']  = $hasPosterFile ? url($posterRel) : '';
+                    $safeModalPayload['link_resmi']  = safeExternalUrl($item['link_resmi'] ?? null);
                     $encodedModalJson = (string) json_encode(
                         $safeModalPayload,
                         JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT

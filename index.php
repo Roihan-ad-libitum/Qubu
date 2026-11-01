@@ -123,10 +123,6 @@ switch ($page) {
         (new AdminController())->users();
         break;
 
-    case 'admin-dosen':
-        (new AdminController())->dosen();
-        break;
-
     default:
         if (Session::has('id_user') && Session::has('role')) {
             redirect(getRoleDashboard(Session::get('role')));

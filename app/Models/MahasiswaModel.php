@@ -2,11 +2,11 @@
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/app.php';
+require_once __DIR__ . '/../../core/Validator.php';
 
 class MahasiswaModel
 {
     private ?PDO $pdo = null;
-    private static bool $columnsEnsured = false;
 
     public function __construct(?PDO $pdo = null)
     {
@@ -15,38 +15,7 @@ class MahasiswaModel
 
     private function pdo(): PDO
     {
-        $db = $this->pdo ??= db();
-        if (!self::$columnsEnsured) {
-            $this->ensurePartnerColumns($db);
-        }
-        return $db;
-    }
-
-    public function ensurePartnerColumns(?PDO $db = null): void
-    {
-        self::$columnsEnsured = true;
-        $conn = $db ?? ($this->pdo ??= db());
-
-        try {
-            $colsRaw = $conn->query("SHOW COLUMNS FROM mahasiswa")->fetchAll(PDO::FETCH_ASSOC);
-            $colMap = [];
-            foreach ($colsRaw as $col) {
-                $colMap[$col['Field']] = strtolower((string) ($col['Type'] ?? ''));
-            }
-
-            if (isset($colMap['bidang_minat']) && $colMap['bidang_minat'] === 'varchar(30)') {
-                $conn->exec("ALTER TABLE mahasiswa MODIFY COLUMN bidang_minat VARCHAR(150) NOT NULL");
-            }
-
-            if (!isset($colMap['foto'])) {
-                $conn->exec("ALTER TABLE mahasiswa ADD COLUMN foto VARCHAR(255) DEFAULT NULL");
-            }
-            if (!isset($colMap['github'])) {
-                $conn->exec("ALTER TABLE mahasiswa ADD COLUMN github VARCHAR(255) DEFAULT NULL");
-            }
-        } catch (Throwable $e) {
-
-        }
+        return $this->pdo ??= db();
     }
 
     public function isNpmExists(string $npm): bool
@@ -96,7 +65,7 @@ class MahasiswaModel
                 ':nama_mahasiswa' => trim($mahasiswaData['nama_mahasiswa']),
                 ':program_studi'  => trim($mahasiswaData['program_studi']),
                 ':angkatan'       => trim($mahasiswaData['angkatan']),
-                ':bidang_minat'   => trim($mahasiswaData['bidang_minat'] ?? 'Umum'),
+                ':bidang_minat'   => trim($mahasiswaData['bidang_minat'] ?? 'Frontend'),
                 ':bio'            => trim($mahasiswaData['bio'] ?? ''),
                 ':foto'           => isset($mahasiswaData['foto']) ? trim($mahasiswaData['foto']) : null,
                 ':github'         => $githubClean,
@@ -121,19 +90,6 @@ class MahasiswaModel
                 LIMIT 1";
         $stmt = $this->pdo()->prepare($sql);
         $stmt->execute([':id_user' => $idUser]);
-        $data = $stmt->fetch();
-        return $data === false ? null : $data;
-    }
-
-    public function findByNpm(string $npm): ?array
-    {
-        $sql = "SELECT m.*, u.username, u.email, u.no_hp
-                FROM mahasiswa m
-                JOIN users u ON u.id_user = m.id_user
-                WHERE m.npm = :npm
-                LIMIT 1";
-        $stmt = $this->pdo()->prepare($sql);
-        $stmt->execute([':npm' => trim($npm)]);
         $data = $stmt->fetch();
         return $data === false ? null : $data;
     }
@@ -174,45 +130,6 @@ class MahasiswaModel
         return $stmt->execute($params);
     }
 
-    public function getProdiOptions(): array
-    {
-        return defined('PRODI_FASILKOM') && is_array(PRODI_FASILKOM)
-            ? PRODI_FASILKOM
-            : ['Informatika', 'Sistem Informasi'];
-    }
-
-    public function normalizeBidangFilter(?string $bidang): ?string
-    {
-        $raw = trim((string) $bidang);
-        if ($raw === '' || strcasecmp($raw, 'Semua Bidang') === 0 || strcasecmp($raw, 'semua') === 0) {
-            return null;
-        }
-
-        foreach (BIDANG_QUBU as $allowed) {
-            if (strcasecmp($raw, $allowed) === 0) {
-                return $allowed;
-            }
-        }
-
-        return null;
-    }
-
-    public function normalizeProdiFilter(?string $prodi): ?string
-    {
-        $raw = trim((string) $prodi);
-        if ($raw === '' || strcasecmp($raw, 'Semua Prodi') === 0 || strcasecmp($raw, 'semua') === 0) {
-            return null;
-        }
-
-        foreach ($this->getProdiOptions() as $allowed) {
-            if (strcasecmp($raw, $allowed) === 0) {
-                return $allowed;
-            }
-        }
-
-        return null;
-    }
-
     public function searchPartners(
         int $excludeUserId,
         ?string $bidang = null,
@@ -220,13 +137,12 @@ class MahasiswaModel
         ?string $keyword = null,
         int $limit = 50
     ): array {
-        $safeLimit   = max(1, min(100, $limit));
-        $validBidang = $this->normalizeBidangFilter($bidang);
-        $validProdi  = $this->normalizeProdiFilter($prodi);
-        $cleanKw     = trim((string) preg_replace('/\s+/', ' ', strip_tags((string) $keyword)));
-        if (mb_strlen($cleanKw) > 100) {
-            $cleanKw = mb_substr($cleanKw, 0, 100);
-        }
+        $safeLimit       = max(1, min(100, $limit));
+        $validatedBidang = Validator::validateBidang($bidang);
+        $validBidang     = ($validatedBidang !== null && $validatedBidang !== 'Semua Bidang') ? $validatedBidang : null;
+        $validatedProdi  = Validator::validateProdi($prodi);
+        $validProdi      = ($validatedProdi !== null && $validatedProdi !== 'Semua Prodi') ? $validatedProdi : null;
+        $cleanKw         = Validator::cleanKeyword($keyword ?? '', 100);
 
         $whereClauses = ['m.id_user != :exclude_user_id'];
         $params = [':exclude_user_id' => $excludeUserId];

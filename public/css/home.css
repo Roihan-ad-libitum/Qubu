@@ -1,3 +1,8 @@
+html {
+    scroll-padding-top: 5rem;
+    scroll-behavior: smooth;
+}
+
 html, body {
     margin: 0 !important;
     padding: 0 !important;
@@ -5,7 +10,7 @@ html, body {
     min-height: 100vh !important;
     background-color: #ffffff !important;
     display: block !important;
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 .home-page {
@@ -15,13 +20,16 @@ html, body {
     flex-direction: column;
     background-color: #ffffff;
     color: var(--color-text-main, #181c32);
-    overflow-x: hidden;
+    overflow-x: clip;
     position: relative;
     margin: 0;
     padding: 0;
 }
 
 .home-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -29,6 +37,11 @@ html, body {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+    box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.06);
 }
 
 .home-logo-link {
@@ -284,13 +297,6 @@ html, body {
     top: 42%;
     right: 18%;
     font-size: 1.5rem;
-}
-
-.card-sparkle-2 {
-    top: 50%;
-    left: 15%;
-    font-size: 1.25rem;
-    animation-delay: 1.5s;
 }
 
 @keyframes sparkleTwinkle {
@@ -892,7 +898,7 @@ html, body {
 }
 
 @media (max-width: 900px) {
-    .home-nav {
+.home-nav {
         padding: 1.25rem 2rem;
     }
 
@@ -925,7 +931,7 @@ html, body {
 }
 
 @media (max-width: 640px) {
-    .home-nav {
+.home-nav {
         padding: 1rem 1.5rem;
     }
 
@@ -984,16 +990,12 @@ html, body {
 }
 
 @media (max-width: 480px) {
-    .home-nav {
+.home-nav {
         padding: 0.85rem 1rem;
     }
 
     .home-logo-svg {
         height: 32px;
-    }
-
-    .hero-section {
-        margin-top: 1rem;
     }
 
     .hero-title {

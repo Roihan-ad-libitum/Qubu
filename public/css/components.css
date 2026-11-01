@@ -251,7 +251,7 @@ body:has(.auth-wrapper) {
 }
 
 @media (max-width: 480px) {
-    .auth-wrapper {
+.auth-wrapper {
         max-width: 100%;
         width: 100%;
         padding: 1.25rem 1rem;
@@ -281,16 +281,14 @@ body:has(.auth-wrapper) {
         margin-bottom: 1.5rem;
     }
 
-    .btn-masuk,
-    .auth-btn-submit {
+    .btn-masuk {
         width: 100%;
         max-width: 100%;
         min-height: 48px;
         font-size: 1.05rem;
     }
 
-    .form-input,
-    .auth-input {
+    .form-input {
         padding: 0.85rem 1rem;
         font-size: 0.95rem;
     }

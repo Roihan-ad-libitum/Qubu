@@ -37,24 +37,16 @@ class TeamController
             http_response_code(404);
         }
 
-        $activeBidang = Validator::validateBidang($_GET['bidang'] ?? 'Semua Bidang') ?? 'Semua Bidang';
-
-        $canSearchTeams = !$selectedCompetition
-            || in_array($selectedCompetition['partisipasi'] ?? '', ['Tim', 'Individu/Tim'], true);
-
-        $seekerSkills = (string) ($profile['bidang_minat'] ?? '');
-        $competitions = array_values(array_filter(
-            $this->competitionModel->getAll(),
-            static fn(array $competition): bool => !isLombaRegistrationClosed($competition['deadline_daftar'] ?? null)
-        ));
-        $allPosts     = $this->teamModel->getOpenPosts(null, $seekerSkills, 'Semua Bidang');
-        $posts        = $canSearchTeams
-            ? $this->teamModel->getOpenPosts(
-                $selectedCompetition ? (int) $selectedCompetition['id_lomba'] : null,
-                $seekerSkills,
-                $activeBidang
-            )
-            : [];
+        $activeBidang   = Validator::validateBidang($_GET['bidang'] ?? 'Semua Bidang') ?? 'Semua Bidang';
+        $canSearchTeams = true;
+        $seekerSkills   = (string) ($profile['bidang_minat'] ?? '');
+        $competitions   = $this->competitionModel->getActive();
+        $allPosts       = $this->teamModel->getOpenPosts(null, $seekerSkills, 'Semua Bidang');
+        $posts          = $this->teamModel->getOpenPosts(
+            $selectedCompetition ? (int) $selectedCompetition['id_lomba'] : null,
+            $seekerSkills,
+            $activeBidang
+        );
 
         $ownerPosts    = $this->teamModel->getOwnerPosts($idUser);
         $categoryPills = getCategoryPills();
@@ -73,10 +65,7 @@ class TeamController
         $profile = $this->mahasiswaModel->findByUserId($idUser);
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $competitions = array_values(array_filter(
-                $this->competitionModel->getAll(),
-                static fn(array $competition): bool => !isLombaRegistrationClosed($competition['deadline_daftar'] ?? null)
-            ));
+            $competitions = $this->competitionModel->getActive();
             $selectedId   = Validator::validatePositiveInt($_GET['id_lomba'] ?? null);
             $error        = Session::getFlash('error');
             $old          = Session::get('team_post_old', []);
@@ -109,7 +98,6 @@ class TeamController
         $contactWhatsapp = trim((string) ($_POST['contact_whatsapp'] ?? ''));
 
         if (!$competition
-            || !in_array($competition['partisipasi'] ?? '', ['Tim', 'Individu/Tim'], true)
             || empty($skills)
             || $members === false
             || $members < 1
@@ -117,12 +105,12 @@ class TeamController
             || strlen($description) > 2000
             || $description === '') {
             Session::set('team_post_old', $_POST);
-            Session::setFlash('error', 'Lengkapi perlombaan kategori Tim, bidang yang dibutuhkan, jumlah anggota (1–20), dan deskripsi kebutuhan tim.');
+            Session::setFlash('error', 'Lengkapi perlombaan, bidang yang dibutuhkan, jumlah anggota (1–20), dan deskripsi kebutuhan tim.');
             redirect('?page=team-post-create' . ($competitionId ? '&id_lomba=' . $competitionId : ''));
         }
 
         $validCustomEmail = $contactEmail === '' || filter_var($contactEmail, FILTER_VALIDATE_EMAIL) !== false;
-        $validCustomWa    = $contactWhatsapp === '' || preg_match('/^\+?[0-9\s()-]{8,20}$/', $contactWhatsapp) === 1;
+        $validCustomWa    = $contactWhatsapp === '' || Validator::isValidPhone($contactWhatsapp);
 
         if ($contactOptIn) {
             if (!$validCustomEmail || !$validCustomWa || ($contactEmail === '' && $contactWhatsapp === '')) {

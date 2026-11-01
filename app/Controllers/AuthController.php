@@ -30,7 +30,6 @@ class AuthController
     public function login(): void
     {
         Session::start();
-
         AuthMiddleware::guestOnly();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -119,12 +118,17 @@ class AuthController
             return;
         }
 
-        $role             = $_GET['role'] ?? null;
-        $step             = (int) ($_GET['step'] ?? 1);
+        $role = $_GET['role'] ?? null;
+        $step = (int) ($_GET['step'] ?? 1);
         if ($role === 'dosen' && $step === 2 && empty(Session::get('reg_dosen_step1'))) {
             Session::setFlash('error', 'Silakan isi biodata dasar dosen terlebih dahulu.');
             redirect('?page=register&role=dosen&step=1');
         }
+        if ($role === 'mahasiswa' && $step === 2 && empty(Session::get('reg_mhs_step1'))) {
+            Session::setFlash('error', 'Silakan isi biodata dasar mahasiswa terlebih dahulu.');
+            redirect('?page=register&role=mahasiswa&step=1');
+        }
+
         $error            = Session::getFlash('error');
         $success          = Session::getFlash('success');
         $old              = Session::getFlash('old') ?? [];
@@ -174,7 +178,7 @@ class AuthController
                 );
             }
             Session::set('reg_dosen_step1', [
-                'nidn' => $nidn,
+                'nidn'       => $nidn,
                 'nama_dosen' => $namaDosen,
             ]);
             redirect('?page=register&role=dosen&step=2');
@@ -188,13 +192,13 @@ class AuthController
             );
         }
 
-        $nidn = (string) $step1Data['nidn'];
-        $namaDosen = (string) $step1Data['nama_dosen'];
-        $username = trim((string) ($_POST['username'] ?? ''));
+        $nidn           = (string) $step1Data['nidn'];
+        $namaDosen      = (string) $step1Data['nama_dosen'];
+        $username       = trim((string) ($_POST['username'] ?? ''));
         $bidangKeahlian = trim((string) ($_POST['bidang_keahlian'] ?? ''));
-        $email = trim((string) ($_POST['email'] ?? ''));
-        $noHp = trim((string) ($_POST['no_hp'] ?? ''));
-        $password = (string) ($_POST['password'] ?? '');
+        $email          = trim((string) ($_POST['email'] ?? ''));
+        $noHp           = trim((string) ($_POST['no_hp'] ?? ''));
+        $password       = (string) ($_POST['password'] ?? '');
 
         if ($username === '' || $bidangKeahlian === '' || $email === '' || $noHp === '' || $password === '') {
             $this->redirectWithError(
@@ -211,7 +215,7 @@ class AuthController
         if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             $this->redirectWithError('Masukkan alamat email dosen yang valid.', '?page=register&role=dosen&step=2');
         }
-        if (!$this->isValidPhoneNumber($noHp)) {
+        if (!Validator::isValidPhone($noHp)) {
             $this->redirectWithError('Masukkan nomor telepon yang valid (8–15 digit).', '?page=register&role=dosen&step=2');
         }
         if (strlen($password) < 6) {
@@ -265,10 +269,7 @@ class AuthController
         } catch (Exception $e) {
             error_log('[Qubu Registration - Dosen] ' . $e->getMessage());
             if ($fotoPath !== null) {
-                $uploadedFile = __DIR__ . '/../../' . $fotoPath;
-                if (is_file($uploadedFile)) {
-                    unlink($uploadedFile);
-                }
+                UploadHelper::deleteFile($fotoPath);
             }
             $this->redirectWithError('Pendaftaran dosen gagal. Pastikan NIDN/NIP, username, dan email belum digunakan lalu coba kembali.', '?page=register&role=dosen&step=2');
         }
@@ -351,21 +352,25 @@ class AuthController
             );
         }
 
-        $username        = trim($_POST['username'] ?? '');
-        $bidangMinat     = trim($_POST['bidang_minat'] ?? $_POST['bidang_peminatan'] ?? 'Umum');
-        $password        = $_POST['password'] ?? '';
-        $passwordConfirm = $_POST['password_confirm'] ?? '';
-        $email           = trim((string) ($_POST['email'] ?? ''));
-        $rawGithub       = trim((string) ($_POST['github'] ?? ''));
+        $username         = trim($_POST['username'] ?? '');
+        $bidangMinat      = trim((string) ($_POST['bidang_minat'] ?? $_POST['bidang_peminatan'] ?? ''));
+        $password         = $_POST['password'] ?? '';
+        $passwordConfirm  = $_POST['password_confirm'] ?? '';
+        $email            = trim((string) ($_POST['email'] ?? ''));
+        $rawGithub        = trim((string) ($_POST['github'] ?? ''));
         $normalizedGithub = Validator::validateGithub($rawGithub);
-        $noHp            = trim((string) ($_POST['no_hp'] ?? ''));
+        $noHp             = trim((string) ($_POST['no_hp'] ?? ''));
 
         if (empty($username)) {
             $this->redirectWithError('Username wajib diisi.', '?page=register&role=mahasiswa&step=2');
         }
 
-        if (strlen($username) < 3) {
-            $this->redirectWithError('Username minimal 3 karakter.', '?page=register&role=mahasiswa&step=2');
+        if (strlen($username) < 3 || strlen($username) > 100) {
+            $this->redirectWithError('Username harus terdiri dari 3–100 karakter.', '?page=register&role=mahasiswa&step=2');
+        }
+
+        if (!in_array($bidangMinat, BIDANG_QUBU, true)) {
+            $this->redirectWithError('Pilih bidang peminatan yang tersedia.', '?page=register&role=mahasiswa&step=2');
         }
 
         if ($this->userModel->isUsernameExists($username)) {
@@ -394,7 +399,7 @@ class AuthController
             );
         }
 
-        if (!$this->isValidPhoneNumber($noHp)) {
+        if (!Validator::isValidPhone($noHp)) {
             $this->redirectWithError('Masukkan nomor telepon mahasiswa yang valid (8–15 digit).', '?page=register&role=mahasiswa&step=2');
         }
 
@@ -406,7 +411,10 @@ class AuthController
         }
 
         $fotoPath = null;
-        if (isset($_FILES['foto_profil']) && $_FILES['foto_profil']['error'] === UPLOAD_ERR_OK) {
+        if (isset($_FILES['foto_profil']) && ($_FILES['foto_profil']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            if (($_FILES['foto_profil']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+                $this->redirectWithError('Foto profil gagal diunggah. Silakan pilih ulang file.', '?page=register&role=mahasiswa&step=2');
+            }
             try {
                 $fotoPath = UploadHelper::uploadProfilePhoto($_FILES['foto_profil'], 'mhs', $npm);
             } catch (RuntimeException $e) {
@@ -425,7 +433,7 @@ class AuthController
                 'nama_mahasiswa' => $namaMahasiswa,
                 'program_studi'  => $programStudi,
                 'angkatan'       => $angkatan,
-                'bidang_minat'   => !empty($bidangMinat) ? $bidangMinat : 'Umum',
+                'bidang_minat'   => $bidangMinat,
                 'bio'            => '',
                 'foto'           => $fotoPath,
                 'github'         => $normalizedGithub !== '' ? $normalizedGithub : null,
@@ -473,22 +481,7 @@ class AuthController
     private function redirectWithError(string $msg, string $page, array $old = []): void
     {
         Session::setFlash('error', $msg);
-        if ($old !== []) {
-            Session::setFlash('old', $old);
-        } else {
-            Session::setFlash('old', $_POST);
-        }
+        Session::setFlash('old', $old !== [] ? $old : $_POST);
         redirect($page);
-    }
-
-    private function isValidPhoneNumber(string $phone): bool
-    {
-        if (!preg_match('/^\+?[0-9\s().-]+$/', $phone)) {
-            return false;
-        }
-
-        $digits     = preg_replace('/\D/', '', $phone);
-        $digitCount = strlen($digits);
-        return $digitCount >= 8 && $digitCount <= 15;
     }
 }

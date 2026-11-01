@@ -6,7 +6,6 @@ require_once __DIR__ . '/../../config/app.php';
 class CompetitionModel
 {
     private ?PDO $pdo = null;
-    private static bool $schemaEnsured = false;
 
     public function __construct(?PDO $pdo = null)
     {
@@ -15,17 +14,18 @@ class CompetitionModel
 
     private function pdo(): PDO
     {
-        $db = $this->pdo ??= db();
-        if (!self::$schemaEnsured) {
-            $this->ensureAdditionalColumns($db);
-        }
-        return $db;
+        return $this->pdo ??= db();
     }
 
     public function getAll(): array
     {
         $stmt = $this->pdo()->query("SELECT * FROM lomba ORDER BY id_lomba DESC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getActive(int $limit = 200): array
+    {
+        return $this->searchAndFilter(null, null, $limit);
     }
 
     public function getById(int $id): ?array
@@ -41,12 +41,16 @@ class CompetitionModel
         $db = $this->pdo();
         $safeLimit = max(1, min((int) $limit, 10));
         $bidang = trim($bidang);
+        $activeThreshold = activeDeadlineThreshold();
 
         $related = [];
         $bidangTags = parseSkillTags($bidang, false, []);
         if (!empty($bidangTags)) {
             $orClauses = [];
-            $paramsRel = [':current_id' => $currentId];
+            $paramsRel = [
+                ':current_id' => $currentId,
+                ':active_now' => $activeThreshold,
+            ];
             foreach ($bidangTags as $idx => $bTag) {
                 $kExact = ':b_exact_' . $idx;
                 $kLike  = ':b_like_' . $idx;
@@ -57,23 +61,20 @@ class CompetitionModel
             $stmt = $db->prepare("
                 SELECT * FROM lomba
                 WHERE id_lomba != :current_id
-                  AND deadline_daftar >= :active_now
-                  AND (" . implode(' OR ', $orClauses) . ")
+                   AND deadline_daftar >= :active_now
+                   AND (" . implode(' OR ', $orClauses) . ")
                 ORDER BY deadline_daftar ASC, id_lomba DESC
                 LIMIT " . $safeLimit
             );
-            $paramsRel[':active_now'] = date('Y-m-d H:i:s');
             $stmt->execute($paramsRel);
             $related = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         if ($fallback && count($related) < $safeLimit) {
-            $remaining   = $safeLimit - count($related);
-            $excludeIds  = array_merge([$currentId], array_column($related, 'id_lomba'));
-            $excludeParams = [
-                ':active_now' => date('Y-m-d H:i:s'),
-            ];
-            $placeholders = [];
+            $remaining     = $safeLimit - count($related);
+            $excludeIds    = array_merge([$currentId], array_column($related, 'id_lomba'));
+            $excludeParams = [':active_now' => $activeThreshold];
+            $placeholders  = [];
             foreach ($excludeIds as $index => $excludeId) {
                 $placeholder = ':exclude_' . $index;
                 $placeholders[] = $placeholder;
@@ -111,11 +112,11 @@ class CompetitionModel
         return $competition;
     }
 
-    public function searchAndFilter(?string $keyword = null, ?string $bidang = null, int $limit = 50): array
+    public function searchAndFilter(?string $keyword = null, ?string $bidang = null, int $limit = 200): array
     {
         $db     = $this->pdo();
         $where  = ['deadline_daftar >= :active_now'];
-        $params = [':active_now' => date('Y-m-d H:i:s')];
+        $params = [':active_now' => activeDeadlineThreshold()];
 
         $kw = trim((string) $keyword);
         if ($kw !== '') {
@@ -149,18 +150,14 @@ class CompetitionModel
                 $params[':bidang_exact'] = strtolower($validBidang);
                 $params[':bidang_like']  = '%' . strtolower($validBidang) . '%';
             } else {
-
                 $where[] = "1 = 0";
             }
         }
 
-        $safeLimit = max(1, min((int) $limit, 100));
+        $safeLimit = max(1, min((int) $limit, 200));
 
-        $sql = "SELECT * FROM lomba";
-        if (!empty($where)) {
-            $sql .= " WHERE " . implode(" AND ", $where);
-        }
-        $sql .= " ORDER BY id_lomba DESC LIMIT " . $safeLimit;
+        $sql = "SELECT * FROM lomba WHERE " . implode(" AND ", $where)
+             . " ORDER BY id_lomba DESC LIMIT " . $safeLimit;
 
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
@@ -175,27 +172,26 @@ class CompetitionModel
         $sql = "INSERT INTO lomba (
                     nama_lomba, penyelenggara, deskripsi, deadline_daftar,
                     tanggal_pelaksanaan, tingkat, biaya, partisipasi,
-                    bidang, link_resmi, poster, link_guidebook
+                    bidang, link_resmi, poster
                 ) VALUES (
                     :nama_lomba, :penyelenggara, :deskripsi, :deadline_daftar,
                     :tanggal_pelaksanaan, :tingkat, :biaya, :partisipasi,
-                    :bidang, :link_resmi, :poster, :link_guidebook
+                    :bidang, :link_resmi, :poster
                 )";
 
         $stmt = $db->prepare($sql);
         $stmt->execute([
-            ':nama_lomba'           => trim($data['nama_lomba'] ?? ''),
-            ':penyelenggara'        => trim($data['penyelenggara'] ?? ''),
-            ':deskripsi'            => trim($data['deskripsi'] ?? ''),
-            ':deadline_daftar'      => $data['deadline_daftar'] ?? date('Y-m-d H:i:s'),
-            ':tanggal_pelaksanaan'  => $data['tanggal_pelaksanaan'] ?? date('Y-m-d'),
-            ':tingkat'              => trim($data['tingkat'] ?? 'Nasional'),
-            ':biaya'                => (float) ($data['biaya'] ?? 0),
-            ':partisipasi'          => $data['partisipasi'] ?? 'Individu/Tim',
-            ':bidang'               => trim($data['bidang'] ?? 'Umum'),
-            ':link_resmi'           => trim($data['link_resmi'] ?? ''),
-            ':poster'               => $data['poster'] ?? null,
-            ':link_guidebook'       => $data['link_guidebook'] ?? null,
+            ':nama_lomba'          => trim($data['nama_lomba'] ?? ''),
+            ':penyelenggara'       => trim($data['penyelenggara'] ?? ''),
+            ':deskripsi'           => trim($data['deskripsi'] ?? ''),
+            ':deadline_daftar'     => $data['deadline_daftar'] ?? date('Y-m-d 23:59:59'),
+            ':tanggal_pelaksanaan' => $data['tanggal_pelaksanaan'] ?? date('Y-m-d'),
+            ':tingkat'             => trim($data['tingkat'] ?? 'Nasional'),
+            ':biaya'               => (float) ($data['biaya'] ?? 0),
+            ':partisipasi'         => $data['partisipasi'] ?? 'Individu/Tim',
+            ':bidang'              => trim($data['bidang'] ?? 'Umum'),
+            ':link_resmi'          => trim($data['link_resmi'] ?? ''),
+            ':poster'              => $data['poster'] ?? null,
         ]);
 
         return (int) $db->lastInsertId();
@@ -214,22 +210,20 @@ class CompetitionModel
             'partisipasi = :partisipasi',
             'bidang = :bidang',
             'link_resmi = :link_resmi',
-            'link_guidebook = :link_guidebook',
         ];
 
         $params = [
-            ':id'                   => $id,
-            ':nama_lomba'           => trim($data['nama_lomba'] ?? ''),
-            ':penyelenggara'        => trim($data['penyelenggara'] ?? ''),
-            ':deskripsi'            => trim($data['deskripsi'] ?? ''),
-            ':deadline_daftar'      => $data['deadline_daftar'] ?? date('Y-m-d H:i:s'),
-            ':tanggal_pelaksanaan'  => $data['tanggal_pelaksanaan'] ?? date('Y-m-d'),
-            ':tingkat'              => trim($data['tingkat'] ?? 'Nasional'),
-            ':biaya'                => (float) ($data['biaya'] ?? 0),
-            ':partisipasi'          => $data['partisipasi'] ?? 'Individu/Tim',
-            ':bidang'               => trim($data['bidang'] ?? 'Umum'),
-            ':link_resmi'           => trim($data['link_resmi'] ?? ''),
-            ':link_guidebook'       => $data['link_guidebook'] ?? null,
+            ':id'                  => $id,
+            ':nama_lomba'          => trim($data['nama_lomba'] ?? ''),
+            ':penyelenggara'       => trim($data['penyelenggara'] ?? ''),
+            ':deskripsi'           => trim($data['deskripsi'] ?? ''),
+            ':deadline_daftar'     => $data['deadline_daftar'] ?? date('Y-m-d 23:59:59'),
+            ':tanggal_pelaksanaan' => $data['tanggal_pelaksanaan'] ?? date('Y-m-d'),
+            ':tingkat'             => trim($data['tingkat'] ?? 'Nasional'),
+            ':biaya'               => (float) ($data['biaya'] ?? 0),
+            ':partisipasi'         => $data['partisipasi'] ?? 'Individu/Tim',
+            ':bidang'              => trim($data['bidang'] ?? 'Umum'),
+            ':link_resmi'          => trim($data['link_resmi'] ?? ''),
         ];
 
         if (array_key_exists('poster', $data) && $data['poster'] !== null) {
@@ -246,33 +240,5 @@ class CompetitionModel
     {
         $stmt = $this->pdo()->prepare("DELETE FROM lomba WHERE id_lomba = :id");
         return $stmt->execute([':id' => $id]);
-    }
-
-    private function ensureAdditionalColumns(PDO $db): void
-    {
-        self::$schemaEnsured = true;
-        try {
-            $cols = $db->query("SHOW COLUMNS FROM lomba")->fetchAll(PDO::FETCH_COLUMN);
-
-            $db->exec("ALTER TABLE lomba MODIFY COLUMN bidang VARCHAR(150) NOT NULL");
-            if (!in_array('poster', $cols)) {
-                $db->exec("ALTER TABLE lomba ADD COLUMN poster VARCHAR(255) NULL");
-            }
-            if (!in_array('link_guidebook', $cols)) {
-                $db->exec("ALTER TABLE lomba ADD COLUMN link_guidebook VARCHAR(255) NULL");
-            }
-
-            $indexes    = $db->query("SHOW INDEX FROM lomba")->fetchAll(PDO::FETCH_ASSOC);
-            $indexNames = array_column($indexes, 'Key_name');
-
-            if (!in_array('idx_lomba_bidang', $indexNames)) {
-                $db->exec("ALTER TABLE lomba ADD INDEX idx_lomba_bidang (bidang)");
-            }
-            if (!in_array('idx_lomba_deadline', $indexNames)) {
-                $db->exec("ALTER TABLE lomba ADD INDEX idx_lomba_deadline (deadline_daftar)");
-            }
-        } catch (Throwable $e) {
-
-        }
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/app.php';
 
 class TeamModel
 {
@@ -14,7 +15,6 @@ class TeamModel
     ];
 
     private ?PDO $pdo = null;
-    private static bool $schemaEnsured = false;
 
     public function __construct(?PDO $pdo = null)
     {
@@ -23,49 +23,7 @@ class TeamModel
 
     private function pdo(): PDO
     {
-        $db = $this->pdo ??= db();
-        if (!self::$schemaEnsured) {
-            self::$schemaEnsured = true;
-            try {
-                $db->exec("
-                    CREATE TABLE IF NOT EXISTS team_posts (
-                        id_post INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                        id_user INT NOT NULL,
-                        id_lomba INT NOT NULL,
-                        bidang_dibutuhkan VARCHAR(150) NOT NULL,
-                        jumlah_anggota TINYINT UNSIGNED NOT NULL,
-                        deskripsi TEXT NOT NULL,
-                        contact_opt_in TINYINT(1) NOT NULL DEFAULT 0,
-                        contact_email VARCHAR(100) DEFAULT NULL,
-                        contact_whatsapp VARCHAR(30) DEFAULT NULL,
-                        status ENUM('open', 'team_complete', 'archived') NOT NULL DEFAULT 'open',
-                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                        INDEX idx_team_posts_competition_status (id_lomba, status, created_at),
-                        INDEX idx_team_posts_owner (id_user, status)
-                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-                ");
-                $columns = $db->query("SHOW COLUMNS FROM team_posts")->fetchAll(PDO::FETCH_ASSOC);
-                $colMap = [];
-                foreach ($columns as $col) {
-                    $colMap[$col['Field']] = strtolower((string) ($col['Type'] ?? ''));
-                }
-                if (!isset($colMap['contact_email'])) {
-                    $db->exec("ALTER TABLE team_posts ADD COLUMN contact_email VARCHAR(100) DEFAULT NULL");
-                }
-                if (!isset($colMap['contact_whatsapp'])) {
-                    $db->exec("ALTER TABLE team_posts ADD COLUMN contact_whatsapp VARCHAR(30) DEFAULT NULL");
-                }
-                if (isset($colMap['status']) && strpos($colMap['status'], 'archived') === false) {
-                    $db->exec("UPDATE team_posts SET status = 'team_complete' WHERE status = 'closed'");
-                    $db->exec("ALTER TABLE team_posts MODIFY COLUMN status ENUM('open', 'team_complete', 'archived') NOT NULL DEFAULT 'open'");
-                }
-            } catch (Throwable $e) {
-
-            }
-        }
-
-        return $db;
+        return $this->pdo ??= db();
     }
 
     public function create(int $ownerId, array $data): int
@@ -106,7 +64,7 @@ class TeamModel
         $scoreExpression = $scoreTerms ? '(' . implode(' + ', $scoreTerms) . ')' : '0';
 
         $whereClauses = ["p.status = 'open'", 'l.deadline_daftar >= :active_now'];
-        $params[':active_now'] = date('Y-m-d H:i:s');
+        $params[':active_now'] = activeDeadlineThreshold();
         if ($competitionId !== null && $competitionId > 0) {
             $whereClauses[] = 'p.id_lomba = :id_lomba';
             $params[':id_lomba'] = $competitionId;
@@ -136,11 +94,6 @@ class TeamModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getOpenByCompetition(int $competitionId, string $seekerSkills): array
-    {
-        return $this->getOpenPosts($competitionId, $seekerSkills);
-    }
-
     public function getOpenPostsByUserId(int $ownerUserId): array
     {
         $stmt = $this->pdo()->prepare("
@@ -153,8 +106,8 @@ class TeamModel
             ORDER BY p.created_at DESC
         ");
         $stmt->execute([
-            ':id_user' => $ownerUserId,
-            ':active_now' => date('Y-m-d H:i:s'),
+            ':id_user'    => $ownerUserId,
+            ':active_now' => activeDeadlineThreshold(),
         ]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -193,12 +146,12 @@ class TeamModel
               AND (:status_to_open != :open_status OR l.deadline_daftar >= :active_now)
         ");
         $stmt->execute([
-            ':status'  => $status,
-            ':id_post' => $postId,
-            ':id_user' => $ownerId,
-            ':status_to_open' => $status,
-            ':open_status' => self::STATUS_OPEN,
-            ':active_now' => date('Y-m-d H:i:s'),
+            ':status'          => $status,
+            ':id_post'         => $postId,
+            ':id_user'         => $ownerId,
+            ':status_to_open'  => $status,
+            ':open_status'     => self::STATUS_OPEN,
+            ':active_now'      => activeDeadlineThreshold(),
         ]);
         return $stmt->rowCount() > 0;
     }

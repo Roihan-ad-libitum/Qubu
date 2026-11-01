@@ -9,8 +9,7 @@
     padding: 6.75rem 1.5rem 3.15rem;
 }
 
-.team-flow-hero-inner,
-.team-flow-main {
+.team-flow-hero-inner, .team-flow-main {
     width: min(1360px, 100%);
     margin: 0 auto;
 }
@@ -40,8 +39,7 @@
     box-sizing: border-box;
 }
 
-.team-selection-card,
-.team-form-card {
+.team-selection-card, .team-form-card {
     padding: 1.5rem;
     border: 1px solid #e6eaf2;
     border-radius: 20px;
@@ -57,24 +55,20 @@
     margin-bottom: 2.5rem;
 }
 
-.team-selection-card h2,
-.team-section-heading h2 {
+.team-selection-card h2, .team-section-heading h2 {
     margin: 0 0 .35rem;
     font-size: 1.5rem;
     font-weight: 800;
     letter-spacing: -.02em;
 }
 
-.team-selection-card p,
-.team-section-heading p {
+.team-selection-card p, .team-section-heading p {
     margin: 0;
     color: #64748b;
     font-size: .9rem;
 }
 
-.team-post-form input:not([type=checkbox]),
-.team-post-form select,
-.team-post-form textarea {
+.team-post-form input:not([type=checkbox]), .team-post-form select, .team-post-form textarea {
     width: 100%;
     min-height: 46px;
     padding: .65rem .95rem;
@@ -88,27 +82,19 @@
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.team-post-form input:not([type=checkbox]):hover:not(:disabled),
-.team-post-form select:hover:not(:disabled),
-.team-post-form textarea:hover:not(:disabled) {
+.team-post-form input:not([type=checkbox]):hover:not(:disabled), .team-post-form select:hover:not(:disabled), .team-post-form textarea:hover:not(:disabled) {
     border-color: #94a3b8;
     background: #ffffff;
 }
 
-.team-post-form input:focus,
-.team-post-form input:focus-visible,
-.team-post-form select:focus,
-.team-post-form select:focus-visible,
-.team-post-form textarea:focus,
-.team-post-form textarea:focus-visible {
+.team-post-form input:focus, .team-post-form input:focus-visible, .team-post-form select:focus, .team-post-form select:focus-visible, .team-post-form textarea:focus, .team-post-form textarea:focus-visible {
     border-color: #2563eb;
     background: #ffffff;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
     outline: none;
 }
 
-.team-primary-button,
-.team-secondary-button {
+.team-primary-button, .team-secondary-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -124,8 +110,7 @@
     transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
 }
 
-.team-primary-button:focus-visible,
-.team-secondary-button:focus-visible {
+.team-primary-button:focus-visible, .team-secondary-button:focus-visible {
     outline: 3px solid rgba(79, 70, 229, .32);
     outline-offset: 3px;
 }
@@ -142,13 +127,11 @@
     border: 1px solid #c7d2fe;
 }
 
-.team-primary-button:hover,
-.team-secondary-button:hover {
+.team-primary-button:hover, .team-secondary-button:hover {
     transform: translateY(-1px);
 }
 
-.team-primary-button:disabled,
-.team-secondary-button:disabled {
+.team-primary-button:disabled, .team-secondary-button:disabled {
     cursor: not-allowed;
     opacity: .58;
     transform: none;
@@ -166,15 +149,13 @@
     margin-top: .35rem;
 }
 
-.team-post-grid,
-.advisor-grid {
+.team-post-grid, .advisor-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.1rem;
 }
 
-.team-post-card,
-.advisor-card {
+.team-post-card, .advisor-card {
     padding: 1.4rem;
     border: 1px solid #e8ebf3;
     border-radius: 20px;
@@ -183,15 +164,13 @@
     transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
 
-.team-post-card:hover,
-.advisor-card:hover {
+.team-post-card:hover, .advisor-card:hover {
     transform: translateY(-2px);
     border-color: #c7d2fe;
     box-shadow: 0 16px 32px rgba(15, 23, 42, .1);
 }
 
-.team-post-topline,
-.advisor-card-top {
+.team-post-topline {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -199,8 +178,7 @@
     margin-bottom: 0;
 }
 
-.team-status-pill,
-.team-match-pill {
+.team-status-pill, .team-match-pill {
     display: inline-flex;
     align-items: center;
     padding: .38rem .75rem;
@@ -224,17 +202,10 @@
     background: #e0e7ff;
 }
 
-.team-post-card h3,
-.team-owner-row h3 {
+.team-post-card h3, .team-owner-row h3 {
     margin: 0 0 .25rem;
     font-size: 1.12rem;
     font-weight: 800;
-}
-
-.team-post-meta {
-    color: #64748b;
-    font-size: .82rem;
-    margin: .25rem 0 .8rem;
 }
 
 .team-post-field {
@@ -266,7 +237,6 @@
     margin-top: 1rem;
 }
 
-.team-private-contact,
 .advisor-contact-message {
     width: 100%;
     margin: .2rem 0 0;
@@ -278,8 +248,7 @@
     line-height: 1.5;
 }
 
-.team-empty-state,
-.team-empty-compact {
+.team-empty-state, .team-empty-compact {
     padding: 2.5rem 1rem;
     border: 1px dashed #cbd5e1;
     border-radius: 22px;
@@ -288,8 +257,7 @@
     text-align: center;
 }
 
-.team-empty-state h3,
-.team-empty-state h2 {
+.team-empty-state h3, .team-empty-state h2 {
     color: #181c32;
     margin: 0 0 .45rem;
 }
@@ -382,8 +350,7 @@
     gap: .65rem;
 }
 
-.team-post-form > label,
-.team-skill-fieldset legend {
+.team-post-form > label, .team-skill-fieldset legend {
     margin-top: .45rem;
     color: #334155;
     font-size: .88rem;
@@ -419,8 +386,7 @@
     font-size: .82rem;
 }
 
-.team-consent-option,
-.advisor-consent-option {
+.team-consent-option, .advisor-consent-option {
     display: flex;
     align-items: flex-start;
     gap: .65rem;
@@ -430,8 +396,7 @@
     line-height: 1.55;
 }
 
-.team-consent-option input,
-.advisor-consent-option input {
+.team-consent-option input, .advisor-consent-option input {
     flex: 0 0 auto;
     width: 18px;
     height: 18px;
@@ -521,15 +486,14 @@
 }
 
 @media (max-width: 1080px) and (min-width: 641px) {
-    .team-post-grid,
-    .advisor-grid {
+.team-post-grid, .advisor-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 1.25rem;
     }
 }
 
 @media (max-width: 640px) {
-    .team-flow-hero.dash-hero-section {
+.team-flow-hero.dash-hero-section {
         padding: 7.5rem 1rem 2.35rem;
     }
 
@@ -561,23 +525,16 @@
         box-sizing: border-box;
     }
 
-    .team-selection-card,
-    .team-owner-row {
+    .team-selection-card, .team-owner-row {
         align-items: stretch;
         flex-direction: column;
     }
 
-    .team-owner-actions {
-        width: 100%;
-    }
+    
 
-    .team-owner-actions form,
-    .team-owner-actions button {
-        width: 100%;
-    }
+    
 
-    .team-post-grid,
-    .advisor-grid {
+    .team-post-grid, .advisor-grid {
         grid-template-columns: minmax(0, 1fr);
     }
 
@@ -606,8 +563,7 @@
         justify-self: stretch;
     }
 
-    .team-post-actions .team-primary-button,
-    .team-post-actions .team-secondary-button {
+    .team-post-actions .team-primary-button, .team-post-actions .team-secondary-button {
         flex: 1 1 100%;
         width: 100%;
         box-sizing: border-box;

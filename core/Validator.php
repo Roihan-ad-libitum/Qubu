@@ -57,11 +57,6 @@ class Validator
         return $clean;
     }
 
-    public static function sanitize(?string $input): string
-    {
-        return htmlspecialchars((string) $input, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    }
-
     public static function cleanKeyword(mixed $keyword, int $maxLength = 100): string
     {
         if (!is_string($keyword) && !is_numeric($keyword)) {
@@ -69,13 +64,9 @@ class Validator
         }
 
         $clean = (string) $keyword;
-
         $clean = (string) preg_replace('/<(script|style)\b[^>]*>.*?<\/\1>/is', ' ', $clean);
-
         $clean = strip_tags($clean);
-
         $clean = (string) preg_replace('/[\x00-\x1F\x7F]+/u', ' ', $clean);
-
         $clean = trim((string) preg_replace('/\s+/u', ' ', $clean));
 
         $safeMax = max(1, $maxLength);
@@ -101,9 +92,7 @@ class Validator
             return 'Semua Bidang';
         }
 
-        $allowedBidang = BIDANG_QUBU;
-
-        foreach ($allowedBidang as $validItem) {
+        foreach (BIDANG_QUBU as $validItem) {
             if (strcasecmp($validItem, $cleaned) === 0) {
                 return $validItem;
             }
@@ -129,9 +118,7 @@ class Validator
             return 'Semua Prodi';
         }
 
-        $allowed = PRODI_FASILKOM;
-
-        foreach ($allowed as $validItem) {
+        foreach (PRODI_FASILKOM as $validItem) {
             if (strcasecmp($trimmed, $validItem) === 0) {
                 return $validItem;
             }
@@ -220,7 +207,6 @@ class Validator
             }
 
             $value = (string) ($value ?? '');
-
             $checked = stripos($field, 'password') === false ? trim($value) : $value;
 
             foreach (explode('|', $ruleString) as $rule) {

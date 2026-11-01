@@ -29,7 +29,6 @@ $activeAdminPage = $activeAdminPage ?? '';
     <nav aria-label="Navigasi Admin">
         <a href="<?= url('?page=admin-dashboard') ?>" class="<?= $activeAdminPage === 'dashboard' ? 'active' : '' ?>">Dashboard</a>
         <a href="<?= url('?page=admin-users') ?>" class="<?= $activeAdminPage === 'users' ? 'active' : '' ?>">Pengguna</a>
-        <a href="<?= url('?page=admin-dosen') ?>" class="<?= $activeAdminPage === 'dosen' ? 'active' : '' ?>">Dosen Pembimbing</a>
         <a href="<?= url('?page=admin-lomba') ?>" class="<?= $activeAdminPage === 'lomba' ? 'active' : '' ?>">Lomba</a>
     </nav>
     <a class="admin-panel-logout" href="<?= url('?page=logout') ?>">Keluar</a>

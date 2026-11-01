@@ -2,7 +2,6 @@
 
 require_once __DIR__ . '/../Models/AdminModel.php';
 require_once __DIR__ . '/../Models/CompetitionModel.php';
-require_once __DIR__ . '/../Models/DosenModel.php';
 require_once __DIR__ . '/../Helpers/UploadHelper.php';
 require_once __DIR__ . '/../../core/Session.php';
 require_once __DIR__ . '/../../core/AuthMiddleware.php';
@@ -84,20 +83,19 @@ class AdminController
         }
 
         $lombaData = [
-            'id_lomba' => '',
-            'nama_lomba' => '',
-            'penyelenggara' => '',
-            'deadline_daftar' => '',
+            'id_lomba'            => '',
+            'nama_lomba'          => '',
+            'penyelenggara'       => '',
+            'deadline_daftar'     => '',
             'tanggal_pelaksanaan' => '',
-            'tingkat' => '',
-            'biaya' => 0,
-            'partisipasi' => '',
-            'bidang' => '',
-            'deskripsi' => '',
-            'link_guidebook' => '',
-            'link_resmi' => '',
-            'poster' => null,
-            'jenis_biaya' => 'gratis',
+            'tingkat'             => '',
+            'biaya'               => 0,
+            'partisipasi'         => 'Individu/Tim',
+            'bidang'              => '',
+            'deskripsi'           => '',
+            'link_resmi'          => '',
+            'poster'              => null,
+            'jenis_biaya'         => 'gratis',
         ];
 
         if ($id !== null) {
@@ -148,7 +146,8 @@ class AdminController
         if (!Csrf::isValid($_POST['_csrf'] ?? null)) {
             $this->failLombaForm('Formulir kedaluwarsa atau tidak valid. Silakan coba kembali.', $id);
         }
-        if ($id !== null && $this->competitionModel->getById((int) $id) === null) {
+        $existing = $id !== null ? $this->competitionModel->getById((int) $id) : null;
+        if ($id !== null && $existing === null) {
             $this->failLombaForm('Perlombaan yang akan diubah tidak ditemukan.', null);
         }
 
@@ -196,7 +195,7 @@ class AdminController
             || ($feeType === 'berbayar' && (!is_string($feeDigits) || !ctype_digit($feeDigits) || (float) $feeDigits < 1 || (float) $feeDigits > 9999999999))) {
             $this->failLombaForm('Masukkan biaya perlombaan yang valid.', $id);
         }
-        if (!$this->isValidOptionalUrl($officialLink)) {
+        if ($officialLink !== '' && (strlen($officialLink) > 255 || safeExternalUrl($officialLink) === '')) {
             $this->failLombaForm('Tautan pendaftaran harus berupa URL HTTP atau HTTPS yang valid.', $id);
         }
 
@@ -216,17 +215,16 @@ class AdminController
         }
 
         $payload = [
-            'nama_lomba' => $name,
-            'penyelenggara' => $organizer,
-            'deskripsi' => $description,
-            'deadline_daftar' => $deadline->format('Y-m-d 23:59:59'),
+            'nama_lomba'          => $name,
+            'penyelenggara'       => $organizer,
+            'deskripsi'           => $description,
+            'deadline_daftar'     => $deadline->format('Y-m-d 23:59:59'),
             'tanggal_pelaksanaan' => $eventDate->format('Y-m-d'),
-            'tingkat' => $level,
-            'biaya' => $feeType === 'gratis' ? 0 : (float) $feeDigits,
-            'partisipasi' => $participation,
-            'bidang' => $field,
-            'link_resmi' => $officialLink,
-            'link_guidebook' => null,
+            'tingkat'             => $level,
+            'biaya'               => $feeType === 'gratis' ? 0 : (float) $feeDigits,
+            'partisipasi'         => $participation,
+            'bidang'              => $field,
+            'link_resmi'          => $officialLink,
         ];
         if ($posterPath !== null) {
             $payload['poster'] = $posterPath;
@@ -235,6 +233,9 @@ class AdminController
         try {
             if ($id !== null) {
                 $this->competitionModel->update((int) $id, $payload);
+                if ($posterPath !== null && !empty($existing['poster'])) {
+                    UploadHelper::deleteFile($existing['poster']);
+                }
                 Session::setFlash('success', 'Perlombaan berhasil diperbarui.');
             } else {
                 $this->competitionModel->create($payload);
@@ -243,10 +244,7 @@ class AdminController
         } catch (Throwable $exception) {
             error_log('[Qubu Admin Competition Save] ' . $exception->getMessage());
             if ($posterPath !== null) {
-                $uploadedFile = __DIR__ . '/../../' . $posterPath;
-                if (is_file($uploadedFile)) {
-                    unlink($uploadedFile);
-                }
+                UploadHelper::deleteFile($posterPath);
             }
             $this->failLombaForm('Perubahan lomba gagal disimpan. Periksa data dan coba kembali.', $id);
         }
@@ -266,17 +264,6 @@ class AdminController
         require __DIR__ . '/../../views/admin/users.php';
     }
 
-    public function dosen(): void
-    {
-        Session::start();
-        AuthMiddleware::hasRole(ROLE_ADMIN);
-        $keyword = trim((string) ($_GET['q'] ?? ''));
-        $lecturers = $this->adminModel->searchLecturers($keyword);
-        $title = 'Dosen Pembimbing - Admin ' . APP_NAME;
-        $extraCss = ['public/css/admin-panel.css'];
-        require __DIR__ . '/../../views/admin/dosen.php';
-    }
-
     private function deleteCompetition(): void
     {
         if (!Csrf::isValid($_POST['_csrf'] ?? null)) {
@@ -285,7 +272,8 @@ class AdminController
         }
 
         $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
-        if ($id === false || $id <= 0 || $this->competitionModel->getById((int) $id) === null) {
+        $existing = ($id !== false && $id > 0) ? $this->competitionModel->getById((int) $id) : null;
+        if ($existing === null) {
             Session::setFlash('error', 'Perlombaan tidak ditemukan atau ID tidak valid.');
             redirect('?page=admin-lomba');
         }
@@ -294,6 +282,9 @@ class AdminController
             if (!$this->competitionModel->delete((int) $id)) {
                 Session::setFlash('error', 'Perlombaan tidak berhasil dihapus.');
             } else {
+                if (!empty($existing['poster'])) {
+                    UploadHelper::deleteFile($existing['poster']);
+                }
                 Session::setFlash('success', 'Perlombaan berhasil dihapus.');
             }
         } catch (Throwable $exception) {
@@ -325,17 +316,6 @@ class AdminController
             return null;
         }
         return $date->format('Y-m-d') === $value ? $date : null;
-    }
-
-    private function isValidOptionalUrl(string $value): bool
-    {
-        if ($value === '') {
-            return true;
-        }
-        if (strlen($value) > 255 || filter_var($value, FILTER_VALIDATE_URL) === false) {
-            return false;
-        }
-        return in_array(strtolower((string) parse_url($value, PHP_URL_SCHEME)), ['http', 'https'], true);
     }
 
     private function dateFieldValue(mixed $value): string

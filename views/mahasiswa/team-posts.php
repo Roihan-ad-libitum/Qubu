@@ -1,7 +1,7 @@
 <?php
 
 $studentNavName      = $profile['nama_mahasiswa'] ?? Session::get('nama_lengkap', 'Mahasiswa');
-$studentNavPhoto = $profile['foto'] ?? (Session::get('demo_profile_data')['foto'] ?? null);
+$studentNavPhoto     = $profile['foto'] ?? (Session::get('demo_profile_data')['foto'] ?? null);
 $studentNavProgram   = $profile['program_studi'] ?? 'Informatika';
 $studentNavInterest  = $profile['bidang_minat'] ?? '';
 $activeStudentNavKey = 'teams';
@@ -32,10 +32,11 @@ foreach ($posts as $matchedPost) {
 
 $competitionSelectOptions = ['' => 'Semua Perlombaan Tim'];
 foreach ($competitions as $competition) {
-    if (in_array($competition['partisipasi'] ?? '', ['Tim', 'Individu/Tim'], true)) {
-        $compId = (string) (int) $competition['id_lomba'];
-        $competitionSelectOptions[$compId] = $competition['nama_lomba'] . ' (' . $competition['bidang'] . ')';
-    }
+    $compId = (string) (int) $competition['id_lomba'];
+    $competitionSelectOptions[$compId] = $competition['nama_lomba'] . ' (' . $competition['bidang'] . ')';
+}
+if ($selectedCompetition && !isset($competitionSelectOptions[(string) (int) $selectedCompetition['id_lomba']])) {
+    $competitionSelectOptions[(string) (int) $selectedCompetition['id_lomba']] = $selectedCompetition['nama_lomba'] . ' (' . $selectedCompetition['bidang'] . ')';
 }
 
 $hasActiveFilter       = ($selectedCompetitionId !== null) || ($activeBidang !== 'Semua Bidang');
@@ -102,15 +103,13 @@ $selectedCompNameLabel = $selectedCompetition ? (string) $selectedCompetition['n
                 </span>
                 <h2 id="team-posts-heading-title"><?= $selectedCompetition ? e($selectedCompetition['nama_lomba']) : 'Daftar Posting Pencarian Anggota Tim (Open)' ?></h2>
                 <?php if ($selectedCompetitionClosed): ?>
-                    <span class="badge-pill badge-red">Pendaftaran Ditutup</span>
+                    <span class="badge-pill badge-red" id="team-posts-closed-badge">Pendaftaran Ditutup</span>
                 <?php endif; ?>
                 <p id="team-posts-count-badge">
-                    <?= $canSearchTeams
-                        ? 'Menampilkan ' . count($posts) . ' posting berstatus Open. Klik nama atau tombol Lihat Profil untuk meninjau pembuat posting sebelum menghubungi.'
-                        : 'Kompetisi ini merupakan kategori Individu sehingga tidak membuka rekrutmen tim.' ?>
+                    Menampilkan <?= count($posts) ?> posting berstatus Open. Klik nama atau tombol Lihat Profil untuk meninjau pembuat posting sebelum menghubungi.
                 </p>
             </div>
-            <?php if ($canSearchTeams && !$selectedCompetitionClosed): ?>
+            <?php if (!$selectedCompetitionClosed): ?>
                 <a class="team-primary-button" id="btn-posting-cari-tim" href="<?= e(url('?page=team-post-create' . ($selectedCompetitionId ? '&id_lomba=' . $selectedCompetitionId : ''))) ?>">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right: 6px;">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -133,35 +132,28 @@ $selectedCompNameLabel = $selectedCompetition ? (string) $selectedCompetition['n
 
         <?php renderUnifiedLoadingState('team-posts-loading-state', 'Memuat posting pencarian tim...'); ?>
 
-        <?php if ($canSearchTeams): ?>
-            <div class="partner-grid-3 team-post-grid" id="team-posts-grid" style="<?= empty($posts) ? 'display: none;' : '' ?>">
-                <?php foreach ($allPosts as $post):
-                    $idPost    = (int) ($post['id_post'] ?? 0);
-                    $isMatched = isset($matchedPostIds[$idPost]);
-                ?>
-                    <?php renderTeamPostCard($post, $currentUserId, [
-                        'extraClass' => 'team-post-card-item',
-                        'hidden'     => !$isMatched,
-                    ]); ?>
-                <?php endforeach; ?>
-            </div>
+        <div class="partner-grid-3 team-post-grid" id="team-posts-grid" style="<?= empty($posts) ? 'display: none;' : '' ?>">
+            <?php foreach ($allPosts as $post):
+                $idPost    = (int) ($post['id_post'] ?? 0);
+                $isMatched = isset($matchedPostIds[$idPost]);
+            ?>
+                <?php renderTeamPostCard($post, $currentUserId, [
+                    'extraClass' => 'team-post-card-item',
+                    'hidden'     => !$isMatched,
+                ]); ?>
+            <?php endforeach; ?>
+        </div>
 
-            <div
-                class="team-empty-state partner-empty-state"
-                id="team-posts-empty-state"
-                role="status"
-                aria-live="polite"
-                style="<?= empty($posts) ? 'display: flex;' : 'display: none;' ?>"
-            >
-                <h3 id="empty-team-posts-title">Belum ada posting pencarian tim yang sesuai</h3>
-                <p id="empty-team-posts-msg"><?= $selectedCompetitionClosed ? 'Pendaftaran Ditutup' : 'Jadilah yang pertama membuat posting pencarian anggota tim atau jelajahi Direktori Kandidat Partner.' ?></p>
-            </div>
-        <?php else: ?>
-            <div class="team-empty-state">
-                <h3>Kompetisi ini merupakan kategori Individu</h3>
-                <p>Pilih kompetisi dengan format Tim atau Individu &amp; Tim untuk mencari rekan tim.</p>
-            </div>
-        <?php endif; ?>
+        <div
+            class="team-empty-state partner-empty-state"
+            id="team-posts-empty-state"
+            role="status"
+            aria-live="polite"
+            style="<?= empty($posts) ? 'display: flex;' : 'display: none;' ?>"
+        >
+            <h3 id="empty-team-posts-title">Belum ada posting pencarian tim yang sesuai</h3>
+            <p id="empty-team-posts-msg"><?= $selectedCompetitionClosed ? 'Pendaftaran Ditutup' : 'Jadilah yang pertama membuat posting pencarian anggota tim atau jelajahi Direktori Kandidat Partner.' ?></p>
+        </div>
 
         <section class="team-owner-section">
             <div class="team-section-heading">

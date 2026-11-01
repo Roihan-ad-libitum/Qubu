@@ -5,7 +5,6 @@ require_once __DIR__ . '/../config/app.php';
 
 class AuthMiddleware
 {
-
     public static function check(): void
     {
         Session::start();
@@ -28,7 +27,6 @@ class AuthMiddleware
 
     public static function hasRole(string ...$allowedRoles): void
     {
-
         self::check();
 
         $currentRole = (string) Session::get('role');
@@ -63,12 +61,8 @@ class AuthMiddleware
         $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
         $uri    = $_SERVER['REQUEST_URI'] ?? '';
 
-        return str_contains($accept, 'application/json') 
+        return str_contains($accept, 'application/json')
             || str_contains($uri, '/api/')
             || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
     }
-}
-
-if (!class_exists('AuthMiddleWare', false)) {
-    class_alias('AuthMiddleware', 'AuthMiddleWare');
 }

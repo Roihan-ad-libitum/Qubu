@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/app.php';
 
 class AdminModel
 {
@@ -20,26 +21,21 @@ class AdminModel
     {
         $db = $this->pdo();
         $counts = [
-            'users' => (int) $db->query("SELECT COUNT(*) FROM users")->fetchColumn(),
-            'students' => (int) $db->query("SELECT COUNT(*) FROM users WHERE role = 'peserta'")->fetchColumn(),
-            'lecturers' => (int) $db->query("SELECT COUNT(*) FROM users WHERE role = 'dosen'")->fetchColumn(),
+            'users'        => (int) $db->query("SELECT COUNT(*) FROM users")->fetchColumn(),
+            'students'     => (int) $db->query("SELECT COUNT(*) FROM users WHERE role = 'peserta'")->fetchColumn(),
+            'lecturers'    => (int) $db->query("SELECT COUNT(*) FROM users WHERE role = 'dosen'")->fetchColumn(),
             'competitions' => (int) $db->query("SELECT COUNT(*) FROM lomba")->fetchColumn(),
         ];
 
-        $hasTeamPosts = $db->query("SHOW TABLES LIKE 'team_posts'")->fetchColumn();
-        if ($hasTeamPosts) {
-            $stmt = $db->prepare("
-                SELECT COUNT(*)
-                FROM team_posts p
-                JOIN lomba l ON l.id_lomba = p.id_lomba
-                WHERE p.status = 'open'
-                  AND l.deadline_daftar >= :active_now
-            ");
-            $stmt->execute([':active_now' => date('Y-m-d H:i:s')]);
-            $counts['open_team_posts'] = (int) $stmt->fetchColumn();
-        } else {
-            $counts['open_team_posts'] = 0;
-        }
+        $stmt = $db->prepare("
+            SELECT COUNT(*)
+            FROM team_posts p
+            JOIN lomba l ON l.id_lomba = p.id_lomba
+            WHERE p.status = 'open'
+              AND l.deadline_daftar >= :active_now
+        ");
+        $stmt->execute([':active_now' => activeDeadlineThreshold()]);
+        $counts['open_team_posts'] = (int) $stmt->fetchColumn();
 
         return $counts;
     }
@@ -81,37 +77,6 @@ class AdminModel
             $sql .= ' WHERE ' . implode(' AND ', $where);
         }
         $sql .= " ORDER BY u.id_user DESC LIMIT 200";
-
-        $stmt = $this->pdo()->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function searchLecturers(string $keyword = ''): array
-    {
-        $keyword = trim($keyword);
-        $sql = "
-            SELECT d.id_dosen, d.nama_dosen, d.nidn, d.bidang_keahlian, d.foto,
-                   d.status, d.contact_visible, u.username, u.email, u.no_hp
-            FROM dosen d
-            JOIN users u ON u.id_user = d.id_user
-        ";
-        $params = [];
-        if ($keyword !== '') {
-            $sql .= " WHERE d.nama_dosen LIKE :name
-                OR d.nidn LIKE :nidn
-                OR d.bidang_keahlian LIKE :skill
-                OR u.username LIKE :username";
-            $query = '%' . $keyword . '%';
-            $params = [
-                ':name' => $query,
-                ':nidn' => $query,
-                ':skill' => $query,
-                ':username' => $query,
-            ];
-        }
-        $sql .= " ORDER BY CASE WHEN d.status = 'bersedia' THEN 0 ELSE 1 END,
-                  d.nama_dosen ASC LIMIT 200";
 
         $stmt = $this->pdo()->prepare($sql);
         $stmt->execute($params);

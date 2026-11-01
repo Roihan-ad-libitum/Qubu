@@ -14,10 +14,7 @@ body {
     color: var(--qubu-ink);
 }
 
-button,
-input,
-select,
-textarea {
+button, input, select, textarea {
     font: inherit;
 }
 
@@ -27,18 +24,7 @@ textarea {
 }
 
 :is(
-    .auth-card,
-    .register-form-card,
-    .role-card,
-    .profile-card-left,
-    .profile-card-right,
-    .team-selection-card,
-    .team-form-card,
-    .team-post-card,
-    .advisor-card,
-    .public-profile-card,
-    .lecturer-dashboard-card,
-    .dash-modal-card
+    .auth-card, .role-card, .profile-card-left, .profile-card-right, .team-selection-card, .team-form-card, .team-post-card, .advisor-card, .public-profile-card, .lecturer-dashboard-card, .dash-modal-card
 ) {
     border-radius: var(--qubu-radius-card);
     box-shadow: var(--qubu-shadow-card);
@@ -48,8 +34,7 @@ textarea {
     position: relative;
 }
 
-.password-control .form-input,
-.password-control .mhs-form-input {
+.password-control .form-input, .password-control .mhs-form-input {
     padding-right: 3.5rem;
 }
 
@@ -153,7 +138,7 @@ textarea {
 }
 
 @media (max-width: 640px) {
-    .lecturer-dashboard-card-heading {
+.lecturer-dashboard-card-heading {
         display: grid;
     }
 
@@ -327,7 +312,7 @@ textarea {
 }
 
 @media (max-width: 768px) {
-    .qubu-global-footer {
+.qubu-global-footer {
         padding: 1.15rem 1.25rem;
     }
 
@@ -338,7 +323,7 @@ textarea {
 }
 
 @media (max-width: 540px) {
-    .qubu-footer-inner {
+.qubu-footer-inner {
         flex-direction: column;
         align-items: center;
         text-align: center;

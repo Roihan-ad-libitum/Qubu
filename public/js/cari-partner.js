@@ -1,7 +1,6 @@
 (function () {
     'use strict';
 
-    let toastTimer = null;
     let activeAbortController = null;
     let loadingHideTimer = null;
 
@@ -43,24 +42,6 @@
         }
         return digits.length >= 8 ? digits : '';
     }
-
-    window.showPartnerPlaceholderNotice = function (message) {
-        const toastEl   = document.getElementById('partner-toast');
-        const toastText = document.getElementById('partner-toast-text');
-        if (!toastEl) return;
-
-        if (toastText && message) {
-            toastText.textContent = message;
-        }
-        toastEl.style.display = 'inline-flex';
-
-        if (toastTimer) {
-            clearTimeout(toastTimer);
-        }
-        toastTimer = setTimeout(function () {
-            toastEl.style.display = 'none';
-        }, 3200);
-    };
 
     window.openPartnerProfileModal = function (mhsInput) {
         const modal = document.getElementById('partner-profile-modal');
@@ -758,11 +739,12 @@
                     : 'Jadilah yang pertama membuat posting pencarian anggota tim atau jelajahi Direktori Kandidat Partner.';
             },
             onAfterFilter: function (_count, _bidang, lombaId, lombaLabel) {
-                const eyebrowEl = document.getElementById('team-posts-eyebrow');
-                const titleEl   = document.getElementById('team-posts-heading-title');
-                const createBtn = document.getElementById('btn-posting-cari-tim');
-                const mainEl    = document.getElementById('team-posts-main-container');
-                const baseUrl   = mainEl && mainEl.dataset.createBaseUrl ? mainEl.dataset.createBaseUrl : '?page=team-post-create';
+                const eyebrowEl   = document.getElementById('team-posts-eyebrow');
+                const titleEl     = document.getElementById('team-posts-heading-title');
+                const createBtn   = document.getElementById('btn-posting-cari-tim');
+                const closedBadge = document.getElementById('team-posts-closed-badge');
+                const mainEl      = document.getElementById('team-posts-main-container');
+                const baseUrl     = mainEl && mainEl.dataset.createBaseUrl ? mainEl.dataset.createBaseUrl : '?page=team-post-create';
 
                 if (eyebrowEl) {
                     eyebrowEl.textContent = lombaId !== '' ? 'KOMPETISI TERPILIH' : 'SEMUA LOWONGAN TIM AKTIF';
@@ -772,8 +754,28 @@
                         ? lombaLabel
                         : 'Daftar Posting Pencarian Anggota Tim (Open)';
                 }
+                if (closedBadge) {
+                    closedBadge.style.display = 'none';
+                }
                 if (createBtn) {
                     createBtn.href = baseUrl + (lombaId !== '' ? '&id_lomba=' + encodeURIComponent(lombaId) : '');
+                    createBtn.style.display = 'inline-flex';
+                }
+                if (mainEl) {
+                    mainEl.dataset.idLomba = lombaId || '';
+                    const tabs = mainEl.querySelectorAll('.collab-mode-tab');
+                    tabs.forEach(function (tab) {
+                        try {
+                            const tabUrl = new URL(tab.href, window.location.origin);
+                            if (lombaId !== '') {
+                                tabUrl.searchParams.set('id_lomba', lombaId);
+                            } else {
+                                tabUrl.searchParams.delete('id_lomba');
+                            }
+                            tab.href = tabUrl.toString();
+                        } catch (_) {
+                        }
+                    });
                 }
             },
         });

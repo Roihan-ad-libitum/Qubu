@@ -268,13 +268,24 @@ function formatLombaTanggalIndo(?string $datetime): string
     return $d . ' ' . ($bulanIndo[$m] ?? date('M', $timestamp)) . ' ' . $y;
 }
 
+function activeDeadlineThreshold(): string
+{
+    return date('Y-m-d 00:00:00');
+}
+
 function isLombaRegistrationClosed(?string $deadline): bool
 {
-    if (empty($deadline)) {
+    $clean = trim((string) $deadline);
+    if ($clean === '') {
         return true;
     }
 
-    $timestamp = strtotime($deadline);
+    $datePart = substr($clean, 0, 10);
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $datePart)) {
+        return $datePart < date('Y-m-d');
+    }
+
+    $timestamp = strtotime($clean);
     return $timestamp === false || $timestamp < time();
 }
 

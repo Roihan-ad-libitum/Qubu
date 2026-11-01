@@ -32,8 +32,11 @@ function computeDeadlineCountdown(deadlineStr) {
     if (!deadlineStr) {
         return { text: 'Jadwal menyusul', isClosed: false };
     }
-    const normalized = String(deadlineStr).replace(' ', 'T');
-    const targetMs = new Date(normalized).getTime() || new Date(deadlineStr).getTime();
+    const raw = String(deadlineStr).trim();
+    const datePart = raw.substring(0, 10);
+    const hasCustomTime = raw.length > 10 && !/00:00:00$/.test(raw);
+    const normalized = hasCustomTime ? raw.replace(' ', 'T') : (datePart + 'T23:59:59');
+    const targetMs = new Date(normalized).getTime() || new Date(raw).getTime();
     if (!targetMs || isNaN(targetMs)) {
         return { text: 'Jadwal menyusul', isClosed: false };
     }
@@ -153,8 +156,7 @@ function openDetailModal(data) {
 
     const linkCariTim = document.getElementById('modal-link-cari-tim');
     if (linkCariTim) {
-        const isTeamAllowed = (partisipasiRaw === 'Tim' || partisipasiRaw === 'Individu/Tim');
-        if (isTeamAllowed && !isClosed) {
+        if (!isClosed) {
             linkCariTim.href = window.location.origin + window.location.pathname
                 + '?page=team-posts&id_lomba=' + encodeURIComponent(idLomba);
             linkCariTim.style.display = 'inline-flex';

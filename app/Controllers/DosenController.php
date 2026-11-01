@@ -25,7 +25,7 @@ class DosenController
         $profile  = $this->dosenModel->findByUserId((int) Session::get('id_user')) ?? [];
         $title    = 'Dashboard Dosen - ' . APP_NAME;
         $success  = Session::getFlash('success');
-        $extraCss = ['public/css/components.css', 'public/css/team-flow.css'];
+        $extraCss = ['public/css/components.css', 'public/css/dashboard.css', 'public/css/team-flow.css'];
         require __DIR__ . '/../../views/dosen/dashboard.php';
     }
 
@@ -50,7 +50,7 @@ class DosenController
             'nama_dosen'      => 'Marsello Hotasi Marpaung, M.Kom',
             'username'        => 'marhots_',
             'status'          => 'bersedia',
-            'bidang_keahlian' => 'Software Development, UI/UX Design',
+            'bidang_keahlian' => 'Frontend, Backend',
             'foto'            => null,
             'contact_visible' => false,
         ]);
@@ -61,7 +61,7 @@ class DosenController
             'nama_dosen'      => $profile['nama_dosen'] ?? (Session::get('nama_lengkap') ?? $demoData['nama_dosen']),
             'username'        => $profile['username'] ?? (Session::get('username') ?? $demoData['username']),
             'status'          => $profile['status'] ?? ($demoData['status'] ?? 'bersedia'),
-            'bidang_keahlian' => $profile['bidang_keahlian'] ?? ($demoData['bidang_keahlian'] ?? 'Software Development, UI/UX Design'),
+            'bidang_keahlian' => $profile['bidang_keahlian'] ?? ($demoData['bidang_keahlian'] ?? 'Frontend, Backend'),
             'email'           => $profile['email'] ?? (Session::get('email') ?? ''),
             'no_hp'           => $profile['no_hp'] ?? '',
             'foto'            => $profile['foto'] ?? ($demoData['foto'] ?? null),
@@ -82,7 +82,8 @@ class DosenController
         $nidn           = trim($_POST['nidn'] ?? '');
         $namaDosen      = trim($_POST['nama_dosen'] ?? '');
         $statusRaw      = trim($_POST['status'] ?? 'bersedia');
-        $bidangKeahlian = trim($_POST['bidang_keahlian'] ?? '');
+        $validTags      = parseSkillTags((string) ($_POST['bidang_keahlian'] ?? ''), true, []);
+        $bidangKeahlian = implode(', ', $validTags ?: ['Frontend']);
         $email          = trim((string) ($_POST['email'] ?? ($profile['email'] ?? '')));
         $noHp           = trim((string) ($_POST['no_hp'] ?? ($profile['no_hp'] ?? '')));
 

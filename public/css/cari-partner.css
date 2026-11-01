@@ -1,32 +1,3 @@
-.partner-hero-section {
-    position: relative;
-    width: 100%;
-    padding: 6.5rem 2rem 4.25rem;
-    background: linear-gradient(180deg, #1b2278 0%, #1d3587 42%, #2563eb 78%, #f8fafc 100%);
-    overflow: hidden;
-}
-
-.partner-hero-inner {
-    position: relative;
-    z-index: 10;
-    width: 100%;
-    max-width: 1180px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.partner-hero-title {
-    font-size: clamp(2rem, 3.8vw, 2.85rem);
-    font-weight: 800;
-    color: #ffffff;
-    line-height: 1.18;
-    letter-spacing: -0.025em;
-    margin: 0 0 2rem 0;
-    text-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
-}
-
 .partner-main-container {
     width: 100%;
     max-width: 1180px;
@@ -35,53 +6,6 @@
     box-sizing: border-box;
     position: relative;
     z-index: 20;
-}
-
-.partner-cta-banner {
-    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 55%, #172554 100%);
-    border-radius: 20px;
-    padding: 1.5rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1.25rem;
-    box-shadow: 0 14px 32px rgba(29, 78, 216, 0.22);
-    margin-bottom: 2.25rem;
-}
-
-.partner-cta-text h2 {
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: #ffffff;
-    margin: 0 0 0.25rem 0;
-    letter-spacing: -0.01em;
-}
-
-.partner-cta-text p {
-    font-size: 0.88rem;
-    color: #dbeafe;
-    margin: 0;
-}
-
-.btn-posting-placeholder {
-    background: #ffffff;
-    color: #1e3a8a;
-    border: none;
-    border-radius: 9999px;
-    padding: 0.65rem 1.35rem;
-    font-family: inherit;
-    font-size: 0.86rem;
-    font-weight: 800;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-
-.btn-posting-placeholder:hover {
-    background: #f1f5f9;
-    transform: translateY(-2px);
 }
 
 .partner-lomba-context {
@@ -109,27 +33,6 @@
 .partner-lomba-context-info strong {
     font-weight: 800;
     color: #0f172a;
-}
-
-.partner-section {
-    margin-bottom: 3rem;
-}
-
-.partner-section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-}
-
-.partner-section-title {
-    font-size: 1.38rem;
-    font-weight: 800;
-    color: #0f172a;
-    letter-spacing: -0.02em;
-    margin: 0;
 }
 
 .partner-filter-heading {
@@ -175,8 +78,7 @@
     color: #2563eb;
 }
 
-.partner-search-wrap:has(input:disabled),
-.partner-search-wrap.is-disabled {
+.partner-search-wrap:has(input:disabled) {
     background: #f1f5f9;
     border-color: #e2e8f0;
     color: #94a3b8;
@@ -214,8 +116,7 @@
     color: #94a3b8;
 }
 
-.team-competition-filter.partner-unified-filter select,
-.partner-unified-select {
+.team-competition-filter.partner-unified-filter select, .partner-unified-select {
     flex: 0 0 220px;
     width: 220px;
     max-width: 220px;
@@ -244,24 +145,19 @@
     max-width: 100%;
 }
 
-.team-competition-filter.partner-unified-filter select:hover:not(:disabled),
-.partner-unified-select:hover:not(:disabled) {
+.team-competition-filter.partner-unified-filter select:hover:not(:disabled), .partner-unified-select:hover:not(:disabled) {
     border-color: #94a3b8;
     background-color: #ffffff;
 }
 
-.team-competition-filter.partner-unified-filter select:focus,
-.team-competition-filter.partner-unified-filter select:focus-visible,
-.partner-unified-select:focus,
-.partner-unified-select:focus-visible {
+.team-competition-filter.partner-unified-filter select:focus, .team-competition-filter.partner-unified-filter select:focus-visible, .partner-unified-select:focus, .partner-unified-select:focus-visible {
     border-color: #2563eb;
     background-color: #ffffff;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
     outline: none;
 }
 
-.team-competition-filter.partner-unified-filter select:disabled,
-.partner-unified-select:disabled {
+.team-competition-filter.partner-unified-filter select:disabled, .partner-unified-select:disabled {
     background-color: #f1f5f9;
     border-color: #e2e8f0;
     color: #94a3b8;
@@ -405,52 +301,6 @@
     font-weight: 700;
 }
 
-.pcard-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 0.25rem;
-}
-
-.btn-pcard-outline {
-    width: 100%;
-    height: 36px;
-    background: #f8fafc;
-    color: #334155;
-    border: 1px solid #cbd5e1;
-    border-radius: 9999px;
-    font-family: inherit;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-pcard-outline:hover {
-    background: #e2e8f0;
-    color: #0f172a;
-}
-
-.btn-pcard-green {
-    width: 100%;
-    height: 36px;
-    background: #22c55e;
-    color: #ffffff;
-    border: none;
-    border-radius: 9999px;
-    font-family: inherit;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
-    transition: all 0.2s ease;
-}
-
-.btn-pcard-green:hover {
-    background: #16a34a;
-    transform: translateY(-1px);
-}
-
 .partner-loading-state {
     display: none;
     flex-direction: column;
@@ -476,17 +326,6 @@
     box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
 }
 
-.partner-empty-icon {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    background: #eff6ff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 0.25rem;
-}
-
 .partner-spinner {
     width: 38px;
     height: 38px;
@@ -500,55 +339,23 @@
     to { transform: rotate(360deg); }
 }
 
-.partner-toast {
-    position: fixed;
-    bottom: 1.75rem;
-    right: 1.75rem;
-    background: #0f172a;
-    color: #ffffff;
-    padding: 0.85rem 1.35rem;
-    border-radius: 14px;
-    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.28);
-    font-size: 0.88rem;
-    font-weight: 700;
-    z-index: 10000;
-    display: none;
-    align-items: center;
-    gap: 0.6rem;
-    border: 1px solid #334155;
-}
-
 @media (max-width: 1080px) and (min-width: 641px) {
-    .partner-grid-3 {
+.partner-grid-3 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 1.25rem;
     }
 }
 
 @media (max-width: 640px) {
-    .partner-hero-section {
-        padding: 5.5rem 1rem 3rem;
-    }
-
-    .partner-main-container {
+.partner-main-container {
         padding: 0 1rem;
     }
 
-    .partner-cta-banner {
-        padding: 1.25rem;
-        flex-direction: column;
-        align-items: flex-start;
-    }
+    
 
-    .btn-posting-placeholder {
-        width: 100%;
-        text-align: center;
-    }
+    
 
-    .partner-filter-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-    }
+    
 
     .partner-search-wrap {
         min-width: 0;
@@ -556,10 +363,7 @@
         box-sizing: border-box;
     }
 
-    .partner-prodi-wrap {
-        width: 100%;
-        justify-content: space-between;
-    }
+    
 
     .partner-prodi-select {
         flex: 1;
@@ -578,12 +382,6 @@
     .partner-card {
         width: 100%;
         max-width: 100%;
-    }
-
-    .partner-toast {
-        left: 1rem;
-        right: 1rem;
-        bottom: 1rem;
     }
 }
 
@@ -704,7 +502,7 @@
 }
 
 @media (max-width: 640px) {
-    .public-profile-wrapper {
+.public-profile-wrapper {
         padding: 0 1rem;
     }
 
@@ -774,7 +572,7 @@
 }
 
 @media (max-width: 960px) {
-    .team-selection-card {
+.team-selection-card {
         flex-direction: column;
         align-items: stretch;
         gap: 1.15rem;
@@ -790,8 +588,7 @@
 }
 
 @media (max-width: 640px) {
-    .team-competition-filter.partner-unified-filter,
-    .team-competition-filter.partner-unified-filter:not(:has(.partner-search-wrap)) {
+.team-competition-filter.partner-unified-filter, .team-competition-filter.partner-unified-filter:not(:has(.partner-search-wrap)) {
         width: 100%;
         flex-direction: column;
         align-items: stretch;
@@ -803,9 +600,7 @@
         min-width: 0;
     }
 
-    .team-competition-filter.partner-unified-filter select,
-    .team-competition-filter.partner-unified-filter:not(:has(.partner-search-wrap)) .partner-unified-select:first-of-type,
-    .partner-unified-select {
+    .team-competition-filter.partner-unified-filter select, .team-competition-filter.partner-unified-filter:not(:has(.partner-search-wrap)) .partner-unified-select:first-of-type, .partner-unified-select {
         flex: 1 1 auto;
         width: 100%;
         min-width: 0;

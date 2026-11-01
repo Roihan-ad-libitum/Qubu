@@ -49,7 +49,7 @@ class AdvisorController
             return true;
         }));
 
-        $categoryPills = array_merge(['Semua Bidang'], defined('BIDANG_QUBU') ? BIDANG_QUBU : []);
+        $categoryPills = getCategoryPills();
         $title         = 'Direktori Dosen Pembimbing - ' . APP_NAME;
         require __DIR__ . '/../../views/mahasiswa/advisor-directory.php';
     }
