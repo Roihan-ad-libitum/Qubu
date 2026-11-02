@@ -1,0 +1,414 @@
+/**
+ * Stylesheet Halaman Cari Dosen Pembimbing Qubu (public/css/cari-dosen.css)
+ * Presisi mengikuti mockup desain Cari Dosen Pembimbing:
+ * - Hero biru bertekstur noise ("Dapatkan Dosen Pembimbing Terbaikmu") + 6 Pills Bidang
+ * - Section "Rekomendasi Pembimbing" (3 kartu sejajar, khusus dosen bersedia & sebidang)
+ * - Section "Semua Dosen Pembimbing" (Toolbar pencarian nama dosen + Grid 3 kolom)
+ * - Kartu Dosen putih rounded 26px: Avatar biru inisial, Nama + Gelar, Bidang Keahlian,
+ *   Bar Status Ketersediaan (Bersedia / Tidak Bersedia), dan Tombol Hijau (#22c55e) "Ajukan Pembimbing"
+ *   (otomatis disabled apabila status dosen `tidak_bersedia`)
+ * - Responsif penuh: Desktop (3 kolom), Tablet 768px (2 kolom), Mobile 375px-414px (1 kolom 100%)
+ */
+
+/* 1. HERO CARI DOSEN PEMBIMBING */
+.dosen-hero-section {
+    position: relative;
+    width: 100%;
+    padding: 6.5rem 2rem 4.25rem;
+    background: linear-gradient(180deg, #1b2278 0%, #1d3587 42%, #2563eb 78%, #f8fafc 100%);
+    overflow: hidden;
+}
+
+.dosen-hero-inner {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.dosen-hero-title {
+    font-size: clamp(2rem, 3.8vw, 2.85rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.18;
+    letter-spacing: -0.025em;
+    margin: 0 0 2rem 0;
+    text-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+}
+
+.dosen-pills-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    width: 100%;
+}
+
+.dosen-pill-btn {
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 600;
+    padding: 0.55rem 1.35rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    white-space: nowrap;
+}
+
+.dosen-pill-btn:hover {
+    background: rgba(255, 255, 255, 0.32);
+    transform: translateY(-2px);
+}
+
+.dosen-pill-btn.is-active {
+    background: #ffffff;
+    color: #0f172a;
+    font-weight: 700;
+    border-color: #ffffff;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.16);
+}
+
+.dosen-pill-btn:focus-visible {
+    outline: 2.5px solid #38bdf8;
+    outline-offset: 3px;
+}
+
+/* 2. KONTAINER UTAMA */
+.dosen-main-container {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0.25rem auto 4.5rem;
+    padding: 0 2rem;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 20;
+}
+
+/* Notifikasi Flash Sukses / Error */
+.dosen-flash-alert {
+    padding: 0.95rem 1.25rem;
+    border-radius: 16px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.dosen-flash-success {
+    background: #ecfdf5;
+    border: 1.5px solid #6ee7b7;
+    color: #065f46;
+}
+
+.dosen-flash-error {
+    background: #fef2f2;
+    border: 1.5px solid #fca5a5;
+    color: #991b1b;
+}
+
+/* 3. SECTION REKOMENDASI PEMBIMBING & SEMUA DOSEN PEMBIMBING */
+.dosen-section {
+    margin-bottom: 2.85rem;
+}
+
+.dosen-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.dosen-section-title {
+    font-size: 1.38rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+/* 4. TOOLBAR PENCARIAN NAMA DOSEN */
+.dosen-filter-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+.dosen-search-wrap {
+    flex: 1;
+    min-width: 240px;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 0.52rem 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dosen-search-wrap:focus-within {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    background: #ffffff;
+}
+
+.dosen-search-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #0f172a;
+}
+
+/* 5. GRID 3 KOLOM KARTU DOSEN PERSIS MOCKUP */
+.dosen-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 6. KARTU DOSEN PEMBIMBING (PUTIH ROUNDED 26PX PERSIS MOCKUP) */
+.dosen-card {
+    background: #ffffff;
+    border-radius: 26px;
+    padding: 1.35rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 12px 30px -6px rgba(15, 23, 42, 0.1), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    box-sizing: border-box;
+    transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+}
+
+.dosen-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 38px -8px rgba(15, 23, 42, 0.16);
+    border-color: #cbd5e1;
+}
+
+.dcard-header {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.dcard-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+}
+
+.dcard-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.dcard-identity {
+    min-width: 0;
+    flex: 1;
+}
+
+.dcard-name {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dcard-sub {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Bar Status Ketersediaan Persis Gambar Mockup */
+.dcard-status-box {
+    border-radius: 10px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.76rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.dcard-status-box.is-bersedia {
+    background: #fef2f2;
+    color: #0f172a;
+    border: 1px solid #fee2e2;
+}
+
+.dcard-status-box.is-tidak-bersedia {
+    background: #fff1f2;
+    color: #9f1239;
+    border: 1px solid #fecdd3;
+}
+
+/* Tombol Hijau "Ajukan Pembimbing" Persis Gambar Mockup */
+.btn-dcard-green {
+    width: 100%;
+    height: 36px;
+    background: #22c55e;
+    color: #ffffff;
+    border: none;
+    border-radius: 9999px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+    transition: all 0.2s ease;
+}
+
+.btn-dcard-green:hover:not(:disabled) {
+    background: #16a34a;
+    transform: translateY(-1px);
+}
+
+.btn-dcard-green:disabled,
+.btn-dcard-green.is-disabled {
+    background: #94a3b8;
+    color: #f8fafc;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.68;
+    transform: none;
+}
+
+/* 7. LOADING STATE & EMPTY STATE */
+.dosen-loading-state {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: #475569;
+    gap: 0.75rem;
+}
+
+.dosen-spinner {
+    width: 38px;
+    height: 38px;
+    border: 3.5px solid #dbeafe;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: dosenSpin 0.75s linear infinite;
+}
+
+@keyframes dosenSpin {
+    to { transform: rotate(360deg); }
+}
+
+.dosen-empty-state {
+    background: #ffffff;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 26px;
+    padding: 3rem 1.75rem;
+    text-align: center;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.dosen-empty-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #eff6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.25rem;
+}
+
+/* 8. RESPONSIVE BREAKPOINTS (TABLET 2 KOLOM, MOBILE 1 KOLOM FIT 100%) */
+@media (max-width: 1080px) and (min-width: 641px) {
+    .dosen-grid-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .dosen-hero-section {
+        padding: 5.5rem 1rem 3rem;
+    }
+
+    .dosen-main-container {
+        padding: 0 1rem;
+    }
+
+    .dosen-filter-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dosen-search-wrap {
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .dosen-grid-3 {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.15rem;
+    }
+
+    .dosen-card {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+

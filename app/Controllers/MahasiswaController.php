@@ -6,6 +6,8 @@
 require_once __DIR__ . '/../Models/MahasiswaModel.php';
 require_once __DIR__ . '/../Models/UserModel.php';
 require_once __DIR__ . '/../Models/CompetitionModel.php';
+require_once __DIR__ . '/../Models/DosenModel.php';
+require_once __DIR__ . '/../Models/TeamModel.php';
 require_once __DIR__ . '/CompetitionController.php';
 require_once __DIR__ . '/../../core/Session.php';
 require_once __DIR__ . '/../../core/Validator.php';
@@ -16,6 +18,8 @@ class MahasiswaController
     private MahasiswaModel $mahasiswaModel;
     private UserModel $userModel;
     private CompetitionModel $competitionModel;
+    private DosenModel $dosenModel;
+    private TeamModel $teamModel;
     private CompetitionController $competitionController;
 
     public function __construct()
@@ -23,6 +27,8 @@ class MahasiswaController
         $this->mahasiswaModel = new MahasiswaModel();
         $this->userModel = new UserModel();
         $this->competitionModel = new CompetitionModel();
+        $this->dosenModel = new DosenModel();
+        $this->teamModel = new TeamModel();
         $this->competitionController = new CompetitionController($this->competitionModel);
     }
 
@@ -568,5 +574,245 @@ class MahasiswaController
         if (file_exists($viewPath)) {
             require $viewPath;
         }
+    }
+
+    // =========================================================================
+    // FITUR CARI DOSEN PEMBIMBING (DP-2.1: ROUTE, VALIDASI & CONTROLLER)
+    // =========================================================================
+
+    /**
+     * Hasilkan 2 huruf inisial nama dosen (mengabaikan gelar depan seperti Dr., Ir., Prof.)
+     */
+    public function buildDosenInitials(string $namaDosen): string
+    {
+        // Pisahkan nama sebelum koma gelar belakang (mis. "Dr. Budi Raharjo, M.Kom" -> "Dr. Budi Raharjo")
+        $beforeComma = explode(',', trim($namaDosen))[0] ?? $namaDosen;
+        // Hapus gelar depan umum
+        $withoutTitles = preg_replace('/\b(Dr\.|Ir\.|Prof\.|Drs\.|Dra\.)\s*/i', '', trim($beforeComma));
+        $parts = array_values(array_filter(explode(' ', trim((string) $withoutTitles))));
+
+        if (count($parts) >= 2) {
+            return strtoupper(substr($parts[0], 0, 1) . substr($parts[1], 0, 1));
+        }
+        $clean = trim((string) $withoutTitles);
+        return $clean !== '' ? strtoupper(substr($clean, 0, 2)) : 'DS';
+    }
+
+    /**
+     * Format satu baris data dosen untuk kartu UI sesuai gambar mockup:
+     * - inisial (mis. "RF")
+     * - bidang_tags (array tag resmi Qubu)
+     * - bidang_subtitle (mis. "Informatika • Frontend, Backend")
+     * - is_bersedia (bool)
+     * - status_label ("Status: Bersedia" atau "Tidak Bersedia")
+     */
+    public function formatDosenItem(array $row): array
+    {
+        $idDosen = (int) ($row['id_dosen'] ?? 0);
+        $nama    = (string) ($row['nama_dosen'] ?? 'Dosen Pembimbing');
+        $status  = strtolower(trim((string) ($row['status'] ?? 'bersedia')));
+        $fotoRel = trim((string) ($row['foto'] ?? ''));
+        $hasFoto = $fotoRel !== '' && file_exists(__DIR__ . '/../../' . $fotoRel);
+
+        $tags = !empty($row['bidang_tags']) && is_array($row['bidang_tags'])
+            ? $row['bidang_tags']
+            : $this->dosenModel->parseBidangTags($row['bidang_keahlian'] ?? '');
+
+        $isBersedia = ($status === 'bersedia');
+
+        $row['id_dosen']        = $idDosen;
+        $row['id_user']         = (int) ($row['id_user'] ?? 0);
+        $row['inisial']         = $this->buildDosenInitials($nama);
+        $row['bidang_tags']     = $tags;
+        $row['bidang_subtitle'] = 'Informatika &bull; ' . implode(', ', $tags);
+        $row['is_bersedia']     = $isBersedia;
+        $row['status']          = $isBersedia ? 'bersedia' : 'tidak_bersedia';
+        $row['status_label']    = $isBersedia ? 'Status: Bersedia' : 'Tidak Bersedia';
+        $row['foto_url']        = ($hasFoto && function_exists('url')) ? url($fotoRel) : '';
+
+        unset($row['password']);
+
+        return $row;
+    }
+
+    /**
+     * Validasi parameter pencarian & filter dosen pembimbing (q, bidang, id_lomba)
+     */
+    public function validateDosenSearchRequest(array $query = []): array
+    {
+        $rawKeyword = $query['q'] ?? ($query['keyword'] ?? '');
+        $keyword    = Validator::cleanKeyword($rawKeyword, 100);
+
+        $rawIdLomba   = $query['id_lomba'] ?? null;
+        $validLombaId = Validator::validatePositiveInt($rawIdLomba);
+        $targetLomba  = null;
+        if ($validLombaId !== null) {
+            $targetLomba = $this->competitionModel->getById($validLombaId);
+        }
+
+        $hasExplicitBidang = array_key_exists('bidang', $query) && trim((string) $query['bidang']) !== '';
+        $rawBidang         = $hasExplicitBidang ? $query['bidang'] : ($targetLomba['bidang'] ?? 'Semua Bidang');
+        $validatedBidang   = Validator::validateBidang($rawBidang);
+        $isValidBidang     = $validatedBidang !== null;
+        $bidangLabel       = $validatedBidang ?? 'Semua Bidang';
+        $modelBidang       = $bidangLabel === 'Semua Bidang' ? null : $bidangLabel;
+
+        return [
+            'keyword'         => $keyword,
+            'bidang_label'    => $bidangLabel,
+            'model_bidang'    => $modelBidang,
+            'is_valid_bidang' => $isValidBidang,
+            'id_lomba'        => $targetLomba ? (int) $targetLomba['id_lomba'] : null,
+            'target_lomba'    => $targetLomba,
+        ];
+    }
+
+    /**
+     * Eksekusi pencarian & filter daftar dosen pembimbing
+     */
+    public function filterDosen(array $query = [], int $limit = 50): array
+    {
+        $validated = $this->validateDosenSearchRequest($query);
+
+        $rawRows = $this->dosenModel->searchDosen(
+            $validated['model_bidang'],
+            $validated['keyword'] !== '' ? $validated['keyword'] : null,
+            $limit
+        );
+
+        $formatted = array_map(
+            fn(array $row) => $this->formatDosenItem($row),
+            $rawRows
+        );
+
+        return [
+            'data'            => $formatted,
+            'total'           => count($formatted),
+            'keyword'         => $validated['keyword'],
+            'bidang'          => $validated['bidang_label'],
+            'id_lomba'        => $validated['id_lomba'],
+            'target_lomba'    => $validated['target_lomba'],
+            'is_valid_bidang' => $validated['is_valid_bidang'],
+            'filters'         => [
+                'keyword'      => $validated['keyword'],
+                'bidang'       => $validated['model_bidang'],
+                'bidang_label' => $validated['bidang_label'],
+                'id_lomba'     => $validated['id_lomba'],
+            ],
+        ];
+    }
+
+    /**
+     * Menampilkan Halaman Utama Cari Dosen Pembimbing (?page=cari-dosen / ?page=dosen-pembimbing)
+     * Hanya dapat diakses oleh pengguna yang sudah login dengan role 'peserta'.
+     */
+    public function cariDosen(): void
+    {
+        Session::start();
+        AuthMiddleware::hasRole(ROLE_PESERTA);
+
+        $idUser  = (int) Session::get('id_user');
+        $profile = $idUser > 0 ? $this->mahasiswaModel->findByUserId($idUser) : null;
+
+        $idMahasiswa     = (int) ($profile['id_mahasiswa'] ?? 0);
+        $userBidangMinat = $profile['bidang_minat'] ?? (Session::get('demo_profile_data')['bidang_minat'] ?? 'Frontend, UI/UX Design');
+        $namaMahasiswa   = $profile['nama_mahasiswa'] ?? (Session::get('nama_lengkap') ?? 'Mahasiswa');
+        $userFoto        = $profile['foto'] ?? (Session::get('demo_profile_data')['foto'] ?? null);
+
+        $filterResult  = $this->filterDosen($_GET, 50);
+        $searchKeyword = $filterResult['keyword'];
+        $activeBidang  = $filterResult['bidang'];
+        $targetLomba   = $filterResult['target_lomba'];
+        $dosenList     = $filterResult['data'];
+
+        // Seluruh dosen pembimbing untuk hidrasi DOM client-side
+        $rawAllDosen = $this->dosenModel->searchDosen(null, null, 50);
+        $semuaDosen  = array_map(
+            fn(array $row) => $this->formatDosenItem($row),
+            $rawAllDosen
+        );
+
+        // Rekomendasi Pembimbing (3 dosen yang berstatus 'bersedia' dan memiliki bidang yang sama)
+        $bidangAcuanRekomendasi = ($activeBidang !== 'Semua Bidang')
+            ? $activeBidang
+            : ($targetLomba['bidang'] ?? $userBidangMinat);
+        $rawRekomendasi   = $this->dosenModel->getRecommendedDosen($bidangAcuanRekomendasi, 3);
+        $rekomendasiDosen = array_map(
+            fn(array $row) => $this->formatDosenItem($row),
+            $rawRekomendasi
+        );
+
+        // Daftar tim yang diikuti mahasiswa & daftar lomba aktif untuk modal pengajuan bimbingan
+        $timMahasiswa = $idMahasiswa > 0 ? $this->teamModel->getTeamsByMahasiswaId($idMahasiswa) : [];
+        $lombaList    = $this->competitionModel->getAll();
+
+        $categoryPills = array_merge(
+            ['Semua Bidang'],
+            defined('BIDANG_QUBU') ? BIDANG_QUBU : ['Frontend', 'Backend', 'UI/UX Design', 'Data Science', 'Robotic']
+        );
+
+        $error   = Session::getFlash('error');
+        $success = Session::getFlash('success');
+
+        $title    = 'Cari Dosen Pembimbing - ' . APP_NAME;
+        $extraCss = ['public/css/components.css', 'public/css/dashboard.css', 'public/css/cari-dosen.css'];
+
+        $viewPath = __DIR__ . '/../../views/mahasiswa/dosen-management.php';
+        if (file_exists($viewPath)) {
+            require $viewPath;
+        }
+    }
+
+    /**
+     * DP-2.3: Susun struktur respons JSON API pencarian dosen pembimbing (?page=api-dosen)
+     * Hanya untuk pengguna yang sudah login (akses tanpa login ditolak HTTP 401).
+     */
+    public function buildDosenApiPayload(?int $currentUserId, array $query = []): array
+    {
+        if ($currentUserId === null || $currentUserId <= 0) {
+            return [
+                'http_code' => 401,
+                'body'      => [
+                    'success' => false,
+                    'message' => 'Akses ditolak. Silakan login terlebih dahulu untuk mencari dosen pembimbing.',
+                    'data'    => null,
+                ],
+            ];
+        }
+
+        $rawLimit = $query['limit'] ?? 50;
+        $limit    = Validator::validatePositiveInt($rawLimit) ?? 50;
+        $limit    = max(1, min(100, $limit));
+
+        $result = $this->filterDosen($query, $limit);
+
+        return [
+            'http_code' => 200,
+            'body'      => [
+                'success' => true,
+                'total'   => $result['total'],
+                'filters' => $result['filters'],
+                'data'    => $result['data'],
+            ],
+        ];
+    }
+
+    /**
+     * DP-2.3: Endpoint JSON API pencarian & filter dosen pembimbing (?page=api-dosen)
+     */
+    public function apiDosen(array $query = []): void
+    {
+        Session::start();
+        $currentUserId = Session::has('id_user') ? (int) Session::get('id_user') : null;
+
+        $payload = $this->buildDosenApiPayload($currentUserId, $query);
+
+        if (!headers_sent()) {
+            http_response_code($payload['http_code']);
+            header('Content-Type: application/json; charset=utf-8');
+            header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        }
+
+        echo json_encode($payload['body'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 }

@@ -81,6 +81,10 @@ switch ($page) {
         (new MahasiswaController())->lihatProfil($_GET['id'] ?? null);
         break;
 
+    case 'api-dosen':
+        (new MahasiswaController())->apiDosen($_GET);
+        break;
+
     case 'cari-dosen':
     case 'dosen-pembimbing':
         if (Session::get('role') === ROLE_DOSEN) {
