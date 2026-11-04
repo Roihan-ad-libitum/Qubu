@@ -3,6 +3,7 @@
 $title = $title ?? 'Ingin mendaftar sebagai apa? - ' . APP_NAME;
 $extraCss = ['public/css/components.css', 'public/css/register.css'];
 
+$peminatanOptions = $peminatanOptions ?? getBidangOptions();
 require_once __DIR__ . '/../layouts/headers.php';
 ?>
 

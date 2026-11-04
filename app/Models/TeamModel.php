@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/app.php';
+require_once __DIR__ . '/../../core/Validator.php';
 
 class TeamModel
 {
@@ -70,8 +71,10 @@ class TeamModel
             $params[':id_lomba'] = $competitionId;
         }
         if ($bidangFilter !== null && $bidangFilter !== '' && strcasecmp($bidangFilter, 'Semua Bidang') !== 0) {
-            $whereClauses[] = 'LOWER(p.bidang_dibutuhkan) LIKE LOWER(:bidang_filter)';
-            $params[':bidang_filter'] = '%' . trim($bidangFilter) . '%';
+            $validBidang = Validator::validateOfficialBidang($bidangFilter) ?? trim($bidangFilter);
+            $whereClauses[] = "(FIND_IN_SET(LOWER(:bidang_exact), LOWER(REPLACE(p.bidang_dibutuhkan, ', ', ','))) > 0 OR LOWER(p.bidang_dibutuhkan) LIKE LOWER(:bidang_filter))";
+            $params[':bidang_exact']  = strtolower($validBidang);
+            $params[':bidang_filter'] = '%' . $validBidang . '%';
         }
 
         $whereSql = implode(' AND ', $whereClauses);

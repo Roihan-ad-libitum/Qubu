@@ -21,6 +21,12 @@ if (!defined('BIDANG_QUBU')) {
         'UI/UX Design',
         'Data Science',
         'Robotic',
+        'Machine Learning',
+        'Data Analytics',
+        'Software Development',
+        'Artificial Intelligence (AI)',
+        'Game Development',
+        'Video Kreatif',
     ]);
 }
 
@@ -94,9 +100,14 @@ function safeExternalUrl(?string $rawUrl): string
     return filter_var($cleaned, FILTER_VALIDATE_URL) !== false ? $cleaned : '';
 }
 
+function getBidangOptions(): array
+{
+    return defined('BIDANG_QUBU') ? BIDANG_QUBU : [];
+}
+
 function getCategoryPills(): array
 {
-    return array_merge(['Semua Bidang'], defined('BIDANG_QUBU') ? BIDANG_QUBU : []);
+    return array_merge(['Semua Bidang'], getBidangOptions());
 }
 
 function getProdiOptions(): array
@@ -144,10 +155,20 @@ function buildInitials(?string $name, string $fallback = 'QB'): string
     return $clean !== '' ? strtoupper(substr($clean, 0, 2)) : $fallback;
 }
 
-function parseSkillTags(?string $rawCsv, bool $strictOfficial = false, array $fallback = []): array
+function parseSkillTags(string|array|null $rawInput, bool $strictOfficial = false, array $fallback = []): array
 {
-    $rawTags = array_values(array_filter(array_map('trim', explode(',', (string) $rawCsv))));
-    $official = defined('BIDANG_QUBU') ? BIDANG_QUBU : [];
+    $chunks = is_array($rawInput) ? $rawInput : [(string) $rawInput];
+    $rawTags = [];
+    foreach ($chunks as $chunk) {
+        foreach (explode(',', (string) $chunk) as $part) {
+            $trimmed = trim($part);
+            if ($trimmed !== '') {
+                $rawTags[] = $trimmed;
+            }
+        }
+    }
+
+    $official = getBidangOptions();
     $result = [];
 
     foreach ($rawTags as $tag) {

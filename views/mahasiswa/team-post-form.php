@@ -6,7 +6,7 @@ $studentNavInterest  = $profile['bidang_minat'] ?? '';
 $activeStudentNavKey = 'teams';
 $extraCss = ['public/css/components.css', 'public/css/dashboard.css', 'public/css/team-flow.css'];
 require_once __DIR__ . '/../layouts/headers.php';
-$fieldOptions = defined('BIDANG_QUBU') ? BIDANG_QUBU : [];
+$fieldOptions = getBidangOptions();
 ?>
 <div class="dash-page team-flow-page">
     <?php require __DIR__ . '/../components/student-navbar.php'; ?>

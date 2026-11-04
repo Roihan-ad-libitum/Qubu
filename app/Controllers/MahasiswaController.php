@@ -125,7 +125,7 @@ class MahasiswaController
         ];
 
         $tags             = parseSkillTags((string) $data['bidang_minat'], true, ['Frontend', 'UI/UX Design']);
-        $availableOptions = BIDANG_QUBU;
+        $availableOptions = getBidangOptions();
         $csrfToken        = Csrf::token();
         $prodiOptions     = PRODI_FASILKOM;
         $error            = Session::getFlash('error');
@@ -321,7 +321,12 @@ class MahasiswaController
         $targetLomba  = $validLombaId !== null ? $this->competitionModel->getById($validLombaId) : null;
 
         $hasExplicitBidang = array_key_exists('bidang', $query) && trim((string) $query['bidang']) !== '';
-        $rawBidang         = $hasExplicitBidang ? $query['bidang'] : ($targetLomba['bidang'] ?? 'Semua Bidang');
+        $defaultLombaBidang = 'Semua Bidang';
+        if (!$hasExplicitBidang && !empty($targetLomba['bidang'])) {
+            $lombaTags = parseSkillTags((string) $targetLomba['bidang'], true, []);
+            $defaultLombaBidang = $lombaTags[0] ?? 'Semua Bidang';
+        }
+        $rawBidang         = $hasExplicitBidang ? $query['bidang'] : $defaultLombaBidang;
         $validatedBidang   = Validator::validateBidang($rawBidang);
         $isValidBidang     = $validatedBidang !== null;
         $bidangLabel       = $validatedBidang ?? 'Semua Bidang';

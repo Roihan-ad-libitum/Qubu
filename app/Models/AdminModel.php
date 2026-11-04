@@ -52,9 +52,11 @@ class AdminModel
                 OR m.nama_mahasiswa LIKE :student_name
                 OR d.nama_dosen LIKE :lecturer_name
                 OR m.npm LIKE :npm
-                OR d.nidn LIKE :nidn)";
+                OR d.nidn LIKE :nidn
+                OR m.bidang_minat LIKE :student_bidang
+                OR d.bidang_keahlian LIKE :lecturer_bidang)";
             $query = '%' . $keyword . '%';
-            foreach (['username', 'email', 'phone', 'student_name', 'lecturer_name', 'npm', 'nidn'] as $name) {
+            foreach (['username', 'email', 'phone', 'student_name', 'lecturer_name', 'npm', 'nidn', 'student_bidang', 'lecturer_bidang'] as $name) {
                 $params[':' . $name] = $query;
             }
         }
@@ -66,7 +68,7 @@ class AdminModel
 
         $sql = "
             SELECT u.id_user, u.username, u.email, u.no_hp, u.role,
-                   m.id_mahasiswa, m.nama_mahasiswa, m.npm, m.program_studi, m.angkatan, m.foto AS mahasiswa_foto,
+                   m.id_mahasiswa, m.nama_mahasiswa, m.npm, m.program_studi, m.angkatan, m.bidang_minat, m.foto AS mahasiswa_foto,
                    d.id_dosen, d.nama_dosen, d.nidn, d.bidang_keahlian, d.foto AS dosen_foto,
                    d.status AS dosen_status
             FROM users u

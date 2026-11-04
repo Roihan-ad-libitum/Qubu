@@ -92,7 +92,7 @@ class Validator
             return 'Semua Bidang';
         }
 
-        foreach (BIDANG_QUBU as $validItem) {
+        foreach (getBidangOptions() as $validItem) {
             if (strcasecmp($validItem, $cleaned) === 0) {
                 return $validItem;
             }
@@ -101,9 +101,20 @@ class Validator
         return null;
     }
 
+    public static function validateOfficialBidang(mixed $bidang): ?string
+    {
+        $validated = self::validateBidang($bidang);
+        return ($validated !== null && $validated !== 'Semua Bidang') ? $validated : null;
+    }
+
     public static function isValidBidang(mixed $bidang): bool
     {
         return self::validateBidang($bidang) !== null;
+    }
+
+    public static function isValidOfficialBidang(mixed $bidang): bool
+    {
+        return self::validateOfficialBidang($bidang) !== null;
     }
 
     public static function validateProdi(mixed $prodi): ?string

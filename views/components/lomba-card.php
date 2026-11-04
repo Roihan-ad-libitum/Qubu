@@ -80,7 +80,7 @@ if (!function_exists('renderLombaCard')) {
 
                     <div class="lomba-meta-row">
                         <span class="meta-label">Bidang Lomba</span>
-                        <div style="display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end;">
+                        <div class="lomba-meta-badges">
                             <?php foreach ($bidangTags as $bTag): ?>
                                 <span class="badge-pill badge-orange"><?= e($bTag) ?></span>
                             <?php endforeach; ?>

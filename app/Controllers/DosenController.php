@@ -69,7 +69,7 @@ class DosenController
         ];
 
         $tags             = parseSkillTags((string) $data['bidang_keahlian'], true, ['Frontend', 'Backend']);
-        $availableOptions = BIDANG_QUBU;
+        $availableOptions = getBidangOptions();
         $error            = Session::getFlash('error');
         $success          = Session::getFlash('success');
         $csrfToken        = Csrf::token();

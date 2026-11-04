@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../layouts/headers.php';
 
-$adminBidangOpts = defined('BIDANG_QUBU') ? BIDANG_QUBU : ['Frontend', 'Backend', 'UI/UX Design', 'Data Science', 'Robotic'];
+$adminBidangOpts = getBidangOptions();
 $selectedBidangs = parseSkillTags((string) ($lombaData['bidang'] ?? ''), true, []);
 ?>
 
@@ -495,7 +495,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             allBidangOptions = JSON.parse(bidangListEl.dataset.options || '[]');
         } catch (_) {
-            allBidangOptions = ['Frontend', 'Backend', 'UI/UX Design', 'Data Science', 'Robotic'];
+            allBidangOptions = [];
         }
 
         function getSelectedValues() {

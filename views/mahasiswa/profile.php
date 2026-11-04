@@ -123,7 +123,7 @@ require_once __DIR__ . '/../layouts/headers.php';
                     <?php renderProfileTagsField([
                         'label'            => 'Bidang Peminatan',
                         'tags'             => $tags ?? [],
-                        'availableOptions' => $availableOptions ?? BIDANG_QUBU,
+                        'availableOptions' => $availableOptions ?? getBidangOptions(),
                         'placeholder'      => 'Pilih Bidang Peminatan...',
                         'hiddenInputName'  => 'bidang_minat',
                         'hiddenInputId'    => 'input-bidang-minat',

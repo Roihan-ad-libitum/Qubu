@@ -148,8 +148,9 @@ class MahasiswaModel
         $params = [':exclude_user_id' => $excludeUserId];
 
         if ($validBidang !== null) {
-            $whereClauses[] = 'LOWER(m.bidang_minat) LIKE LOWER(:bidang_like)';
-            $params[':bidang_like'] = '%' . $validBidang . '%';
+            $whereClauses[] = "(FIND_IN_SET(LOWER(:bidang_exact), LOWER(REPLACE(m.bidang_minat, ', ', ','))) > 0 OR LOWER(m.bidang_minat) LIKE LOWER(:bidang_like))";
+            $params[':bidang_exact'] = strtolower($validBidang);
+            $params[':bidang_like']  = '%' . $validBidang . '%';
         }
 
         if ($validProdi !== null) {

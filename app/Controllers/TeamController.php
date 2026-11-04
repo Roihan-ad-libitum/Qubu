@@ -88,9 +88,7 @@ class TeamController
             redirect('?page=team-post-create');
         }
 
-        $skillsRaw       = $_POST['bidang_dibutuhkan'] ?? [];
-        $skillsRaw       = is_array($skillsRaw) ? implode(',', $skillsRaw) : (string) $skillsRaw;
-        $skills          = parseSkillTags($skillsRaw, true, []);
+        $skills          = parseSkillTags($_POST['bidang_dibutuhkan'] ?? [], true, []);
         $members         = filter_var($_POST['jumlah_anggota'] ?? null, FILTER_VALIDATE_INT);
         $description     = trim((string) ($_POST['deskripsi'] ?? ''));
         $contactOptIn    = isset($_POST['contact_opt_in']) && $_POST['contact_opt_in'] === '1';

@@ -30,9 +30,14 @@ class AdvisorController
             $nama     = strtolower((string) ($adv['nama_dosen'] ?? ''));
             $username = strtolower((string) ($adv['username'] ?? ''));
             $nidn     = strtolower((string) ($adv['nidn'] ?? ''));
-            $bidang   = strtolower((string) ($adv['bidang_keahlian'] ?? ''));
+            $bidangTags = array_map('strtolower', parseSkillTags((string) ($adv['bidang_keahlian'] ?? ''), false, []));
+            $bidang     = strtolower((string) ($adv['bidang_keahlian'] ?? ''));
 
-            if ($activeBidang !== 'Semua Bidang' && strpos($bidang, strtolower($activeBidang)) === false) {
+            if (
+                $activeBidang !== 'Semua Bidang'
+                && !in_array(strtolower($activeBidang), $bidangTags, true)
+                && strpos($bidang, strtolower($activeBidang)) === false
+            ) {
                 return false;
             }
             if ($searchKeyword !== '') {

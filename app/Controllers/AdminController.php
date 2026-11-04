@@ -6,6 +6,7 @@ require_once __DIR__ . '/../Helpers/UploadHelper.php';
 require_once __DIR__ . '/../../core/Session.php';
 require_once __DIR__ . '/../../core/AuthMiddleware.php';
 require_once __DIR__ . '/../../core/Csrf.php';
+require_once __DIR__ . '/../../core/Validator.php';
 
 class AdminController
 {
@@ -48,7 +49,15 @@ class AdminController
         }
 
         $keyword = trim((string) ($_GET['q'] ?? ''));
+        $filterBidang = Validator::validateOfficialBidang($_GET['bidang'] ?? null);
         $competitions = $this->competitionModel->getAll();
+        if ($filterBidang !== null) {
+            $competitions = array_values(array_filter($competitions, static function (array $competition) use ($filterBidang): bool {
+                $tags = array_map('strtolower', parseSkillTags((string) ($competition['bidang'] ?? ''), false, []));
+                return in_array(strtolower($filterBidang), $tags, true)
+                    || str_contains(strtolower((string) ($competition['bidang'] ?? '')), strtolower($filterBidang));
+            }));
+        }
         if ($keyword !== '') {
             $needle = strtolower($keyword);
             $competitions = array_values(array_filter($competitions, static function (array $competition) use ($needle): bool {
@@ -156,11 +165,7 @@ class AdminController
         $deadline = $this->parseDate((string) ($_POST['deadline_daftar'] ?? ''));
         $eventDate = $this->parseDate((string) ($_POST['tanggal_pelaksanaan'] ?? ''));
         $level = trim((string) ($_POST['tingkat'] ?? ''));
-        $rawBidangInput = $_POST['bidang'] ?? '';
-        $rawBidangCsv   = is_array($rawBidangInput)
-            ? implode(', ', array_map('trim', $rawBidangInput))
-            : trim((string) $rawBidangInput);
-        $validBidangList = parseSkillTags($rawBidangCsv, true, []);
+        $validBidangList = parseSkillTags($_POST['bidang'] ?? '', true, []);
         $field           = implode(', ', $validBidangList);
 
         $participation = trim((string) ($_POST['partisipasi'] ?? ''));

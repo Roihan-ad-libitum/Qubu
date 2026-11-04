@@ -224,10 +224,15 @@
 }
 
 .team-post-description {
-    min-height: 3.5rem;
+    margin: 0;
+    min-height: calc(1.6em * 2);
     color: #334155;
     font-size: .88rem;
     line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .team-post-actions {
@@ -239,13 +244,14 @@
 
 .advisor-contact-message {
     width: 100%;
-    margin: .2rem 0 0;
+    margin: auto 0 0;
     padding: .7rem;
     border-radius: 12px;
     color: #64748b;
     background: #f8fafc;
     font-size: .82rem;
     line-height: 1.5;
+    box-sizing: border-box;
 }
 
 .team-empty-state, .team-empty-compact {

@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/app.php';
+require_once __DIR__ . '/../../core/Validator.php';
 
 class CompetitionModel
 {
@@ -137,13 +138,7 @@ class CompetitionModel
 
         $b = trim((string) $bidang);
         if ($b !== '' && !in_array(strtolower($b), ['semua', 'semua bidang', 'all'], true)) {
-            $validBidang = null;
-            foreach (BIDANG_QUBU as $item) {
-                if (strcasecmp($item, $b) === 0) {
-                    $validBidang = $item;
-                    break;
-                }
-            }
+            $validBidang = Validator::validateOfficialBidang($b);
 
             if ($validBidang !== null) {
                 $where[] = "(FIND_IN_SET(LOWER(:bidang_exact), LOWER(REPLACE(bidang, ', ', ','))) > 0 OR LOWER(bidang) LIKE :bidang_like)";

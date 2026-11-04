@@ -135,7 +135,7 @@ class AuthController
         $step1Data        = $role === 'dosen'
             ? (Session::get('reg_dosen_step1') ?? [])
             : (Session::get('reg_mhs_step1') ?? []);
-        $peminatanOptions = BIDANG_QUBU;
+        $peminatanOptions = getBidangOptions();
         $prodiOptions     = PRODI_FASILKOM;
         $csrfToken        = Csrf::token();
 
@@ -209,9 +209,11 @@ class AuthController
         if (strlen($username) < 3 || strlen($username) > 100) {
             $this->redirectWithError('Username harus terdiri dari 3–100 karakter.', '?page=register&role=dosen&step=2');
         }
-        if (!in_array($bidangKeahlian, BIDANG_QUBU, true)) {
+        $validBidangKeahlian = Validator::validateOfficialBidang($bidangKeahlian);
+        if ($validBidangKeahlian === null) {
             $this->redirectWithError('Pilih bidang keahlian yang tersedia.', '?page=register&role=dosen&step=2');
         }
+        $bidangKeahlian = $validBidangKeahlian;
         if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             $this->redirectWithError('Masukkan alamat email dosen yang valid.', '?page=register&role=dosen&step=2');
         }
@@ -369,9 +371,11 @@ class AuthController
             $this->redirectWithError('Username harus terdiri dari 3–100 karakter.', '?page=register&role=mahasiswa&step=2');
         }
 
-        if (!in_array($bidangMinat, BIDANG_QUBU, true)) {
+        $validBidangMinat = Validator::validateOfficialBidang($bidangMinat);
+        if ($validBidangMinat === null) {
             $this->redirectWithError('Pilih bidang peminatan yang tersedia.', '?page=register&role=mahasiswa&step=2');
         }
+        $bidangMinat = $validBidangMinat;
 
         if ($this->userModel->isUsernameExists($username)) {
             $this->redirectWithError(

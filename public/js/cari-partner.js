@@ -249,6 +249,11 @@
         });
         if (cfg.syncSelectWithBidang && selectEl && selectEl.value) {
             activeBidang = selectEl.value;
+        } else if (filterForm && pillButtons.length === 0) {
+            const hiddenBidangInit = filterForm.querySelector('input[type="hidden"][name="bidang"]');
+            if (hiddenBidangInit && hiddenBidangInit.value.trim() !== '') {
+                activeBidang = hiddenBidangInit.value.trim();
+            }
         }
 
         const effectiveSecondarySelect = secondarySelEl || (!cfg.syncSelectWithBidang ? selectEl : null);

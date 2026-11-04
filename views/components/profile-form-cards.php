@@ -117,7 +117,7 @@ if (!function_exists('renderProfileTagsField')) {
         $tags             = (array) ($config['tags'] ?? []);
         $availableOptions = !empty($config['availableOptions']) && is_array($config['availableOptions'])
             ? $config['availableOptions']
-            : (defined('BIDANG_QUBU') ? BIDANG_QUBU : []);
+            : getBidangOptions();
         $placeholder      = (string) ($config['placeholder'] ?? 'Pilih Bidang...');
         $hiddenInputName  = (string) ($config['hiddenInputName'] ?? 'bidang_minat');
         $hiddenInputId    = (string) ($config['hiddenInputId'] ?? 'input-bidang-minat');

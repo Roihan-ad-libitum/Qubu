@@ -90,7 +90,7 @@ require_once __DIR__ . '/../layouts/headers.php';
                     <?php renderProfileTagsField([
                         'label'            => 'Bidang Keahlian',
                         'tags'             => $tags ?? [],
-                        'availableOptions' => $availableOptions ?? BIDANG_QUBU,
+                        'availableOptions' => $availableOptions ?? getBidangOptions(),
                         'placeholder'      => 'Pilih Bidang Keahlian...',
                         'hiddenInputName'  => 'bidang_keahlian',
                         'hiddenInputId'    => 'input-bidang-keahlian',
